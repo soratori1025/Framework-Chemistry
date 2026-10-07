@@ -1,13 +1,10 @@
 """Prepare datasets, feature matrices, splits, caches, and analysis from config."""
 from __future__ import annotations
-
 import hashlib
 import json
 from dataclasses import dataclass
-
 import numpy as np
-
-from .analysis import AnalysisReport, analyze_features_and_targets
+from .analysis.report import AnalysisReport, analyze_features_and_targets
 from .config import ExperimentConfig
 from .data import MolecularDataset, load_configured_dataset
 from .features import (

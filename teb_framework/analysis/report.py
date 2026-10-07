@@ -3,9 +3,8 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Mapping, TypedDict
+from typing import Mapping, Sequence, TypedDict
 import numpy as np
-from numpy.typing import ArrayLike
 from ..diagnostics import diagnose_features
 from ..features import FeatureMatrix
 from ..splits import DatasetSplit
@@ -20,6 +19,9 @@ class DistributionSummary(TypedDict):
     max: float | None
     histogram_edges: list[float]
     histogram_counts: list[int]
+
+
+TargetValues = Sequence[float] | Sequence[Sequence[float]]
 
 
 @dataclass(frozen=True)
@@ -64,17 +66,17 @@ def _distribution(values: np.ndarray, bins: int) -> DistributionSummary:
 def analyze_features_and_targets(
     matrix: FeatureMatrix,
     split: DatasetSplit,
-    targets: Mapping[str, ArrayLike],
+    targets: Mapping[str, TargetValues],
     *,
     bins: int = 20,
-    support_threshold: int = 1, correlation_threshold: float = 0.95,) -> AnalysisReport:
+    support_threshold: int = 1,
+    correlation_threshold: float = 0.95,
+) -> AnalysisReport:
     """Summarize train-only feature support/distribution and test extrapolation."""
     if bins < 1 or support_threshold < 1:
         raise ValueError("bins and support_threshold must be positive")
     indices = np.concatenate((split.train, split.validation, split.test))
-    if len(indices) != matrix.values.shape[0] or set(indices.tolist()) != set(
-        range(matrix.values.shape[0])
-    ):
+    if len(indices) != matrix.values.shape[0] or set(indices.tolist()) != set(range(matrix.values.shape[0])):
         raise ValueError("split must partition every row in the feature matrix exactly once")
     feature_train = matrix.values[split.train]
     feature_test = matrix.values[split.test]
@@ -110,7 +112,6 @@ def analyze_features_and_targets(
             )
         if diagnostic.constant_in_train:
             warnings.append(f"feature {diagnostic.name!r} is constant in train")
-
     target_items: dict[str, dict[str, DistributionSummary]] = {}
     for name, raw_values in targets.items():
         values = np.asarray(raw_values, dtype=np.float64)
@@ -124,7 +125,6 @@ def analyze_features_and_targets(
         }
         if train_distribution["count"] == 0:
             warnings.append(f"target {name!r} has no finite training values")
-
     return AnalysisReport(
         dataset_rows=matrix.values.shape[0],
         split_sizes={
