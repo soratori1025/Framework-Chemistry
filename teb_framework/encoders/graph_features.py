@@ -1,11 +1,33 @@
 """SMARTS-derived per-atom and per-bond graph input flags."""
-
 from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Protocol
 
 import numpy as np
+
+
+class _BondLike(Protocol):
+    def GetIdx(self) -> int: ...
+
+
+class _MoleculeLike(Protocol):
+    def GetNumAtoms(self) -> int: ...
+
+    def GetNumBonds(self) -> int: ...
+
+    def GetSubstructMatches(
+        self,
+        query: object,
+        uniquify: bool = True,
+    ) -> tuple[tuple[int, ...], ...]: ...
+
+    def GetBondBetweenAtoms(
+        self,
+        begin_atom_idx: int,
+        end_atom_idx: int,
+    ) -> _BondLike | None: ...
 
 
 @dataclass(frozen=True)
@@ -17,10 +39,8 @@ class SMARTSFlag:
         if not self.name or not self.pattern:
             raise ValueError("SMARTS flag name and pattern must not be empty")
 
-
 class AtomSMARTSFlags:
     """Create one binary graph feature per SMARTS flag and atom."""
-
     def __init__(self, flags: Sequence[SMARTSFlag]) -> None:
         self.flags = tuple(flags)
         if len({flag.name for flag in self.flags}) != len(self.flags):
@@ -44,19 +64,15 @@ class AtomSMARTSFlags:
     def names(self) -> tuple[str, ...]:
         return tuple(flag.name for flag in self.flags)
 
-    def __call__(self, mol: object) -> np.ndarray:
-        if not hasattr(mol, "GetNumAtoms"):
-            raise TypeError("AtomSMARTSFlags expects an RDKit molecule")
+    def __call__(self, mol: _MoleculeLike) -> np.ndarray:
         values = np.zeros((mol.GetNumAtoms(), len(self.flags)), dtype=np.float32)
         for column, query in enumerate(self._queries):
             for match in mol.GetSubstructMatches(query, uniquify=True):
                 values[list(match), column] = 1.0
         return values
 
-
 class BondSMARTSFlags:
     """Create one binary graph feature per SMARTS flag and molecular bond."""
-
     def __init__(self, flags: Sequence[SMARTSFlag]) -> None:
         self.flags = tuple(flags)
         if len({flag.name for flag in self.flags}) != len(self.flags):
@@ -80,9 +96,7 @@ class BondSMARTSFlags:
     def names(self) -> tuple[str, ...]:
         return tuple(flag.name for flag in self.flags)
 
-    def __call__(self, mol: object) -> np.ndarray:
-        if not hasattr(mol, "GetNumBonds"):
-            raise TypeError("BondSMARTSFlags expects an RDKit molecule")
+    def __call__(self, mol: _MoleculeLike) -> np.ndarray:
         values = np.zeros((mol.GetNumBonds(), len(self.flags)), dtype=np.float32)
         for column, query in enumerate(self._queries):
             for match in mol.GetSubstructMatches(query, uniquify=True):

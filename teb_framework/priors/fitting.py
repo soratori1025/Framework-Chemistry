@@ -1,14 +1,11 @@
 """Fit train-only linear priors and freeze their coefficients."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Sequence
 
 import numpy as np
-
+from numpy.typing import ArrayLike
 from .additive import LinearAdditivePrior
-
 
 @dataclass(frozen=True)
 class PriorFit:
@@ -17,16 +14,7 @@ class PriorFit:
     train_count: int
     residual_std: float
 
-
-def fit_linear_prior(
-    features: np.ndarray,
-    targets: Sequence[float] | Sequence[Sequence[float]],
-    feature_names: Sequence[str],
-    *,
-    fixed: dict[str, float] | None = None,
-    method: str = "ridge",
-    ridge_alpha: float = 1e-3,
-) -> PriorFit:
+def fit_linear_prior(features: ArrayLike, targets: ArrayLike, feature_names: Sequence[str], *, fixed: dict[str, float] | None = None, method: str = "ridge", ridge_alpha: float = 1e-3,) -> PriorFit:
     """Fit only on supplied training rows; fixed coefficients remain unchanged."""
     x = np.asarray(features, dtype=np.float64)
     y = np.asarray(targets, dtype=np.float64)
@@ -54,7 +42,6 @@ def fit_linear_prior(
     x, y = x[valid], y[valid]
     if len(y) < 2:
         raise ValueError("at least two complete finite training targets are required to fit a prior")
-
     weights = np.zeros((x.shape[1], y.shape[1]), dtype=np.float64)
     fixed_mask = np.zeros(x.shape[1], dtype=bool)
     for column, name in enumerate(names):
@@ -98,7 +85,6 @@ def fit_linear_prior(
         intercept = residual_target.mean(axis=0) - means @ free_weights
     else:
         intercept = residual_target.mean(axis=0)
-
     prediction = x @ weights + intercept
     residual_std = float(np.std(y - prediction))
     prior = LinearAdditivePrior(

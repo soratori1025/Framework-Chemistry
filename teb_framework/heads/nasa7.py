@@ -1,28 +1,18 @@
 """Analytic NASA-7 thermochemistry output block."""
-
 from __future__ import annotations
-
 import math
 from collections.abc import Sequence
-
 import torch
 from torch import Tensor, nn
 
-
 class NASA7OutputBlock(nn.Module):
     """Convert Cp coefficients and reference H/S into continuous NASA-7 curves.
-
     Inputs use SI units: H in J/mol, S and Cp in J/(mol K), and temperatures in K.
     """
 
+    temperature_grid: Tensor | None
     gas_constant = 8.314462618
-
-    def __init__(
-        self,
-        t_ref: float = 298.15,
-        t_mid: float = 1000.0,
-        temperatures: Sequence[float] | Tensor | None = None,
-    ) -> None:
+    def __init__(self, t_ref: float = 298.15, t_mid: float = 1000.0, temperatures: Sequence[float] | Tensor | None = None,) -> None:
         super().__init__()
         if t_ref <= 0 or t_mid <= t_ref:
             raise ValueError("temperatures must satisfy 0 < t_ref < t_mid")
@@ -41,14 +31,7 @@ class NASA7OutputBlock(nn.Module):
             raise ValueError("temperatures must be a finite, positive 1-D grid")
         self.register_buffer("temperature_grid", temperature_grid)
 
-    def forward(
-        self,
-        a1_5_low: Tensor,
-        a1_5_high: Tensor | None = None,
-        h_ref: Tensor | None = None,
-        s_ref: Tensor | None = None,
-        temperatures: Tensor | None = None,
-    ) -> dict[str, Tensor]:
+    def forward(self, a1_5_low: Tensor, a1_5_high: Tensor | None = None, h_ref: Tensor | None = None, s_ref: Tensor | None = None, temperatures: Tensor | None = None,) -> dict[str, Tensor]:
         if a1_5_high is None:
             if a1_5_low.ndim != 2 or a1_5_low.shape[-1] != 12:
                 raise ValueError(
@@ -81,7 +64,6 @@ class NASA7OutputBlock(nn.Module):
             raise ValueError("temperatures must be a finite 1-D tensor")
         if (temperatures <= 0).any():
             raise ValueError("temperatures must be positive")
-
         original_dtype = a1_5_low.dtype
         device = a1_5_low.device
         low = a1_5_low.double()
@@ -90,7 +72,6 @@ class NASA7OutputBlock(nn.Module):
         s_ref = s_ref.double()
         temperatures = temperatures.to(device=device, dtype=torch.float64)
         gas_constant = self.gas_constant
-
         a1_l, a2_l, a3_l, a4_l, a5_l = low.unbind(dim=-1)
         t_ref = self.t_ref
         t_mid = self.t_mid
@@ -117,7 +98,6 @@ class NASA7OutputBlock(nn.Module):
             a1_l + a2_l * t_mid + a3_l * t_mid**2
             + a4_l * t_mid**3 + a5_l * t_mid**4
         )
-
         _, a2_h, a3_h, a4_h, a5_h = high.unbind(dim=-1)
         a1_h = cp_mid_low - (
             a2_h * t_mid + a3_h * t_mid**2 + a4_h * t_mid**3 + a5_h * t_mid**4
@@ -132,7 +112,6 @@ class NASA7OutputBlock(nn.Module):
             + a4_h * t_mid**3 / 3 + a5_h * t_mid**4 / 4
         )
         a7_h = s_poly_mid_low - s_poly_mid_high
-
         cp_grid = torch.empty((batch_size, len(temperatures)), device=device, dtype=torch.float64)
         h_grid = torch.empty_like(cp_grid)
         s_grid = torch.empty_like(cp_grid)

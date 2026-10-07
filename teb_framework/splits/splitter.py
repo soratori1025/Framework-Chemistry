@@ -1,21 +1,15 @@
 """Reproducible random, size, scaffold, and SMARTS data splits."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Sequence
-
 import numpy as np
-
 from ..config.schema import SplitConfig
-
 
 @dataclass(frozen=True)
 class DatasetSplit:
     train: np.ndarray
     validation: np.ndarray
     test: np.ndarray
-
     def __post_init__(self) -> None:
         arrays = [np.asarray(index, dtype=np.int64) for index in (self.train, self.validation, self.test)]
         combined = np.concatenate(arrays)
@@ -28,7 +22,6 @@ class DatasetSplit:
         object.__setattr__(self, "train", arrays[0])
         object.__setattr__(self, "validation", arrays[1])
         object.__setattr__(self, "test", arrays[2])
-
 
 def _partition(indices: np.ndarray, fractions: tuple[float, float, float]) -> DatasetSplit:
     n = len(indices)
@@ -46,14 +39,12 @@ def _partition(indices: np.ndarray, fractions: tuple[float, float, float]) -> Da
         indices[n_train + n_validation:],
     )
 
-
 def split_indices(smiles: Sequence[str], config: SplitConfig) -> DatasetSplit:
     """Create deterministic dataset partitions without consulting target values."""
     if len(smiles) < 3:
         raise ValueError("at least three molecules are required for a three-way split")
     rng = np.random.default_rng(config.seed)
     indices = np.arange(len(smiles), dtype=np.int64)
-
     if config.method == "random":
         rng.shuffle(indices)
         return _partition(indices, config.fractions)
@@ -68,20 +59,21 @@ def split_indices(smiles: Sequence[str], config: SplitConfig) -> DatasetSplit:
             if mol is None:
                 raise ValueError(f"invalid SMILES at row {row}: {value!r}")
             sizes.append(mol.GetNumHeavyAtoms())
-        ordered = np.asarray(sorted(indices, key=lambda i: (sizes[int(i)], int(i))), dtype=np.int64)
+        ordered = np.asarray(
+            sorted(range(len(smiles)), key=lambda index: (sizes[index], index)),
+            dtype=np.int64,
+        )
         return _partition(ordered, config.fractions)
     if config.method == "smarts":
-        return _smarts_split(smiles, config, rng, indices)
+        return _smarts_split(smiles, config, rng)
     if config.method == "scaffold":
         return _scaffold_split(smiles, config, rng)
     raise ValueError(f"unsupported split method: {config.method}")
-
 
 def _smarts_split(
     smiles: Sequence[str],
     config: SplitConfig,
     rng: np.random.Generator,
-    indices: np.ndarray,
 ) -> DatasetSplit:
     try:
         from rdkit import Chem
@@ -108,12 +100,7 @@ def _smarts_split(
         np.asarray(matches, dtype=np.int64),
     )
 
-
-def _scaffold_split(
-    smiles: Sequence[str],
-    config: SplitConfig,
-    rng: np.random.Generator,
-) -> DatasetSplit:
+def _scaffold_split(smiles: Sequence[str], config: SplitConfig, rng: np.random.Generator,) -> DatasetSplit:
     try:
         from rdkit import Chem
         from rdkit.Chem.Scaffolds import MurckoScaffold
@@ -126,7 +113,6 @@ def _scaffold_split(
             raise ValueError(f"invalid SMILES at row {row}: {value!r}")
         scaffold = MurckoScaffold.MurckoScaffoldSmiles(mol=mol, includeChirality=True)
         groups.setdefault(scaffold or f"acyclic:{Chem.MolToSmiles(mol)}", []).append(row)
-
     group_values = list(groups.values())
     rng.shuffle(group_values)
     group_values.sort(key=len, reverse=True)

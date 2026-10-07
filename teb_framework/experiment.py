@@ -1,9 +1,9 @@
 """Prepare datasets, feature matrices, splits, caches, and analysis from config."""
-
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 
@@ -21,7 +21,6 @@ from .features import (
 from .priors import PriorFit, fit_linear_prior
 from .splits import DatasetSplit, split_indices
 
-
 @dataclass(frozen=True)
 class PreparedExperiment:
     config: ExperimentConfig
@@ -35,16 +34,11 @@ class PreparedExperiment:
     feature_registry: FeatureRegistry
     feature_fingerprint: str
 
-
-def _resolve_blocks(
-    selected_blocks: tuple[str, ...],
-    resolved_names: dict[str, tuple[str, ...]],
-) -> tuple[str, ...]:
+def _resolve_blocks(selected_blocks: tuple[str, ...], resolved_names: dict[str, tuple[str, ...]],) -> tuple[str, ...]:
     names: list[str] = []
     for block_name in selected_blocks:
         names.extend(resolved_names[block_name])
     return tuple(names)
-
 
 def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
     """Load the user dataset and compute reproducible splits/features/reports."""
@@ -53,7 +47,7 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
     registry, feature_blocks = build_feature_registry(
         config.features,
         dataset.smiles,
-        split.train,
+        split.train.tolist(),
     )
     all_names = tuple(
         feature_name
@@ -63,10 +57,6 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
     if not all_names:
         raise ValueError("feature configuration resolved to zero columns")
     feature_block = MoleculeFeatureBlock(registry, all_names)
-
-    import hashlib
-    import json
-
     schema = {
         "definitions_fingerprint": configured_feature_fingerprint(config.features),
         "resolved_names": all_names,
@@ -115,14 +105,7 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
         feature_fingerprint=config_fingerprint,
     )
 
-
-def fit_experiment_prior(
-    experiment: PreparedExperiment,
-    property_name: str,
-    *,
-    target_name: str | None = None,
-    ridge_alpha: float = 1e-3,
-) -> PriorFit:
+def fit_experiment_prior(experiment: PreparedExperiment, property_name: str, *, target_name: str | None = None, ridge_alpha: float = 1e-3,) -> PriorFit:
     """Fit and freeze the configured prior using training rows only."""
     if property_name not in experiment.config.priors:
         raise KeyError(f"no prior configured for property {property_name!r}")

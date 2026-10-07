@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Mapping, Sequence, TypedDict
+from typing import Mapping, TypedDict
 import numpy as np
+from numpy.typing import ArrayLike
 from ..diagnostics import diagnose_features
 from ..features import FeatureMatrix
 from ..splits import DatasetSplit
@@ -63,7 +64,7 @@ def _distribution(values: np.ndarray, bins: int) -> DistributionSummary:
 def analyze_features_and_targets(
     matrix: FeatureMatrix,
     split: DatasetSplit,
-    targets: Mapping[str, Sequence[float]],
+    targets: Mapping[str, ArrayLike],
     *,
     bins: int = 20,
     support_threshold: int = 1, correlation_threshold: float = 0.95,) -> AnalysisReport:

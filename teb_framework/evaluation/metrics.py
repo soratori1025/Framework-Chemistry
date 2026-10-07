@@ -1,15 +1,13 @@
 """Regression metrics with explicit missing-target handling."""
-
 from __future__ import annotations
-
 from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
+from numpy.typing import ArrayLike
 import torch
 from torch import Tensor, nn
 from torch.utils.data import DataLoader
-
 
 def _resolve_device(device: str | torch.device) -> torch.device:
     if isinstance(device, torch.device):
@@ -30,10 +28,9 @@ def _resolve_device(device: str | torch.device) -> torch.device:
         raise RuntimeError("evaluation requested MPS but MPS is unavailable")
     return selected
 
-
 def regression_metrics(
-    actual: Sequence[float],
-    predicted: Sequence[float],
+    actual: ArrayLike,
+    predicted: ArrayLike,
     metrics: Sequence[str] = ("mae", "rmse", "r2"),
 ) -> dict[str, float | int]:
     y_true = np.asarray(actual, dtype=np.float64)
@@ -71,14 +68,7 @@ def regression_metrics(
             raise ValueError(f"unsupported metric {metric!r}")
     return result
 
-
-def evaluate_model(
-    model: nn.Module,
-    loader: DataLoader,
-    metrics: Sequence[str] = ("mae", "rmse", "r2"),
-    *,
-    device: str | torch.device = "cpu",
-) -> tuple[dict[str, float | int], np.ndarray, np.ndarray]:
+def evaluate_model(model: nn.Module, loader: DataLoader, metrics: Sequence[str] = ("mae", "rmse", "r2"), *, device: str | torch.device = "cpu",) -> tuple[dict[str, float | int], np.ndarray, np.ndarray]:
     """Evaluate a tensor-output model and return metrics, targets, predictions."""
     selected_device = _resolve_device(device)
     model = model.to(selected_device)
@@ -117,13 +107,7 @@ def evaluate_model(
     predicted = np.concatenate(predicted_batches)
     return regression_metrics(actual, predicted, metrics), actual, predicted
 
-
-def load_model_checkpoint(
-    model: nn.Module,
-    checkpoint_path: str | Path,
-    *,
-    device: str | torch.device = "cpu",
-) -> nn.Module:
+def load_model_checkpoint(model: nn.Module, checkpoint_path: str | Path, *, device: str | torch.device = "cpu",) -> nn.Module:
     """Load a framework checkpoint or plain state dict into a model."""
     selected_device = _resolve_device(device)
     checkpoint = torch.load(
