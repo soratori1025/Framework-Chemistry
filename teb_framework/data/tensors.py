@@ -1,12 +1,17 @@
 """Tensor data loaders for descriptor-based tasks."""
+
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
+
 if TYPE_CHECKING:
     from ..experiment import PreparedExperiment
+
 
 @dataclass(frozen=True)
 class TensorDataLoaders:
@@ -14,13 +19,15 @@ class TensorDataLoaders:
     validation: DataLoader
     test: DataLoader
 
+
 def make_tensor_dataloaders(
     experiment: PreparedExperiment,
     target_name: str,
     *,
     batch_size: int | None = None,
     num_workers: int | None = None,
-    task_name: str | None = None,) -> TensorDataLoaders:
+    task_name: str | None = None,
+) -> TensorDataLoaders:
     """Build loaders for a target, applying its configured task descriptor route."""
     if target_name not in experiment.dataset.targets:
         raise KeyError(f"unknown dataset target {target_name!r}")
