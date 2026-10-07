@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "teb-framework"
+name = "chemistry-framework"
 version = "0.1.0"
 description = "Composable blocks for molecular property prediction"
 readme = "README.md"
@@ -32,14 +32,14 @@ config = ["PyYAML>=6"]
 test = ["pytest>=7", "PyYAML>=6"]
 
 [project.scripts]
-teb-framework = "teb_framework.cli:main"
+chemistry-framework = "chemistry_framework.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["teb_framework*"]
+include = ["chemistry_framework*"]
 
 [tool.setuptools.package-data]
-teb_framework = ["presets/*.yaml"]
+chemistry_framework = ["presets/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

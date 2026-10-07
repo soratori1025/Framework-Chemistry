@@ -1,6 +1,6 @@
-# TEB Framework
+# Chemistry Framework
 
-TEB Framework is a standalone Python library for composing molecular-property
+Chemistry Framework is a standalone Python library for composing molecular-property
 models from replaceable blocks. Its source does not import from the paper
 implementations or other project folders.
 
@@ -9,7 +9,7 @@ implementations or other project folders.
 Install the package with configuration and chemistry support:
 
 ```bash
-pip install "teb-framework[config,chemistry] @ git+https://github.com/soratori1025/Framework-Chemistry.git"
+pip install "chemistry-framework[config,chemistry] @ git+https://github.com/soratori1025/Framework-Chemistry.git"
 ```
 
 For development:
@@ -27,7 +27,7 @@ used without RDKit.
 
 ## Configure an experiment
 
-Start from [`teb_framework/presets/general_regression.yaml`](teb_framework/presets/general_regression.yaml)
+Start from [`chemistry_framework/presets/general_regression.yaml`](chemistry_framework/presets/general_regression.yaml)
 and edit the dataset path, target columns, features, tasks, and training
 settings. Paths such as `dataset.path`, `cache.directory`, and
 `analysis.output_dir` are resolved relative to the YAML file.
@@ -89,7 +89,7 @@ analysis:
   bins: 20
 cache:
   enabled: true
-  directory: .teb_cache/features
+  directory: .chemistry_cache/features
 ```
 
 The configuration has separate responsibilities:
@@ -127,8 +127,8 @@ approximate Benson rules.
 Validate the YAML and feature/task references before running:
 
 ```bash
-teb-framework validate experiment.yaml
-teb-framework prepare experiment.yaml
+chemistry-framework validate experiment.yaml
+chemistry-framework prepare experiment.yaml
 ```
 
 `prepare` loads the dataset, creates the split, builds feature columns (the
@@ -141,11 +141,11 @@ For descriptor-based tasks, the library provides loaders, a generic PyTorch
 training loop, prior fitting, and evaluation:
 
 ```python
-from teb_framework.config import load_config
-from teb_framework.data import make_tensor_dataloaders
-from teb_framework.evaluation import evaluate_model, load_model_checkpoint
-from teb_framework.experiment import fit_experiment_prior, prepare_experiment
-from teb_framework.training import train_model
+from chemistry_framework.config import load_config
+from chemistry_framework.data import make_tensor_dataloaders
+from chemistry_framework.evaluation import evaluate_model, load_model_checkpoint
+from chemistry_framework.experiment import fit_experiment_prior, prepare_experiment
+from chemistry_framework.training import train_model
 
 config = load_config("experiment.yaml")
 experiment = prepare_experiment(config)
@@ -180,7 +180,7 @@ shared across the prior outputs). If multiple configured tasks share a target,
 pass `task_name` to `make_tensor_dataloaders` to select that task's route. For
 graph models, construct loaders that carry graph objects and
 pass them to your own encoder/training integration; graph SMARTS flags are
-available from `teb_framework.encoders`.
+available from `chemistry_framework.encoders`.
 
 The analysis report includes per-feature train support and histograms,
 constant/low-support columns, collinear pairs, test values outside train
@@ -193,7 +193,7 @@ vocabulary or prior.
 ## Architecture and extension points
 
 ```text
-teb_framework/
+chemistry_framework/
 ├── analysis/       # feature/target reports and prediction-range checks
 ├── config/         # validated YAML schema and loader
 ├── data/           # CSV records and tensor dataloaders
@@ -212,11 +212,11 @@ teb_framework/
 Import from a focused layer package when extending it:
 
 ```python
-from teb_framework.features import FeatureRegistry, FeatureSpec
-from teb_framework.priors import BaselineBlock
-from teb_framework.encoders import MLPEncoder
-from teb_framework.heads import ScalarOutputHead
-from teb_framework.models import ResidualPropertyModel
+from chemistry_framework.features import FeatureRegistry, FeatureSpec
+from chemistry_framework.priors import BaselineBlock
+from chemistry_framework.encoders import MLPEncoder
+from chemistry_framework.heads import ScalarOutputHead
+from chemistry_framework.models import ResidualPropertyModel
 ```
 
 Add calculators under `features/`, subclasses of `priors.BaselineBlock` under
@@ -239,7 +239,7 @@ physics-specific terms can be supplied as a trusted plugin or a
 
 ```bash
 pytest
-python -m pip wheel . --no-deps --no-build-isolation --wheel-dir /tmp/teb-framework-wheel
+python -m pip wheel . --no-deps --no-build-isolation --wheel-dir /tmp/chemistry-framework-wheel
 ```
 
 CI runs the package tests on the supported Python versions.

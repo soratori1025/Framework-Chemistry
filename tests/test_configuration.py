@@ -7,16 +7,16 @@ import pytest
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from teb_framework.analysis import analyze_prediction_molecules
-from teb_framework.config import ExperimentConfig
-from teb_framework.data import make_tensor_dataloaders
-from teb_framework.encoders import AtomSMARTSFlags, BondSMARTSFlags
-from teb_framework.evaluation import evaluate_model, load_model_checkpoint
-from teb_framework.experiment import fit_experiment_prior, prepare_experiment
-from teb_framework.features import FeatureCache, MoleculeFeatureBlock, build_feature_registry
-from teb_framework.priors import fit_linear_prior
-from teb_framework.splits import split_indices
-from teb_framework.training import train_model
+from chemistry_framework.analysis import analyze_prediction_molecules
+from chemistry_framework.config import ExperimentConfig
+from chemistry_framework.data import make_tensor_dataloaders
+from chemistry_framework.encoders import AtomSMARTSFlags, BondSMARTSFlags
+from chemistry_framework.evaluation import evaluate_model, load_model_checkpoint
+from chemistry_framework.experiment import fit_experiment_prior, prepare_experiment
+from chemistry_framework.features import FeatureCache, MoleculeFeatureBlock, build_feature_registry
+from chemistry_framework.priors import fit_linear_prior
+from chemistry_framework.splits import split_indices
+from chemistry_framework.training import train_model
 
 
 def _write_dataset(path) -> None:
@@ -113,7 +113,7 @@ def test_feature_cache_is_keyed_by_configuration_and_molecule(tmp_path) -> None:
 
 def test_smarts_holdout_split_keeps_all_matching_molecules_in_test() -> None:
     smiles = ["CC", "CCC", "CCO", "CCCO", "CC(=O)OC", "CCC(=O)OC", "CCN", "CCCN", "C", "CO"]
-    from teb_framework.config import SplitConfig
+    from chemistry_framework.config import SplitConfig
 
     split = split_indices(
         smiles,
@@ -192,7 +192,7 @@ def test_training_and_evaluation_work_with_configured_settings(tmp_path) -> None
     train_loader = DataLoader(TensorDataset(x[:14], y[:14]), batch_size=4, shuffle=False)
     validation_loader = DataLoader(TensorDataset(x[14:], y[14:]), batch_size=3)
     model = torch.nn.Linear(1, 1)
-    from teb_framework.config import TrainingConfig
+    from chemistry_framework.config import TrainingConfig
 
     result = train_model(
         model,
