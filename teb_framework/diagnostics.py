@@ -101,7 +101,6 @@ def diagnose_features(
             )
         )
 
-    correlation = np.corrcoef(train, rowvar=False) if len(names) > 1 else np.empty((1, 1))
     pairs: list[tuple[str, str, float]] = []
     for left in range(len(names)):
         if stds[left] <= constant_tolerance:
@@ -109,7 +108,7 @@ def diagnose_features(
         for right in range(left + 1, len(names)):
             if stds[right] <= constant_tolerance:
                 continue
-            value = float(correlation[left, right])
+            value = float(np.corrcoef(train[:, left], train[:, right])[0, 1])
             if abs(value) >= correlation_threshold:
                 pairs.append((names[left], names[right], value))
     return FeatureReport(tuple(diagnostics), tuple(pairs), correlation_threshold)
