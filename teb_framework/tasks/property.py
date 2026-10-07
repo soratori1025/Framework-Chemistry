@@ -1,4 +1,4 @@
-"""Property-task metadata kept separate from chemistry and model blocks."""
+"""Property-task metadata kept separate from chemistry and model layers."""
 
 from __future__ import annotations
 

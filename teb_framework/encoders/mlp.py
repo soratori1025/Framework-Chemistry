@@ -1,10 +1,7 @@
-"""Neural representation and residual blocks."""
-
+"""MLP implementation of the encoder and residual blocks."""
 from __future__ import annotations
-
 import torch
 from torch import Tensor, nn
-
 
 def _validate_mlp(input_dim: int, output_dim: int, hidden_dim: int, depth: int, dropout: float) -> None:
     if min(input_dim, output_dim, hidden_dim, depth) < 1:
@@ -12,10 +9,8 @@ def _validate_mlp(input_dim: int, output_dim: int, hidden_dim: int, depth: int, 
     if not 0.0 <= dropout < 1.0:
         raise ValueError("dropout must be in [0, 1)")
 
-
 class MLPEncoder(nn.Module):
     """Descriptor encoder; graph encoders can be supplied as any nn.Module."""
-
     def __init__(
         self,
         input_dim: int,
@@ -37,10 +32,8 @@ class MLPEncoder(nn.Module):
     def forward(self, features: Tensor) -> Tensor:
         return self.network(features)
 
-
 class MLPResidual(nn.Module):
     """Learn the residual correction on top of a baseline."""
-
     def __init__(
         self,
         representation_dim: int,

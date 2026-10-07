@@ -121,15 +121,55 @@ additive contribution to remain independently replaceable.
 constant-in-train features, and strongly correlated feature pairs. Run it after
 the split is fixed so diagnostics do not leak test data into feature selection.
 
-## Package map
+## Package structure
 
-- `teb_framework/features.py`: feature specs, registry, SMARTS features, matrix builder.
-- `teb_framework/priors.py`: zero, additive, physical, and composite priors.
-- `teb_framework/encoders.py`: descriptor encoder and residual MLP blocks.
-- `teb_framework/models.py`: baseline-plus-residual composition.
-- `teb_framework/tasks.py`: property metadata and feature routing.
-- `teb_framework/heads.py`: scalar/vector heads and analytic NASA-7 output.
-- `teb_framework/diagnostics.py`: feature range and collinearity report.
+Each architectural layer has its own Python package. Implementations live in
+focused modules, and each layer's `__init__.py` exposes its supported public
+API:
+
+```text
+teb_framework/
+├── features/       # feature contracts, registry, calculators, matrix builder
+├── priors/         # baseline contract, additive/physics/composite priors
+├── encoders/       # representation and residual neural blocks
+├── models/         # composition of encoder, prior, residual, and output block
+├── heads/          # scalar/vector and domain-specific output transformations
+├── tasks/          # property/task metadata
+└── diagnostics/    # feature and model-input checks
+```
+
+Import from the layer package when working on a specific component:
+
+```python
+from teb_framework.features import FeatureRegistry, FeatureSpec
+from teb_framework.priors import BaselineBlock
+from teb_framework.encoders import MLPEncoder
+from teb_framework.heads import ScalarOutputHead
+from teb_framework.models import ResidualPropertyModel
+```
+
+The top-level `teb_framework` exports common components as a convenience and
+compatibility API. Prefer imports from a layer package in library internals so
+the dependency direction remains clear.
+
+## Extending a layer
+
+- **Feature:** add a calculator in `features/`, describe it with `FeatureSpec`,
+  and register it through `FeatureRegistry`. Keep chemistry-library imports
+  local to calculators that require them.
+- **Prior:** subclass `priors.BaselineBlock` and implement `forward(features)`.
+  Return a tensor shaped `(batch, output_dim)` and declare `output_dim`.
+- **Encoder or residual:** implement an `nn.Module` in `encoders/` that returns
+  a batched tensor with a documented representation/output dimension.
+- **Output:** add an `nn.Module` under `heads/`. Keep generic shape validation
+  separate from property-specific transformations.
+- **Task metadata / diagnostics:** add the behavior under its corresponding
+  package rather than coupling it to model construction.
+
+Export supported additions from that layer's `__init__.py`, then add tests for
+the focused module and for composition through `ResidualPropertyModel`. Avoid
+editing the top-level API unless the new component is intended as a common
+convenience import.
 
 ## Development
 

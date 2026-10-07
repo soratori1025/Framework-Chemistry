@@ -1,4 +1,4 @@
-"""Composable prior-plus-residual property model."""
+"""Composition model for prior-plus-residual property prediction."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from typing import Any
 import torch
 from torch import Tensor, nn
 
-from .heads import IdentityOutputHead
-from .priors import BaselineBlock
+from ..heads import IdentityOutputHead
+from ..priors import BaselineBlock
 
 
 class ResidualPropertyModel(nn.Module):

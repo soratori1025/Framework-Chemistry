@@ -1,12 +1,8 @@
-"""Train/test feature-range and collinearity diagnostics."""
-
+"""Train/test feature-range and collinearity diagnostic implementation."""
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Sequence
-
 import numpy as np
-
 
 @dataclass(frozen=True)
 class FeatureDiagnostics:
@@ -20,13 +16,11 @@ class FeatureDiagnostics:
     out_of_range_count: int
     constant_in_train: bool
 
-
 @dataclass(frozen=True)
 class FeatureReport:
     features: tuple[FeatureDiagnostics, ...]
     collinear_pairs: tuple[tuple[str, str, float], ...]
     correlation_threshold: float
-
     def format_report(self) -> str:
         lines = ["Feature diagnostics"]
         for item in self.features:
@@ -49,7 +43,6 @@ class FeatureReport:
                 f"(r={correlation:.4f})"
             )
         return "\n".join(lines)
-
 
 def diagnose_features(
     train: np.ndarray,
@@ -77,7 +70,6 @@ def diagnose_features(
         raise ValueError("correlation_threshold must be in (0, 1]")
     if constant_tolerance < 0:
         raise ValueError("constant_tolerance must be non-negative")
-
     means = train.mean(axis=0)
     stds = train.std(axis=0)
     minima = train.min(axis=0)
@@ -100,7 +92,6 @@ def diagnose_features(
                 constant_in_train=bool(stds[column] <= constant_tolerance),
             )
         )
-
     pairs: list[tuple[str, str, float]] = []
     for left in range(len(names)):
         if stds[left] <= constant_tolerance:

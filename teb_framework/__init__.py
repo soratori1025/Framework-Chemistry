@@ -13,7 +13,13 @@ from .features import (
 )
 from .heads import IdentityOutputHead, NASA7OutputBlock, ScalarOutputHead, VectorOutputHead
 from .models import ResidualPropertyModel
-from .priors import BaselineBlock, CallablePhysicsPrior, CompositePrior, LinearAdditivePrior, ZeroPrior
+from .priors import (
+    BaselineBlock,
+    CallablePhysicsPrior,
+    CompositePrior,
+    LinearAdditivePrior,
+    ZeroPrior,
+)
 from .tasks import PropertyTask
 
 __all__ = [

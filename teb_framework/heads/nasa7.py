@@ -1,4 +1,4 @@
-"""Task output heads, including an analytic NASA-7 thermochemistry block."""
+"""Analytic NASA-7 thermochemistry output block."""
 
 from __future__ import annotations
 
@@ -7,35 +7,6 @@ from collections.abc import Sequence
 
 import torch
 from torch import Tensor, nn
-
-
-class IdentityOutputHead(nn.Module):
-    def forward(self, values: Tensor) -> Tensor:
-        return values
-
-
-class ScalarOutputHead(nn.Module):
-    """Validate and squeeze a one-value-per-sample prediction."""
-
-    def forward(self, values: Tensor) -> Tensor:
-        if values.shape[-1] != 1:
-            raise ValueError(f"scalar head expects a final dimension of 1, got {values.shape}")
-        return values.squeeze(-1)
-
-
-class VectorOutputHead(nn.Module):
-    def __init__(self, output_dim: int) -> None:
-        super().__init__()
-        if output_dim < 1:
-            raise ValueError("output_dim must be positive")
-        self.output_dim = output_dim
-
-    def forward(self, values: Tensor) -> Tensor:
-        if values.shape[-1] != self.output_dim:
-            raise ValueError(
-                f"vector head expects {self.output_dim} values, got {values.shape[-1]}"
-            )
-        return values
 
 
 class NASA7OutputBlock(nn.Module):

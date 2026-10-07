@@ -14,12 +14,30 @@ from teb_framework import (
     MLPResidual,
     MoleculeFeatureBlock,
     NASA7OutputBlock,
+    PropertyTask,
     ResidualPropertyModel,
     ScalarOutputHead,
     ZeroPrior,
     diagnose_features,
     molecular_feature_registry,
 )
+from teb_framework.diagnostics import diagnose_features as diagnose_features_layer
+from teb_framework.encoders import MLPEncoder as MLPEncoder_layer
+from teb_framework.features import FeatureRegistry as FeatureRegistry_layer
+from teb_framework.heads import NASA7OutputBlock as NASA7OutputBlock_layer
+from teb_framework.models import ResidualPropertyModel as ResidualPropertyModel_layer
+from teb_framework.priors import LinearAdditivePrior as LinearAdditivePrior_layer
+from teb_framework.tasks import PropertyTask as PropertyTask_layer
+
+
+def test_layer_packages_expose_top_level_public_components() -> None:
+    assert FeatureRegistry_layer is FeatureRegistry
+    assert MLPEncoder_layer is MLPEncoder
+    assert NASA7OutputBlock_layer is NASA7OutputBlock
+    assert ResidualPropertyModel_layer is ResidualPropertyModel
+    assert LinearAdditivePrior_layer is LinearAdditivePrior
+    assert diagnose_features_layer is diagnose_features
+    assert PropertyTask_layer is PropertyTask
 
 
 def test_registry_builds_named_smiles_features() -> None:
