@@ -1,0 +1,133 @@
+# Generic scalar/vector regression template; replace the dataset path and targets.
+name: molecular-regression-example
+
+dataset:
+  path: ../data/your_dataset.csv
+  smiles_column: smiles
+  targets:
+    h_f:
+      column: H_f_kJ_mol
+      unit: kJ/mol
+    s_298:
+      column: S_298_J_mol_K
+      unit: J/(mol K)
+    cp:
+      columns: [Cp_300, Cp_500, Cp_1000, Cp_1500]
+      unit: J/(mol K)
+      kind: temperature_dependent
+
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S]
+  bonds:
+    type: bond_pairs
+    elements: [H, C, N, O, S]
+    bond_orders: ["1", "2", "3", "a"]
+  ester:
+    type: smarts
+    pattern: "[CX3](=O)[OX2][#6]"
+    mode: count
+  nitro:
+    type: smarts
+    pattern: "[N+](=O)[O-]"
+    mode: count
+  # Benson providers should return {group_label: occurrence_count} for an RDKit molecule.
+  # Keep the provider module in trusted user code and version it when its rules change.
+  # benson:
+  #   type: benson_groups
+  #   fn: my_chemistry.benson:count_groups
+  #   min_count: 20
+  #   version: "rules-2026-01"
+
+priors:
+  h_f:
+    use: [composition, bonds, ester, nitro]
+    fit: ridge
+  s_298:
+    use: [composition, bonds, ester, nitro]
+    fixed: {}
+    fit: ridge
+  cp:
+    use: [composition, bonds, ester, nitro]
+    fit: ridge
+
+routes:
+  h_f: [ester, nitro]
+  s_298: [composition, ester, nitro]
+  cp: [composition, bonds]
+
+tasks:
+  h_f:
+    target: h_f
+    kind: scalar
+    prior: h_f
+    route: h_f
+    loss_weight: 1.0
+  s_298:
+    target: s_298
+    kind: scalar
+    prior: s_298
+    route: s_298
+    loss_weight: 1.0
+  cp:
+    target: cp
+    kind: temperature_dependent
+    prior: cp
+    route: cp
+    loss_weight: 1.0
+
+model:
+  composition: prior_plus_residual
+  descriptor_encoder: mlp
+  hidden_dim: 128
+  depth: 2
+  dropout: 0.1
+
+graph:
+  encoder: user_supplied
+  aggregation: sum
+  depth: 5
+  hidden_dim: 300
+  atom_smarts_flags:
+    - name: ester_environment
+      pattern: "[CX3](=O)[OX2][#6]"
+  bond_smarts_flags:
+    - name: ester_bond
+      pattern: "[CX3](=O)[OX2][#6]"
+  # Changing graph feature definitions changes input dimensions and checkpoints.
+
+split:
+  method: random
+  fractions: [0.81, 0.09, 0.10]
+  seed: 42
+  # For chemistry-group holdout, use:
+  # method: smarts
+  # test_smarts: "[CX3](=O)[OX2][#6]"
+
+training:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  seed: 42
+  device: auto
+  num_workers: 0
+  loss: huber
+  patience: 15
+  checkpoint_dir: checkpoints
+
+evaluation:
+  metrics: [mae, rmse, r2]
+  checkpoint: null
+
+analysis:
+  enabled: true
+  support_threshold: 20
+  correlation_threshold: 0.95
+  bins: 20
+  output_dir: analysis
+
+cache:
+  enabled: true
+  directory: .teb_cache/features

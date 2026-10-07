@@ -28,11 +28,18 @@ dependencies = [
 
 [project.optional-dependencies]
 chemistry = ["rdkit"]
-test = ["pytest>=7"]
+config = ["PyYAML>=6"]
+test = ["pytest>=7", "PyYAML>=6"]
+
+[project.scripts]
+teb-framework = "teb_framework.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["teb_framework*"]
+
+[tool.setuptools.package-data]
+teb_framework = ["presets/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

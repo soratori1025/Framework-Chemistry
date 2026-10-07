@@ -23,7 +23,8 @@ def molecular_feature_registry(
         return lambda mol: float(
             sum(atom.GetSymbol() == symbol for atom in mol.GetAtoms())
             if symbol != "H"
-            else sum(atom.GetTotalNumHs(includeNeighbors=True) for atom in mol.GetAtoms())
+            else sum(atom.GetTotalNumHs(includeNeighbors=False) for atom in mol.GetAtoms())
+            + sum(atom.GetSymbol() == "H" for atom in mol.GetAtoms())
         )
 
     for symbol in elements:

@@ -1,144 +1,215 @@
 # TEB Framework
 
-TEB Framework is a Python library for building molecular-property models from
-independent, replaceable blocks. The package is self-contained: it has no
-runtime imports from other projects or research folders.
+TEB Framework is a standalone Python library for composing molecular-property
+models from replaceable blocks. Its source does not import from the paper
+implementations or other project folders.
 
 ## Install
 
-Install the latest version directly from GitHub:
+Install the package with configuration and chemistry support:
 
 ```bash
-pip install "git+https://github.com/soratori1025/Framework-Chemistry.git"
+pip install "teb-framework[config,chemistry] @ git+https://github.com/soratori1025/Framework-Chemistry.git"
 ```
 
-Install with molecular SMILES/SMARTS feature support:
-
-```bash
-pip install "teb-framework[chemistry] @ git+https://github.com/soratori1025/Framework-Chemistry.git"
-```
-
-For development, clone this repository and install editable extras:
+For development:
 
 ```bash
 git clone https://github.com/soratori1025/Framework-Chemistry.git
 cd Framework-Chemistry
-pip install -e ".[chemistry,test]"
+pip install -e ".[config,chemistry,test]"
 ```
 
-The core dependencies are PyTorch and NumPy. RDKit is an optional dependency
-used by the built-in SMILES feature registry. Models, priors, task metadata,
-and diagnostics can also be used with caller-provided tensors without RDKit.
+PyTorch and NumPy are core dependencies. PyYAML (`config`) enables YAML
+experiments; RDKit (`chemistry`) enables the built-in SMILES/SMARTS features,
+scaffold/size splits, and graph SMARTS flags. Tensor-based components can be
+used without RDKit.
 
-## Architecture
+## Configure an experiment
 
-```text
-SMILES / molecular graph / 3-D input
-                 |
-       Feature registry (optional)
-                 |
-     +-----------+------------+
-     |                        |
-Baseline / physics prior   Representation encoder
-     |                        |
-     |                   Residual network
-     +----------- add --------+
-                 |
-       Property output head
-                 |
-       Output / constraints
-                 |
-     Feature diagnostics
+Start from [`teb_framework/presets/general_regression.yaml`](teb_framework/presets/general_regression.yaml)
+and edit the dataset path, target columns, features, tasks, and training
+settings. Paths such as `dataset.path`, `cache.directory`, and
+`analysis.output_dir` are resolved relative to the YAML file.
+
+```yaml
+name: my-enthalpy-task
+dataset:
+  path: data/molecules.csv
+  smiles_column: smiles
+  targets:
+    enthalpy:
+      column: H_f_kJ_mol
+      unit: kJ/mol
+
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S]
+  bonds:
+    type: bond_pairs
+    elements: [H, C, N, O, S]
+    bond_orders: ["1", "2", "3", "a"]
+  ester:
+    type: smarts
+    pattern: "[CX3](=O)[OX2][#6]"
+    mode: count
+
+priors:
+  enthalpy:
+    use: [composition, bonds]
+    fit: ridge
+routes:
+  enthalpy: [ester]
+tasks:
+  enthalpy:
+    target: enthalpy
+    kind: scalar
+    prior: enthalpy
+    route: enthalpy
+
+split:
+  method: scaffold
+  fractions: [0.8, 0.1, 0.1]
+  seed: 42
+training:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  loss: huber
+  patience: 15
+  device: auto
+evaluation:
+  metrics: [mae, rmse, r2]
+analysis:
+  enabled: true
+  support_threshold: 20
+  correlation_threshold: 0.95
+  bins: 20
+cache:
+  enabled: true
+  directory: .teb_cache/features
 ```
 
-The core does not assign special meaning to entropy, enthalpy, heat capacity, or
-a fixed feature-vector size. A task selects the feature routes, prior, encoder,
-residual, and output block it needs. A custom graph encoder can be passed as an
-ordinary `torch.nn.Module`; graph batching stays the responsibility of the
-selected encoder and input pipeline. `NASA7OutputBlock` can be configured with a
-temperature grid and plugged in as the output block for a 12-value prediction
-(10 Cp coefficients followed by reference H and S), or called directly with
-separate coefficient and reference-property tensors.
+The configuration has separate responsibilities:
 
-## Minimal example
+- `dataset` declares the input CSV, SMILES column, and scalar or multi-column
+  targets. Blank target cells are represented as missing values; vector-task
+  training uses rows whose complete target vector is finite.
+- `features` declares reusable blocks: element counts, generated bond-pair
+  counts, SMARTS counts/presence flags, trusted Python calculators, and
+  versioned user-supplied Benson-group providers.
+- `priors` selects additive feature blocks and can fix individual expanded
+  coefficients. `routes` selects descriptors for each task's neural branch.
+  A feature can be used in both places.
+- `tasks` maps targets to their task kind, prior, route, and loss weight.
+- `split` supports `random`, `size`, `scaffold`, and SMARTS test holdout. For
+  example, `method: smarts` with `test_smarts: "[CX3](=O)[OX2][#6]"` puts all
+  matching molecules in test and partitions the remainder into train and
+  validation.
+- `training` and `evaluation` hold optimizer/loop settings and regression
+  metrics. `analysis` configures support thresholds, correlation checks,
+  distribution histograms, and report output. `cache` stores feature rows by
+  canonical molecule and feature-schema fingerprint.
+- `graph.atom_smarts_flags` and `graph.bond_smarts_flags` define local graph
+  input flags. Changing them changes graph input dimensions and requires
+  training a new encoder/checkpoint.
+
+SMARTS and Python plugins execute chemistry/user logic. Python plugins must be
+treated as trusted code; YAML `safe_load` does not make imported plugins safe.
+A Benson provider is explicitly user supplied and should include a `version`
+that changes whenever its group rules change. The framework does not silently
+approximate Benson rules.
+
+## Validate, prepare, train, evaluate
+
+Validate the YAML and feature/task references before running:
+
+```bash
+teb-framework validate experiment.yaml
+teb-framework prepare experiment.yaml
+```
+
+`prepare` loads the dataset, creates the split, builds feature columns (the
+Benson vocabulary is selected using train rows only), applies the
+configuration-keyed cache, and writes the configured feature/target analysis
+JSON. It does not instantiate a task-specific graph model or silently train
+one: users retain control of their encoder, loss, and graph batching.
+
+For descriptor-based tasks, the library provides loaders, a generic PyTorch
+training loop, prior fitting, and evaluation:
 
 ```python
-import torch
+from teb_framework.config import load_config
+from teb_framework.data import make_tensor_dataloaders
+from teb_framework.evaluation import evaluate_model, load_model_checkpoint
+from teb_framework.experiment import fit_experiment_prior, prepare_experiment
+from teb_framework.training import train_model
 
-from teb_framework import (
-    LinearAdditivePrior,
-    MLPEncoder,
-    MLPResidual,
-    MoleculeFeatureBlock,
-    ResidualPropertyModel,
-    ScalarOutputHead,
-    molecular_feature_registry,
+config = load_config("experiment.yaml")
+experiment = prepare_experiment(config)
+loaders = make_tensor_dataloaders(experiment, "enthalpy")
+prior_fit = fit_experiment_prior(experiment, "enthalpy")
+
+# Assemble a torch.nn.Module compatible with your configured route and prior.
+model = make_my_model(config, experiment, prior_fit.prior)
+checkpoint_path = config.resolve_path(config.training.checkpoint_dir) / "enthalpy.pt"
+result = train_model(
+    model,
+    loaders.train,
+    loaders.validation,
+    config.training,
+    checkpoint_path=checkpoint_path,
 )
-
-registry = molecular_feature_registry()
-registry.add_smarts("n_ester", "C(=O)O")
-features = MoleculeFeatureBlock(registry, ["n_C", "n_O", "n_ester"])
-batch = features.transform(["CCO", "CC(=O)OC"])
-
-model = ResidualPropertyModel(
-    encoder=MLPEncoder(input_dim=3, representation_dim=32),
-    prior=LinearAdditivePrior([0.2, -0.1, 0.5], intercept=1.0),
-    residual=MLPResidual(representation_dim=32, output_dim=1),
-    output_head=ScalarOutputHead(),
+if config.evaluation.checkpoint:
+    load_model_checkpoint(
+        result.model,
+        config.resolve_path(config.evaluation.checkpoint),
+        device=config.training.device,
+    )
+metrics, actual, predicted = evaluate_model(
+    result.model, loaders.test, config.evaluation.metrics, device=config.training.device
 )
-prediction = model(torch.as_tensor(batch.values, dtype=torch.float32))["prediction"]
 ```
 
-## Train a custom task
+`make_tensor_dataloaders` applies the task's configured descriptor route.
+`fit_experiment_prior` fits scalar or vector linear priors only on training
+rows and keeps fixed coefficients unchanged (a scalar fixed coefficient is
+shared across the prior outputs). If multiple configured tasks share a target,
+pass `task_name` to `make_tensor_dataloaders` to select that task's route. For
+graph models, construct loaders that carry graph objects and
+pass them to your own encoder/training integration; graph SMARTS flags are
+available from `teb_framework.encoders`.
 
-`ResidualPropertyModel` is a regular PyTorch module. Use the user's own dataset,
-split strategy, loss, and optimizer in a standard training loop; for example:
+The analysis report includes per-feature train support and histograms,
+constant/low-support columns, collinear pairs, test values outside train
+ranges, and per-split target distributions. For molecules supplied at
+inference time, `analyze_prediction_molecules` compares their descriptors
+against the train range. Use the training partition for feature selection;
+the validation/test report is diagnostic and must not be used to fit the
+vocabulary or prior.
 
-```python
-optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
-loss_fn = torch.nn.MSELoss()
-
-for epoch in range(epochs):
-    model.train()
-    for feature_batch, target_batch in train_loader:
-        optimizer.zero_grad()
-        prediction = model(feature_batch)["prediction"]
-        loss = loss_fn(prediction, target_batch)
-        loss.backward()
-        optimizer.step()
-```
-
-The `PropertyTask` dataclass stores target metadata and feature routes; it does
-not prescribe a dataset, split, loss, or training policy. Use `torch.utils.data`
-or your preferred data pipeline to keep these task-specific decisions explicit.
-
-For a physics-informed baseline, implement `BaselineBlock` or wrap a
-differentiable tensor function with `CallablePhysicsPrior`. `CompositePrior`
-sums compatible prior blocks; this allows a physical term and a learned/frozen
-additive contribution to remain independently replaceable.
-
-`diagnose_features(train, test, names)` reports train ranges, test extrapolation,
-constant-in-train features, and strongly correlated feature pairs. Run it after
-the split is fixed so diagnostics do not leak test data into feature selection.
-
-## Package structure
-
-Each architectural layer has its own Python package. Implementations live in
-focused modules, and each layer's `__init__.py` exposes its supported public
-API:
+## Architecture and extension points
 
 ```text
 teb_framework/
-├── features/       # feature contracts, registry, calculators, matrix builder
-├── priors/         # baseline contract, additive/physics/composite priors
-├── encoders/       # representation and residual neural blocks
-├── models/         # composition of encoder, prior, residual, and output block
-├── heads/          # scalar/vector and domain-specific output transformations
-├── tasks/          # property/task metadata
-└── diagnostics/    # feature and model-input checks
+├── analysis/       # feature/target reports and prediction-range checks
+├── config/         # validated YAML schema and loader
+├── data/           # CSV records and tensor dataloaders
+├── diagnostics/    # ranges, support, and collinearity
+├── encoders/       # MLP blocks and configurable graph flags
+├── evaluation/     # regression metrics
+├── features/       # feature contracts, registry, cache, calculators
+├── heads/          # scalar/vector and NASA-7 output blocks
+├── models/         # model composition
+├── priors/         # additive, physics, composite, and fitted priors
+├── splits/         # random, size, scaffold, and SMARTS splitters
+├── tasks/          # task metadata
+└── training/       # generic PyTorch loop and checkpointing
 ```
 
-Import from the layer package when working on a specific component:
+Import from a focused layer package when extending it:
 
 ```python
 from teb_framework.features import FeatureRegistry, FeatureSpec
@@ -148,37 +219,27 @@ from teb_framework.heads import ScalarOutputHead
 from teb_framework.models import ResidualPropertyModel
 ```
 
-The top-level `teb_framework` exports common components as a convenience and
-compatibility API. Prefer imports from a layer package in library internals so
-the dependency direction remains clear.
+Add calculators under `features/`, subclasses of `priors.BaselineBlock` under
+`priors/`, encoder/residual modules under `encoders/`, and output transforms
+under `heads/`. Keep each component independently testable, export its public
+API from that layer's `__init__.py`, and compose it with
+`ResidualPropertyModel`. `NASA7OutputBlock` is available when a task predicts
+the coefficient/reference-property vector expected by that block.
 
-## Extending a layer
-
-- **Feature:** add a calculator in `features/`, describe it with `FeatureSpec`,
-  and register it through `FeatureRegistry`. Keep chemistry-library imports
-  local to calculators that require them.
-- **Prior:** subclass `priors.BaselineBlock` and implement `forward(features)`.
-  Return a tensor shaped `(batch, output_dim)` and declare `output_dim`.
-- **Encoder or residual:** implement an `nn.Module` in `encoders/` that returns
-  a batched tensor with a documented representation/output dimension.
-- **Output:** add an `nn.Module` under `heads/`. Keep generic shape validation
-  separate from property-specific transformations.
-- **Task metadata / diagnostics:** add the behavior under its corresponding
-  package rather than coupling it to model construction.
-
-Export supported additions from that layer's `__init__.py`, then add tests for
-the focused module and for composition through `ResidualPropertyModel`. Avoid
-editing the top-level API unless the new component is intended as a common
-convenience import.
+The generic prior is additive by design; graph encoders can use sum
+aggregation to preserve size-additive behavior. Other task/model choices are
+user supplied. Exact v15 numerical compatibility is **not claimed** by the
+generic preset: establishing it requires porting the complete v15 feature
+definition and adding golden-vector tests against the paper implementation.
+The framework is independent of both paper folders, so entropy or other
+physics-specific terms can be supplied as a trusted plugin or a
+`CallablePhysicsPrior` without changing their paper implementation.
 
 ## Development
 
-Run the tests from the repository root:
-
 ```bash
 pytest
+python -m pip wheel . --no-deps --no-build-isolation --wheel-dir /tmp/teb-framework-wheel
 ```
 
-CI checks the package and tests on supported Python versions. This library does
-not impose a task-specific training CLI, dataset format, checkpoint policy, or
-graph batching layer; callers can provide those independently for their task.
+CI runs the package tests on the supported Python versions.
