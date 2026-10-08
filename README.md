@@ -1,8 +1,18 @@
-# Chemistry Framework
+# Modular Chemistry Machine-Learning Framework
 
-Chemistry Framework is a standalone Python library for composing molecular-property
-models from replaceable blocks. Its source does not import from the paper
-implementations or other project folders.
+**A modular, feature-aware machine-learning framework for chemistry in which molecular inputs, feature definitions, predictive roles, and learning components can be independently specified and systematically evaluated.** 
+Designed as an extensible foundation for molecular-property prediction, thermochemistry, and future kinetic chemistry modeling.
+
+## Core Capabilities
+
+The framework distinguishes itself through five foundational capabilities:
+1. **Config-driven feature definition:** Molecular features and routes are defined via YAML configuration, avoiding dataset-specific hard-coded logic.
+2. **Feature Registry:** A unified registry that computes and tracks feature metadata, provenance, and routing.
+3. **Multi-task support:** Supports binary classification and scalar regression within the same unified pipeline (e.g., ADMET tasks).
+4. **Feature Intelligence:** Automatically analyzes the dataset and generates quantitative evidence reports (Relevance, Redundancy, Stability, and Recommendation) for User-guided Model Design.
+5. **Reproducible evaluation:** A standardized pipeline that seamlessly runs config-driven training, evaluation, and feature analysis.
+
+Unlike systems that tightly couple features to representations, this framework separates feature evidence, role assignment, model selection, and fusion.
 
 ## Install
 

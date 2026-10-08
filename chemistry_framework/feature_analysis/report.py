@@ -226,36 +226,23 @@ class FeatureEvidenceReport:
         ) / standard_deviation[active]
         correlation = standardized.T @ standardized / len(train)
         correlation[np.diag_indices(n_features)] = active.astype(float)
-        colors = np.empty((n_features, n_features, 3), dtype=np.uint8)
-        positive = correlation >= 0
-        positive_intensity = 1.0 - np.clip(correlation, 0.0, 1.0)
-        negative_intensity = 1.0 + np.clip(correlation, -1.0, 0.0)
-        colors[:, :, 0] = 255
-        colors[:, :, 1] = np.where(
-            positive, 255 * positive_intensity, 255 * negative_intensity
-        ).astype(np.uint8)
-        colors[:, :, 2] = colors[:, :, 1]
-        colors[:, :, 2] = np.where(positive, colors[:, :, 2], 255).astype(np.uint8)
-        colors[:, :, 0] = np.where(positive, 255, 255 * negative_intensity).astype(
-            np.uint8
-        )
-        colors = np.repeat(np.repeat(colors, 3, axis=0), 3, axis=1)
-        height, width, _ = colors.shape
-        scanlines = b"".join(b"\x00" + row.tobytes() for row in colors)
-
-        def chunk(kind: bytes, data: bytes) -> bytes:
-            checksum = zlib.crc32(kind + data) & 0xFFFFFFFF
-            return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", checksum)
-
-        return (
-            b"\x89PNG\r\n\x1a\n"
-            + chunk(
-                b"IHDR",
-                struct.pack(">2I5B", width, height, 8, 2, 0, 0, 0),
-            )
-            + chunk(b"IDAT", zlib.compress(scanlines, level=9))
-            + chunk(b"IEND", b"")
-        )
+        
+        import io
+        import matplotlib.pyplot as plt
+        
+        fig, ax = plt.subplots(figsize=(8, 6))
+        im = ax.imshow(correlation, cmap="coolwarm", vmin=-1.0, vmax=1.0)
+        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        cbar.set_label("Pearson Correlation", rotation=270, labelpad=15)
+        ax.set_title("Feature Correlation Heatmap")
+        
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        return buf.getvalue()
 
 def _average_ranks(values: np.ndarray) -> np.ndarray:
     order = np.argsort(values, kind="mergesort")
