@@ -7,6 +7,7 @@ import numpy as np
 from .analysis.report import AnalysisReport, analyze_features_and_targets
 from .config import ExperimentConfig
 from .data import MolecularDataset, load_configured_dataset
+from .feature_analysis import FeatureEvidenceReport, analyze_feature_evidence
 from .features import (
     FeatureCache,
     FeatureMatrix,
@@ -30,6 +31,7 @@ class PreparedExperiment:
     analysis: AnalysisReport | None
     feature_registry: FeatureRegistry
     feature_fingerprint: str
+    feature_evidence: FeatureEvidenceReport | None = None
 
 def _resolve_blocks(selected_blocks: tuple[str, ...], resolved_names: dict[str, tuple[str, ...]],) -> tuple[str, ...]:
     names: list[str] = []
@@ -78,6 +80,7 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
         for property_name, selected in config.routes.items()
     }
     report = None
+    feature_evidence = None
     if config.analysis.enabled:
         report = analyze_features_and_targets(
             matrix,
@@ -89,6 +92,27 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
         )
         output_dir = config.resolve_path(config.analysis.output_dir)
         report.write_json(output_dir / f"{config.name}-analysis.json")
+        fixed_coefficients: dict[str, float] = {}
+        for property_name, prior_config in config.priors.items():
+            selected = set(prior_features.get(property_name, ()))
+            for feature_name, coefficient in prior_config.fixed.items():
+                if feature_name in selected:
+                    fixed_coefficients[feature_name] = coefficient
+                    continue
+                expanded = feature_blocks.get(feature_name, ())
+                if len(expanded) == 1 and expanded[0] in selected:
+                    fixed_coefficients[expanded[0]] = coefficient
+        feature_evidence = analyze_feature_evidence(
+            matrix,
+            split,
+            dataset.targets,
+            registry,
+            feature_groups=feature_blocks,
+            support_threshold=config.analysis.support_threshold,
+            correlation_threshold=config.analysis.correlation_threshold,
+            fixed_coefficients=fixed_coefficients,
+        )
+        feature_evidence.write_artifacts(output_dir, config.name)
     return PreparedExperiment(
         config=config,
         dataset=dataset,
@@ -100,6 +124,7 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
         analysis=report,
         feature_registry=registry,
         feature_fingerprint=config_fingerprint,
+        feature_evidence=feature_evidence,
     )
 
 def fit_experiment_prior(experiment: PreparedExperiment, property_name: str, *, target_name: str | None = None, ridge_alpha: float = 1e-3,) -> PriorFit:

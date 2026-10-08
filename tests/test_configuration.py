@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from chemistry_framework.analysis import analyze_prediction_molecules
 from chemistry_framework.config import ExperimentConfig
+from chemistry_framework.config.schema import FeatureConfig
 from chemistry_framework.data import make_tensor_dataloaders
 from chemistry_framework.encoders import AtomSMARTSFlags, BondSMARTSFlags
 from chemistry_framework.evaluation import evaluate_model, load_model_checkpoint
@@ -156,8 +157,12 @@ def test_configured_experiment_loads_splits_caches_and_writes_analysis(tmp_path)
     assert experiment.prior_features["enthalpy"] == ("composition.C", "composition.O")
     assert experiment.route_features["enthalpy"] == ("ester",)
     assert experiment.analysis is not None
+    assert experiment.feature_evidence is not None
     assert experiment.analysis.split_sizes["train"] == len(experiment.split.train)
     assert (tmp_path / "analysis" / "fixture-analysis.json").is_file()
+    assert (tmp_path / "analysis" / "fixture-feature-evidence.csv").is_file()
+    assert (tmp_path / "analysis" / "fixture-feature-report.html").is_file()
+    assert (tmp_path / "analysis" / "fixture-correlation-heatmap.png").is_file()
     cached_files = list((tmp_path / ".cache" / "features").glob("*.npz"))
     assert len(cached_files) == len(experiment.dataset)
 
@@ -177,6 +182,40 @@ def test_feature_cache_is_keyed_by_configuration_and_molecule(tmp_path) -> None:
     np.testing.assert_array_equal(first.values, second.values)
     FeatureCache(tmp_path / "cache", "schema-b").transform(block, ["CCO"])
     assert len(list((tmp_path / "cache").glob("*.npz"))) == 2
+
+
+def test_feature_annotations_are_kept_as_provenance(tmp_path) -> None:
+    feature = FeatureConfig.parse(
+        {
+            "type": "smarts",
+            "pattern": "[CX3](=O)[OX2][#6]",
+            "group": "functional_groups",
+            "description": "Ester fragment count",
+            "interpretation": "Counts ester motifs",
+            "source": "smarts",
+            "definition": "Ester SMARTS query",
+        },
+        "ester",
+    )
+    registry, _ = build_feature_registry({"ester": feature}, ["CC(=O)OC"], [0])
+    spec = registry.get("ester")
+    assert spec.group == "functional_groups"
+    assert spec.interpretation == "Counts ester motifs"
+    assert spec.definition == "Ester SMARTS query"
+
+
+def test_implicit_hydrogens_only_contribute_to_single_bond_pairs(tmp_path) -> None:
+    config = FeatureConfig.parse(
+        {"type": "bond_pairs", "elements": ["H", "C"], "bond_orders": ["1", "2", "3", "a"]},
+        "bonds",
+    )
+    registry, blocks = build_feature_registry({"bonds": config}, ["C=C"], [0])
+    matrix = MoleculeFeatureBlock(registry, blocks["bonds"]).transform(["C=C"])
+    values = dict(zip(matrix.names, matrix.values[0], strict=True))
+    assert values["bonds.HC1"] == 4.0
+    assert values["bonds.HC2"] == 0.0
+    assert values["bonds.HC3"] == 0.0
+    assert values["bonds.HCa"] == 0.0
 
 
 def test_smarts_holdout_split_keeps_all_matching_molecules_in_test() -> None:

@@ -27,6 +27,9 @@ def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S
                 calculator=atom_count(symbol),
                 domain="composition",
                 metadata={"element": symbol},
+                group="composition",
+                source="rdkit",
+                definition=f"Count of element {symbol}",
             )
         )
     registry.register(
@@ -34,6 +37,9 @@ def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S
             "n_heavy_atoms",
             lambda mol: float(mol.GetNumHeavyAtoms()),
             domain="composition",
+            group="composition",
+            source="rdkit",
+            definition="Count of non-hydrogen atoms",
         )
     )
     for bond_name, bond_type in (
@@ -49,6 +55,9 @@ def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S
                     sum(str(bond.GetBondType()) == kind for bond in mol.GetBonds())
                 ),
                 domain="topology",
+                group="connectivity",
+                source="rdkit",
+                definition=f"Count of {bond_name} bonds",
             )
         )
     registry.register(
@@ -56,6 +65,9 @@ def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S
             "n_rings",
             lambda mol: float(rdMolDescriptors.CalcNumRings(mol)),
             domain="topology",
+            group="rings",
+            source="rdkit",
+            definition="Count of molecular rings",
         )
     )
     registry.register(
@@ -63,6 +75,9 @@ def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S
             "n_rotatable_bonds",
             lambda mol: float(rdMolDescriptors.CalcNumRotatableBonds(mol)),
             domain="topology",
+            group="flexibility",
+            source="rdkit",
+            definition="Count of rotatable bonds",
         )
     )
     return registry

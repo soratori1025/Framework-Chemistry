@@ -36,6 +36,30 @@ experiments, but it is **not** the fixed split distributed by the TDC
 `BenchmarkGroup`; use that official protocol when claiming leaderboard
 comparability.
 
+## Public library API and design principles
+
+The public package is intentionally centered on a reusable, importable API rather than on a single hard-coded task script. The supported pattern is:
+
+```python
+from chemistry_framework import ArchitectureRecipe, FeatureRole, FusionStrategy
+
+recipe = (
+    ArchitectureRecipe(
+        name="prior_plus_graph",
+        prior_features=("element_counts", "bond_pairs"),
+        residual_features=("graph_flags",),
+        fusion_strategy=FusionStrategy.ADDITIVE,
+        prior_model="linear",
+        residual_model="mlp",
+        description="Explicit descriptor prior plus learnable residual encoder.",
+    )
+    .with_assignment("element_counts", FeatureRole.PRIOR, ("element_counts",), "Compositional prior")
+    .with_assignment("graph_flags", FeatureRole.RESIDUAL, ("graph_flags",), "Residual graph signal")
+)
+```
+
+This matches the framework intent: users can assign feature families to a `prior`, `residual`, `auxiliary`, or `direct` role, and they can change the fusion strategy without rewriting the entire modeling stack. The public library stays clean and task-agnostic; all analysis/evaluation artifacts remain local to a separate benchmarking workspace.
+
 ## Configure an experiment
 
 Start from [`chemistry_framework/presets/general_regression.yaml`](chemistry_framework/presets/general_regression.yaml)
@@ -65,6 +89,9 @@ features:
     type: smarts
     pattern: "[CX3](=O)[OX2][#6]"
     mode: count
+    group: functional_groups
+    description: Counts ester fragments
+    interpretation: Ester functional-group abundance
 
 priors:
   enthalpy:
@@ -196,6 +223,51 @@ Benson vocabulary is selected using train rows only), applies the
 configuration-keyed cache, and writes the configured feature/target analysis
 JSON. It does not instantiate a task-specific graph model or silently train
 one: users retain control of their encoder, loss, and graph batching.
+When analysis is enabled, preparation also writes a model-independent feature
+evidence scorecard (JSON and CSV), an HTML report, and a PNG training-set
+correlation heatmap:
+
+- `*-feature-evidence.json` preserves feature support, train/test ranges,
+  train-only target associations, collinearity, provenance, and available
+  prior/model evidence.
+- `*-feature-evidence.csv` is the tabular scorecard for downstream analysis.
+- `*-feature-report.html` summarizes the scorecard and group contributions.
+- `*-correlation-heatmap.png` visualizes the training-feature correlation
+  matrix; row/column order matches the CSV feature order.
+
+The `group`, `description`, `interpretation`, `source`, and `definition`
+fields are optional per-feature metadata. If omitted, the feature block/domain
+and calculator metadata are used where possible; the framework does not invent
+a chemistry explanation for a feature whose definition is unknown. The CLI
+`analyze` command is a convenient alias for preparing the configured data and
+writing these diagnostics:
+
+```bash
+chemistry-framework analyze experiment.yaml
+```
+
+Feature evidence is deliberately split into distinct kinds:
+
+- **Intrinsic evidence** is model-independent: support, range coverage,
+  train-only Spearman association, provenance, and redundancy indicators.
+- **Prior evidence** reports fitted coefficient stability across supplied
+  runs. Bootstrap intervals are descriptive with few runs, not guarantees.
+- **Model-dependent evidence** can be obtained with grouped test-set
+  permutation or leave-group-out retraining utilities in
+  `chemistry_framework.feature_analysis`. Positive metric deltas mean the
+  complete model outperformed the perturbed/reduced model. These are
+  predictive, model-specific measurements and do not imply causal effects.
+
+The scorecard avoids interpreting a near-zero coefficient as proof of no
+chemical effect. A feature is only labelled `supported` when sufficient
+training support, stable prior coefficients, and consistent positive
+model-specific group evidence are all present. Without prior/model evidence,
+the default class remains `weak_uncertain`; high collinearity is labelled
+`redundant`, and no/limited support or test-range extrapolation is flagged.
+These labels describe the tested data and protocol, not universal feature
+validity. Feature matrices currently require finite values, so their reported
+feature missing count is zero; missing target values are still represented
+and summarized separately.
 
 For descriptor-based tasks, the library provides loaders, a generic PyTorch
 training loop, prior fitting, and evaluation:

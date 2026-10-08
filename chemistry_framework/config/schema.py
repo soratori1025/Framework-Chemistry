@@ -146,6 +146,11 @@ class DatasetConfig:
 class FeatureConfig:
     type: str
     options: dict[str, Any] = field(default_factory=dict)
+    group: str | None = None
+    description: str | None = None
+    interpretation: str | None = None
+    source: str | None = None
+    definition: str | None = None
     @classmethod
     def parse(cls, value: Any, name: str) -> FeatureConfig:
         data = _mapping(value, f"features.{name}")
@@ -154,7 +159,21 @@ class FeatureConfig:
         feature_type = data["type"]
         if feature_type not in {"elements", "bond_pairs", "smarts", "python", "benson_groups"}:
             raise ValueError(f"unsupported feature type {feature_type!r} for {name}")
-        options = {key: item for key, item in data.items() if key != "type"}
+        annotations = {
+            key: data[key]
+            for key in ("group", "description", "interpretation", "source", "definition")
+            if key in data
+        }
+        if any(not isinstance(item, str) or not item.strip() for item in annotations.values()):
+            raise TypeError(
+                f"features.{name} group, description, interpretation, source, and "
+                "definition values must be non-empty strings"
+            )
+        options = {
+            key: item
+            for key, item in data.items()
+            if key != "type" and key not in annotations
+        }
         if feature_type in {"elements", "bond_pairs"}:
             elements = _string_list(options.get("elements"), f"features.{name}.elements")
             if not elements:
@@ -195,7 +214,15 @@ class FeatureConfig:
                 )
             if "version" in options and not isinstance(options["version"], str):
                 raise TypeError(f"features.{name}.version must be a string")
-        return cls(feature_type, options)
+        return cls(
+            feature_type,
+            options,
+            group=annotations.get("group"),
+            description=annotations.get("description"),
+            interpretation=annotations.get("interpretation"),
+            source=annotations.get("source"),
+            definition=annotations.get("definition"),
+        )
 
 @dataclass(frozen=True)
 class PriorConfig:

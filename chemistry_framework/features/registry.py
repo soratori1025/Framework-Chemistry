@@ -24,7 +24,19 @@ class FeatureRegistry:
     def names(self) -> tuple[str, ...]:
         return tuple(self._features)
 
-    def add_smarts(self, name: str, smarts: str, *, mode: str = "count", applies_to: Sequence[str] = (),) -> None:
+    def add_smarts(
+        self,
+        name: str,
+        smarts: str,
+        *,
+        mode: str = "count",
+        applies_to: Sequence[str] = (),
+        group: str | None = None,
+        description: str | None = None,
+        interpretation: str | None = None,
+        source: str = "smarts",
+        definition: str | None = None,
+    ) -> None:
         """Register a SMARTS fragment count or presence indicator."""
         if mode not in {"count", "presence"}:
             raise ValueError("SMARTS mode must be 'count' or 'presence'")
@@ -47,5 +59,10 @@ class FeatureRegistry:
                 domain="functional_group",
                 applies_to=tuple(applies_to),
                 metadata={"smarts": smarts, "mode": mode},
+                group=group,
+                description=description,
+                interpretation=interpretation,
+                source=source,
+                definition=definition or f"SMARTS {mode}: {smarts}",
             )
         )

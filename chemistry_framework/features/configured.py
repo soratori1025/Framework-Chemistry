@@ -12,6 +12,8 @@ import hashlib
 import inspect
 import json
 
+_FEATURE_ENGINE_VERSION = 2
+
 def load_python_callable(reference: str) -> Callable[..., Any]:
     """Load a trusted user plugin referenced as ``package.module:function``."""
     module_name, function_name = reference.split(":", maxsplit=1)
@@ -42,11 +44,11 @@ def _bond_pair_calculator(left: str, right: str, bond_type: str) -> FeatureCalcu
                 bond.GetBondType()
             ) == bond_type:
                 count += 1
-        if "H" in {left, right}:
+        if "H" in {left, right} and left != right and bond_type == "SINGLE":
             heavy_symbol = right if left == "H" else left
             for atom in mol.GetAtoms():
                 if atom.GetSymbol() == heavy_symbol:
-                    count += atom.GetTotalNumHs(includeNeighbors=False) if left != right else 0
+                    count += atom.GetTotalNumHs(includeNeighbors=False)
         return float(count)
     return calculate
 
@@ -79,7 +81,17 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
             for element in elements:
                 name = f"{block_name}.{element}"
                 registry.register(
-                    FeatureSpec(name, element_counter(element), "composition", metadata={"element": element})
+                    FeatureSpec(
+                        name,
+                        element_counter(element),
+                        "composition",
+                        metadata={"element": element},
+                        group=config.group or block_name,
+                        description=config.description,
+                        interpretation=config.interpretation,
+                        source=config.source or "elements",
+                        definition=config.definition or f"Count of element {element}",
+                    )
                 )
                 names.append(name)
         elif config.type == "bond_pairs":
@@ -97,6 +109,12 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                             _bond_pair_calculator(left, right, bond_type),
                             "bond_pair",
                             metadata={"elements": [left, right], "bond_order": order},
+                            group=config.group or block_name,
+                            description=config.description,
+                            interpretation=config.interpretation,
+                            source=config.source or "bond_pairs",
+                            definition=config.definition
+                            or f"Count of {order_label} bonds between {left} and {right}",
                         )
                     )
                     names.append(name)
@@ -107,6 +125,11 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                 options["pattern"],
                 mode=options.get("mode", "count"),
                 applies_to=options.get("applies_to", ()),
+                group=config.group or block_name,
+                description=config.description,
+                interpretation=config.interpretation,
+                source=config.source or "smarts",
+                definition=config.definition,
             )
             names.append(name)
         elif config.type == "python":
@@ -118,6 +141,11 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                     lambda mol, fn=calculator: float(fn(mol)),
                     options.get("domain", "custom"),
                     metadata={"plugin": options["fn"], "version": options.get("version", "unversioned")},
+                    group=config.group or block_name,
+                    description=config.description,
+                    interpretation=config.interpretation,
+                    source=config.source or "python",
+                    definition=config.definition or options["fn"],
                 )
             )
             names.append(name)
@@ -154,6 +182,11 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                         count_group,
                         "benson_group",
                         metadata={"provider": provider_ref, "min_count": minimum},
+                        group=config.group or block_name,
+                        description=config.description,
+                        interpretation=config.interpretation,
+                        source=config.source or "benson_groups",
+                        definition=config.definition or provider_ref,
                     )
                 )
                 names.append(feature_name)
@@ -179,8 +212,17 @@ def configured_feature_fingerprint(definitions: Mapping[str, FeatureConfig]) -> 
             source = code.co_code.hex() + repr(code.co_consts)
         plugin_hashes[name] = hashlib.sha256(source.encode("utf-8")).hexdigest()
     payload = {
+        "feature_engine_version": _FEATURE_ENGINE_VERSION,
         "definitions": {
-            name: {"type": config.type, "options": config.options}
+            name: {
+                "type": config.type,
+                "options": config.options,
+                "group": config.group,
+                "description": config.description,
+                "interpretation": config.interpretation,
+                "source": config.source,
+                "definition": config.definition,
+            }
             for name, config in sorted(definitions.items())
         },
         "plugin_hashes": plugin_hashes,

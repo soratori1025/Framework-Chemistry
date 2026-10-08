@@ -14,6 +14,11 @@ class FeatureSpec:
     domain: str
     applies_to: tuple[str, ...] = ()
     metadata: Mapping[str, Any] = field(default_factory=dict)
+    group: str | None = None
+    description: str | None = None
+    interpretation: str | None = None
+    source: str | None = None
+    definition: str | None = None
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise ValueError("feature name must not be empty")
@@ -21,6 +26,10 @@ class FeatureSpec:
             raise TypeError(f"calculator for feature {self.name!r} must be callable")
         if not self.domain.strip():
             raise ValueError(f"domain for feature {self.name!r} must not be empty")
+        for field_name in ("group", "description", "interpretation", "source", "definition"):
+            value = getattr(self, field_name)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError(f"feature {field_name} must be a non-empty string when set")
 
 @dataclass(frozen=True)
 class FeatureMatrix:

@@ -16,6 +16,11 @@ def main(argv: list[str] | None = None) -> int:
         help="load data, build train-only feature vocabularies, split, cache, and analyze",
     )
     prepare.add_argument("config")
+    analyze = commands.add_parser(
+        "analyze",
+        help="extract chemical features and write the feature evidence scorecard",
+    )
+    analyze.add_argument("config")
     args = parser.parse_args(argv)
     try:
         config = load_config(args.config)
@@ -35,11 +40,19 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         prepared = prepare_experiment(config)
         report_path = None
+        feature_evidence_paths = None
         if prepared.analysis is not None:
-            report_path = str(
-                config.resolve_path(config.analysis.output_dir)
-                / f"{config.name}-analysis.json"
-            )
+            output_dir = config.resolve_path(config.analysis.output_dir)
+            report_path = str(output_dir / f"{config.name}-analysis.json")
+            if prepared.feature_evidence is not None:
+                feature_evidence_paths = {
+                    "json": str(output_dir / f"{config.name}-feature-evidence.json"),
+                    "csv": str(output_dir / f"{config.name}-feature-evidence.csv"),
+                    "html": str(output_dir / f"{config.name}-feature-report.html"),
+                    "heatmap": str(
+                        output_dir / f"{config.name}-correlation-heatmap.png"
+                    ),
+                }
         print(
             json.dumps(
                 {
@@ -53,6 +66,7 @@ def main(argv: list[str] | None = None) -> int:
                     },
                     "feature_count": len(prepared.features.names),
                     "analysis_report": report_path,
+                    "feature_evidence": feature_evidence_paths,
                     "feature_fingerprint": prepared.feature_fingerprint,
                 },
                 indent=2,

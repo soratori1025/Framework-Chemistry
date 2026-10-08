@@ -1,4 +1,4 @@
-"""Pre-training feature and target analysis."""
+"""Pre-training feature and target distribution analysis."""
 
 from .report import AnalysisReport, analyze_features_and_targets
 from .prediction import analyze_prediction_molecules
