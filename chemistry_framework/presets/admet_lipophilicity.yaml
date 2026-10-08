@@ -1,0 +1,59 @@
+name: tdc-lipophilicity-scaffold
+
+dataset:
+  provider: tdc_adme
+  name: Lipophilicity_AstraZeneca
+  smiles_column: Drug
+  targets:
+    lipophilicity:
+      column: Y
+      unit: log-ratio
+
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+  bonds:
+    type: bond_pairs
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+    bond_orders: ["1", "2", "3", "a"]
+  aromatic:
+    type: smarts
+    pattern: "a"
+    mode: count
+
+routes:
+  lipophilicity: [composition, bonds, aromatic]
+
+tasks:
+  lipophilicity:
+    target: lipophilicity
+    kind: scalar
+    route: lipophilicity
+
+split:
+  method: scaffold
+  fractions: [0.7, 0.1, 0.2]
+  seed: 42
+
+training:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  loss: huber
+  patience: 15
+  device: auto
+
+evaluation:
+  metrics: [mae, rmse, r2]
+
+analysis:
+  enabled: true
+  support_threshold: 5
+  correlation_threshold: 0.95
+  bins: 20
+  output_dir: analysis
+
+cache:
+  enabled: true
+  directory: .chemistry_cache/features

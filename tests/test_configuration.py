@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import asdict
+import sys
+from types import ModuleType
 
 import numpy as np
 import pytest
@@ -25,10 +28,22 @@ def _write_dataset(path) -> None:
         "CC(=O)OC", "CCC(=O)OC", "CC(=O)OCC", "CCCC(=O)OC",
     ]
     with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=["smiles", "h", "s"])
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=["smiles", "h", "s", "active", "tox_a", "tox_b"],
+        )
         writer.writeheader()
         for index, value in enumerate(smiles):
-            writer.writerow({"smiles": value, "h": index * 2.0 + 1, "s": index * -1.5 + 4})
+            writer.writerow(
+                {
+                    "smiles": value,
+                    "h": index * 2.0 + 1,
+                    "s": index * -1.5 + 4,
+                    "active": index % 2,
+                    "tox_a": index % 2,
+                    "tox_b": "" if index == 0 else (index // 2) % 2,
+                }
+            )
 
 
 def _config(tmp_path, split=None) -> ExperimentConfig:
@@ -77,6 +92,59 @@ def _config(tmp_path, split=None) -> ExperimentConfig:
         },
     }
     return ExperimentConfig.parse(data, source_path=tmp_path / "experiment.yaml")
+
+def _classification_config(tmp_path, *, multilabel=False) -> ExperimentConfig:
+    config = asdict(_config(tmp_path))
+    config.pop("source_path")
+    config["features"] = {
+        name: {"type": feature["type"], **feature["options"]}
+        for name, feature in config["features"].items()
+    }
+    config["routes"] = {
+        name: list(feature_names)
+        for name, feature_names in config["routes"].items()
+    }
+    config["priors"] = {
+        name: {
+            **prior,
+            "use": list(prior["use"]),
+        }
+        for name, prior in config["priors"].items()
+    }
+    config["evaluation"]["metrics"] = list(config["evaluation"]["metrics"])
+    config["dataset"]["targets"] = {
+        name: {
+            "column": target["columns"][0],
+            "unit": target["unit"],
+            "kind": target["kind"],
+        }
+        for name, target in config["dataset"]["targets"].items()
+    }
+    if multilabel:
+        config["dataset"]["targets"] = {
+            "activity": {
+                "columns": ["tox_a", "tox_b"],
+                "kind": "vector",
+            }
+        }
+        config["tasks"] = {
+            "activity": {
+                "target": "activity",
+                "kind": "multilabel_classification",
+            }
+        }
+    else:
+        config["dataset"]["targets"] = {
+            "activity": {"column": "active"},
+        }
+        config["tasks"] = {
+            "activity": {
+                "target": "activity",
+                "kind": "binary_classification",
+            }
+        }
+    config["training"]["loss"] = "bce"
+    return ExperimentConfig.parse(config, source_path=tmp_path / "experiment.yaml")
 
 
 def test_configured_experiment_loads_splits_caches_and_writes_analysis(tmp_path) -> None:
@@ -185,6 +253,59 @@ def test_tensor_loaders_apply_task_descriptor_route(tmp_path) -> None:
     assert loaders.train.dataset.tensors[0].shape[1] == 1
     assert experiment.features.values.shape[1] > 1
 
+def test_classification_config_and_loader_support_binary_and_missing_multilabels(tmp_path) -> None:
+    from chemistry_framework.data import make_tensor_dataloaders
+
+    binary_experiment = prepare_experiment(_classification_config(tmp_path))
+    binary_loaders = make_tensor_dataloaders(binary_experiment, "activity")
+    assert binary_experiment.config.tasks["activity"]["kind"] == "binary_classification"
+    assert binary_loaders.train.dataset.tensors[1].ndim == 1
+
+    multilabel_experiment = prepare_experiment(
+        _classification_config(tmp_path, multilabel=True)
+    )
+    multilabel_loaders = make_tensor_dataloaders(multilabel_experiment, "activity")
+    train_targets = multilabel_loaders.train.dataset.tensors[1]
+    assert train_targets.ndim == 2
+    assert torch.isnan(train_targets).any()
+
+def test_tdc_adapter_loads_configured_columns_without_installing_tdc(monkeypatch) -> None:
+    from chemistry_framework.data import load_tdc_dataset
+    from chemistry_framework.config import DatasetConfig
+
+    class Frame:
+        columns = ["Drug", "Y"]
+
+        def __getitem__(self, column):
+            return np.asarray({"Drug": ["CC", "CCO"], "Y": [0, 1]}[column])
+
+    class ADME:
+        def __init__(self, name):
+            assert name == "HIA_Hou"
+
+        def get_data(self):
+            return Frame()
+
+    tdc_package = ModuleType("tdc")
+    tdc_package.__path__ = []
+    tdc_single_pred = ModuleType("tdc.single_pred")
+    tdc_single_pred.ADME = ADME
+    tdc_single_pred.Tox = ADME
+    monkeypatch.setitem(sys.modules, "tdc", tdc_package)
+    monkeypatch.setitem(sys.modules, "tdc.single_pred", tdc_single_pred)
+    config = DatasetConfig.parse(
+        {
+            "provider": "tdc_adme",
+            "name": "HIA_Hou",
+            "targets": {"activity": {"column": "Y"}},
+        }
+    )
+
+    loaded = load_tdc_dataset(config)
+    assert loaded.smiles == ("CC", "CCO")
+    assert loaded.targets["activity"] == (0.0, 1.0)
+    assert loaded.source_path is None
+
 
 def test_training_and_evaluation_work_with_configured_settings(tmp_path) -> None:
     x = torch.linspace(-1.0, 1.0, 20).reshape(-1, 1)
@@ -213,3 +334,53 @@ def test_training_and_evaluation_work_with_configured_settings(tmp_path) -> None
     assert actual.shape == predicted.shape == (6,)
     assert metrics["mae"] < 3.0
     assert restored_metrics["mae"] == pytest.approx(metrics["mae"])
+
+def test_binary_training_and_classification_metrics_support_missing_labels() -> None:
+    from chemistry_framework.config import TrainingConfig
+    from chemistry_framework.evaluation import evaluate_model
+
+    inputs = torch.tensor([[-2.0], [-1.0], [1.0], [2.0], [3.0]])
+    targets = torch.tensor([0.0, 0.0, 1.0, 1.0, float("nan")])
+    loader = DataLoader(TensorDataset(inputs, targets), batch_size=2)
+    result = train_model(
+        torch.nn.Linear(1, 1),
+        loader,
+        loader,
+        TrainingConfig(
+            epochs=5,
+            batch_size=2,
+            learning_rate=0.03,
+            loss="bce",
+            patience=2,
+        ),
+    )
+    metrics, actual, predicted = evaluate_model(
+        torch.nn.Sequential(torch.nn.Identity()),
+        DataLoader(
+            TensorDataset(
+                torch.tensor([[-2.0], [-1.0], [1.0], [2.0], [0.0]]),
+                targets,
+            ),
+            batch_size=2,
+        ),
+        ("auroc", "auprc", "accuracy"),
+        task_kind="binary_classification",
+    )
+    assert result.best_epoch > 0
+    assert metrics["count"] == 4
+    assert metrics["auroc"] == pytest.approx(1.0)
+    assert metrics["auprc"] == pytest.approx(1.0)
+    assert metrics["accuracy"] == pytest.approx(1.0)
+    assert actual.shape == predicted.shape == (5,)
+
+
+def test_auprc_groups_examples_with_tied_scores() -> None:
+    from chemistry_framework.evaluation import classification_metrics
+
+    metrics = classification_metrics(
+        [1, 0, 1, 0],
+        [0.5, 0.5, 0.5, 0.1],
+        ("auprc",),
+    )
+
+    assert metrics["auprc"] == pytest.approx(2 / 3)

@@ -23,7 +23,18 @@ pip install -e ".[config,chemistry,test]"
 PyTorch and NumPy are core dependencies. PyYAML (`config`) enables YAML
 experiments; RDKit (`chemistry`) enables the built-in SMILES/SMARTS features,
 scaffold/size splits, and graph SMARTS flags. Tensor-based components can be
-used without RDKit.
+used without RDKit. Install `benchmark` to load datasets through PyTDC:
+
+```bash
+pip install "chemistry-framework[config,chemistry,benchmark]"
+```
+
+The TDC adapter supports individual `ADME` and `Tox` datasets by name. It
+downloads/loads the dataset through PyTDC and lets the experiment's configured
+splitter create train/validation/test partitions. This is useful for framework
+experiments, but it is **not** the fixed split distributed by the TDC
+`BenchmarkGroup`; use that official protocol when claiming leaderboard
+comparability.
 
 ## Configure an experiment
 
@@ -92,6 +103,55 @@ cache:
   directory: .chemistry_cache/features
 ```
 
+### TDC benchmark presets
+
+Four starter configurations cover distinct property/task combinations:
+
+| Preset | TDC source | Task | Split |
+| --- | --- | --- | --- |
+| `chemistry_framework/presets/admet_caco2.yaml` | `ADME / Caco2_Wang` | Regression | Scaffold |
+| `chemistry_framework/presets/admet_lipophilicity.yaml` | `ADME / Lipophilicity_AstraZeneca` | Regression | Scaffold |
+| `chemistry_framework/presets/admet_bbb.yaml` | `ADME / BBB_Martins` | Binary classification | Scaffold |
+| `chemistry_framework/presets/admet_herg.yaml` | `Tox / hERG` | Binary classification | Scaffold |
+
+Validate a preset before using it:
+
+```bash
+chemistry-framework validate chemistry_framework/presets/admet_caco2.yaml
+chemistry-framework validate chemistry_framework/presets/admet_bbb.yaml
+```
+
+TDC data is loaded lazily by `prepare`, which requires the `benchmark` extra and
+network/cache access on first use. Presets use the public `Drug` and `Y`
+columns. Check dataset licenses and endpoint/assay definitions before
+redistributing data or interpreting results. In particular, results from a
+locally generated scaffold split must not be reported as TDC official
+benchmark results.
+
+Classification tasks declare `kind: binary_classification` or
+`kind: multilabel_classification` and use `training.loss: bce`. Models return
+logits during training; `evaluate_model(..., task_kind="binary_classification")`
+applies sigmoid and reports configured classification metrics. Missing
+multi-label targets are masked per label. For classification, use the task kind
+explicitly when evaluating:
+
+```python
+metrics, actual, probabilities = evaluate_model(
+    model,
+    loaders.test,
+    config.evaluation.metrics,
+    device=config.training.device,
+    task_kind="binary_classification",
+)
+```
+
+To support meaningful comparisons, hold split seeds and model/training
+settings fixed across feature ablations, retain a validation set for model
+selection, and report repeated-run mean and standard deviation. Use at least
+five independent seeds for benchmark claims; a single run is only a smoke
+test. The framework does not claim that one prior or feature set improves all
+ADMET endpoints.
+
 The configuration has separate responsibilities:
 
 - `dataset` declares the input CSV, SMILES column, and scalar or multi-column
@@ -108,8 +168,8 @@ The configuration has separate responsibilities:
   example, `method: smarts` with `test_smarts: "[CX3](=O)[OX2][#6]"` puts all
   matching molecules in test and partitions the remainder into train and
   validation.
-- `training` and `evaluation` hold optimizer/loop settings and regression
-  metrics. `analysis` configures support thresholds, correlation checks,
+-   `training` and `evaluation` hold optimizer/loop settings and regression or
+  classification metrics. `analysis` configures support thresholds, correlation checks,
   distribution histograms, and report output. `cache` stores feature rows by
   canonical molecule and feature-schema fingerprint.
 - `graph.atom_smarts_flags` and `graph.bond_smarts_flags` define local graph

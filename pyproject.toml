@@ -29,6 +29,9 @@ dependencies = [
 [project.optional-dependencies]
 chemistry = ["rdkit"]
 config = ["PyYAML>=6"]
+benchmark = ["PyTDC>=0.4.0"]
+graph = ["torch-geometric>=2.5"]
+benchmarks = ["torch-geometric>=2.5", "scikit-learn>=1.3"]
 test = ["pytest>=7", "PyYAML>=6"]
 
 [project.scripts]

@@ -1,0 +1,58 @@
+name: tdc-herg-scaffold
+
+dataset:
+  provider: tdc_tox
+  name: hERG
+  smiles_column: Drug
+  targets:
+    blocker:
+      column: Y
+
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+  bonds:
+    type: bond_pairs
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+    bond_orders: ["1", "2", "3", "a"]
+  aromatic:
+    type: smarts
+    pattern: "a"
+    mode: count
+
+routes:
+  blocker: [composition, bonds, aromatic]
+
+tasks:
+  blocker:
+    target: blocker
+    kind: binary_classification
+    route: blocker
+
+split:
+  method: scaffold
+  fractions: [0.7, 0.1, 0.2]
+  seed: 42
+
+training:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  loss: bce
+  patience: 15
+  device: auto
+
+evaluation:
+  metrics: [auroc, auprc, accuracy]
+
+analysis:
+  enabled: true
+  support_threshold: 5
+  correlation_threshold: 0.95
+  bins: 20
+  output_dir: analysis
+
+cache:
+  enabled: true
+  directory: .chemistry_cache/features

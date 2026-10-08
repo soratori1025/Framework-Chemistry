@@ -94,28 +94,53 @@ class TargetConfig:
 
 @dataclass(frozen=True)
 class DatasetConfig:
-    path: str
+    path: str | None
     smiles_column: str = "smiles"
     targets: dict[str, TargetConfig] = field(default_factory=dict)
     delimiter: str = ","
     encoding: str = "utf-8"
+    provider: str = "csv"
+    name: str | None = None
     @classmethod
     def parse(cls, value: Any) -> DatasetConfig:
         data = _mapping(value, "dataset")
-        _only_keys(data, {"path", "smiles_column", "targets", "delimiter", "encoding"}, "dataset")
+        _only_keys(
+            data,
+            {"path", "smiles_column", "targets", "delimiter", "encoding", "provider", "name"},
+            "dataset",
+        )
+        provider = data.get("provider", "csv")
+        if provider not in {"csv", "tdc_adme", "tdc_tox"}:
+            raise ValueError("dataset.provider must be csv, tdc_adme, or tdc_tox")
         path = data.get("path")
-        if not isinstance(path, str) or not path:
-            raise ValueError("dataset.path must be a non-empty path")
+        dataset_name = data.get("name")
+        if provider == "csv":
+            if not isinstance(path, str) or not path:
+                raise ValueError("dataset.path must be a non-empty path for CSV datasets")
+            if dataset_name is not None:
+                raise ValueError("dataset.name is only supported for TDC datasets")
+        else:
+            if not isinstance(dataset_name, str) or not dataset_name:
+                raise ValueError("dataset.name must be a non-empty TDC dataset name")
+            if path is not None:
+                raise ValueError("dataset.path is not used with a TDC dataset")
         raw_targets = _mapping(data.get("targets", {}), "dataset.targets")
+        if not raw_targets:
+            raise ValueError("dataset.targets must define at least one target")
         targets = {name: TargetConfig.parse(config, name) for name, config in raw_targets.items()}
-        smiles_column = data.get("smiles_column", "smiles")
+        smiles_column = data.get(
+            "smiles_column",
+            "Drug" if provider in {"tdc_adme", "tdc_tox"} else "smiles",
+        )
         delimiter = data.get("delimiter", ",")
         encoding = data.get("encoding", "utf-8")
         if not all(isinstance(item, str) and item for item in (smiles_column, encoding)):
             raise ValueError("dataset.smiles_column and encoding must be non-empty strings")
         if not isinstance(delimiter, str) or len(delimiter) != 1:
             raise ValueError("dataset.delimiter must be exactly one character")
-        return cls(path, smiles_column, targets, delimiter, encoding)
+        if provider != "csv" and (delimiter != "," or encoding != "utf-8"):
+            raise ValueError("dataset.delimiter and encoding only apply to CSV datasets")
+        return cls(path, smiles_column, targets, delimiter, encoding, provider, dataset_name)
 
 @dataclass(frozen=True)
 class FeatureConfig:
@@ -283,7 +308,9 @@ class TrainingConfig:
             raise ValueError("training.learning_rate must be positive and weight_decay non-negative")
         if config.num_workers < 0 or (config.patience is not None and config.patience < 1):
             raise ValueError("training.num_workers must be non-negative and patience positive")
-        if not isinstance(config.loss, str) or config.loss not in {"mse", "mae", "huber", "custom"}:
+        if not isinstance(config.loss, str) or config.loss not in {
+            "mse", "mae", "huber", "bce", "custom"
+        }:
             raise ValueError(f"unsupported training.loss {config.loss!r}")
         if not isinstance(config.device, str) or config.device not in {"auto", "cpu", "cuda", "mps"}:
             raise ValueError(f"unsupported training.device {config.device!r}")
@@ -300,7 +327,10 @@ class EvaluationConfig:
         data = _mapping(value, "evaluation")
         _only_keys(data, {"metrics", "checkpoint"}, "evaluation")
         metrics = _string_list(data.get("metrics", ["mae", "rmse", "r2"]), "evaluation.metrics")
-        allowed = {"mae", "rmse", "r2", "mape"}
+        allowed = {
+            "mae", "rmse", "r2", "mape",
+            "auroc", "auprc", "accuracy", "precision", "recall", "f1",
+        }
         unknown = set(metrics) - allowed
         if unknown:
             raise ValueError(f"unsupported evaluation metric(s): {', '.join(sorted(unknown))}")
@@ -421,6 +451,7 @@ class ExperimentConfig:
                 )
         raw_tasks = _mapping(data.get("tasks", {}), "tasks")
         dataset_config = DatasetConfig.parse(data.get("dataset"))
+        training_config = TrainingConfig.parse(data.get("training", {}))
         tasks: dict[str, dict[str, Any]] = {}
         for task_name, raw_task in raw_tasks.items():
             task = _mapping(raw_task, f"tasks.{task_name}")
@@ -430,15 +461,38 @@ class ExperimentConfig:
                 raise ValueError(f"tasks.{task_name}.target must name a configured dataset target")
             kind = task.get("kind", "scalar")
             if not isinstance(kind, str) or kind not in {
-                "scalar", "vector", "temperature_dependent", "custom"
+                "scalar", "vector", "temperature_dependent", "custom",
+                "binary_classification", "multilabel_classification",
             }:
                 raise ValueError(f"tasks.{task_name}.kind is unsupported: {kind!r}")
             target_kind = dataset_config.targets[target].kind
-            if kind != "custom" and target_kind != "custom" and kind != target_kind:
+            if kind == "binary_classification" and (
+                target_kind != "scalar" or len(dataset_config.targets[target].columns) != 1
+            ):
+                raise ValueError(
+                    f"tasks.{task_name} binary_classification requires one scalar target column"
+                )
+            if kind == "multilabel_classification" and target_kind not in {
+                "vector", "temperature_dependent", "custom"
+            }:
+                raise ValueError(
+                    f"tasks.{task_name} multilabel_classification requires a vector target"
+                )
+            if (
+                kind not in {"custom", "binary_classification", "multilabel_classification"}
+                and target_kind != "custom"
+                and kind != target_kind
+            ):
                 raise ValueError(
                     f"tasks.{task_name}.kind {kind!r} does not match "
                     f"dataset target kind {target_kind!r}"
                 )
+            if kind in {"binary_classification", "multilabel_classification"}:
+                if training_config.loss not in {"bce", "custom"}:
+                    raise ValueError(
+                        f"tasks.{task_name} classification requires training.loss='bce' "
+                        "or a custom loss_fn"
+                    )
             prior_name = task.get("prior")
             if prior_name is not None and prior_name not in priors:
                 raise ValueError(f"tasks.{task_name}.prior references unknown prior {prior_name!r}")
@@ -467,7 +521,7 @@ class ExperimentConfig:
             priors=priors,
             routes=routes,
             split=SplitConfig.parse(data.get("split", {})),
-            training=TrainingConfig.parse(data.get("training", {})),
+            training=training_config,
             evaluation=EvaluationConfig.parse(data.get("evaluation", {})),
             analysis=AnalysisConfig.parse(data.get("analysis", {})),
             cache=CacheConfig.parse(data.get("cache", {})),

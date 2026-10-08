@@ -8,6 +8,7 @@ from typing import Any
 import numpy as np
 import torch
 from torch import Tensor, nn
+from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from ..config.schema import TrainingConfig
 
@@ -40,6 +41,8 @@ def _loss_function(config: TrainingConfig) -> nn.Module:
         return nn.L1Loss()
     if config.loss == "huber":
         return nn.HuberLoss()
+    if config.loss == "bce":
+        return nn.BCEWithLogitsLoss(reduction="none")
     raise ValueError("training.loss='custom' requires passing loss_fn")
 
 def _prediction(model: nn.Module, inputs: Any) -> Tensor:
@@ -69,6 +72,21 @@ def _batch_loss(model: nn.Module, batch: Any, loss_fn: nn.Module, device: torch.
                 f"prediction shape {tuple(prediction.shape)} does not match "
                 f"target shape {tuple(targets.shape)}"
             )
+    if isinstance(loss_fn, nn.BCEWithLogitsLoss):
+        valid = torch.isfinite(targets)
+        if not valid.any():
+            return prediction.sum() * 0.0, 0
+        valid_targets = targets[valid]
+        if torch.any((valid_targets != 0) & (valid_targets != 1)):
+            raise ValueError("BCE targets must contain only 0, 1, or non-finite missing values")
+        elementwise_loss = F.binary_cross_entropy_with_logits(
+            prediction,
+            torch.nan_to_num(targets),
+            weight=loss_fn.weight,
+            pos_weight=loss_fn.pos_weight,
+            reduction="none",
+        )
+        return elementwise_loss[valid].mean(), int(valid.sum().item())
     valid = torch.isfinite(targets)
     if valid.ndim > 1:
         valid = valid.all(dim=tuple(range(1, valid.ndim)))

@@ -47,6 +47,11 @@ def make_tensor_dataloaders(experiment: PreparedExperiment, target_name: str, *,
                 f"multiple tasks use target {target_name!r}; select a task-specific "
                 "route with the task_name argument"
             )
+    task_kind = task.get("kind", "scalar") if task is not None else "scalar"
+    is_classification = task_kind in {
+        "binary_classification",
+        "multilabel_classification",
+    }
     selected_names = (
         experiment.route_features[task["route"]]
         if task is not None and task.get("route") is not None
@@ -64,7 +69,15 @@ def make_tensor_dataloaders(experiment: PreparedExperiment, target_name: str, *,
     def loader(indices: np.ndarray, shuffle: bool) -> DataLoader:
         row_targets = targets[indices]
         finite = np.isfinite(row_targets)
-        valid_rows = finite if finite.ndim == 1 else finite.all(axis=1)
+        if is_classification:
+            if np.any(finite & (row_targets != 0) & (row_targets != 1)):
+                raise ValueError(
+                    f"classification target {target_name!r} must contain only 0, 1, "
+                    "or missing values"
+                )
+            valid_rows = finite if finite.ndim == 1 else finite.any(axis=1)
+        else:
+            valid_rows = finite if finite.ndim == 1 else finite.all(axis=1)
         valid_indices = indices[valid_rows]
         if len(valid_indices) == 0:
             raise ValueError(
