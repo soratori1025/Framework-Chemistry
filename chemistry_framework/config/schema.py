@@ -93,6 +93,26 @@ class TargetConfig:
         return cls(target_columns, unit, kind)
 
 @dataclass(frozen=True)
+class ConditionConfig:
+    """A numeric row-level condition column such as temperature or pressure."""
+    column: str
+    unit: str = ""
+    @classmethod
+    def parse(cls, value: Any, name: str) -> ConditionConfig:
+        if isinstance(value, str) and value:
+            return cls(column=value)
+        data = _mapping(value, f"dataset.conditions.{name}")
+        _only_keys(data, {"column", "unit"}, f"dataset.conditions.{name}")
+        column, unit = data.get("column"), data.get("unit", "")
+        if not isinstance(column, str) or not column:
+            raise ValueError(f"dataset.conditions.{name}.column must be a non-empty string")
+        if not isinstance(unit, str):
+            raise TypeError(f"dataset.conditions.{name}.unit must be a string")
+        return cls(column, unit)
+
+_INPUT_FORMATS = {"smiles", "selfies", "inchi", "molblock", "sdf", "xyz", "reaction_smiles"}
+
+@dataclass(frozen=True)
 class DatasetConfig:
     path: str | None
     smiles_column: str = "smiles"
@@ -101,14 +121,24 @@ class DatasetConfig:
     encoding: str = "utf-8"
     provider: str = "csv"
     name: str | None = None
+    input_format: str = "smiles"
+    input_options: dict[str, Any] = field(default_factory=dict)
+    conditions: dict[str, ConditionConfig] = field(default_factory=dict)
+    @property
+    def input_column(self) -> str:
+        """Column holding the chemical input, whatever its notation."""
+        return self.smiles_column
     @classmethod
     def parse(cls, value: Any) -> DatasetConfig:
         data = _mapping(value, "dataset")
         _only_keys(
             data,
-            {"path", "smiles_column", "targets", "delimiter", "encoding", "provider", "name"},
+            {"path", "smiles_column", "input_column", "targets", "delimiter", "encoding",
+             "provider", "name", "input_format", "input_options", "conditions"},
             "dataset",
         )
+        if "smiles_column" in data and "input_column" in data:
+            raise ValueError("dataset: specify smiles_column or input_column, not both")
         provider = data.get("provider", "csv")
         if provider not in {"csv", "tdc_adme", "tdc_tox"}:
             raise ValueError("dataset.provider must be csv, tdc_adme, or tdc_tox")
@@ -129,8 +159,11 @@ class DatasetConfig:
             raise ValueError("dataset.targets must define at least one target")
         targets = {name: TargetConfig.parse(config, name) for name, config in raw_targets.items()}
         smiles_column = data.get(
-            "smiles_column",
-            "Drug" if provider in {"tdc_adme", "tdc_tox"} else "smiles",
+            "input_column",
+            data.get(
+                "smiles_column",
+                "Drug" if provider in {"tdc_adme", "tdc_tox"} else "smiles",
+            ),
         )
         delimiter = data.get("delimiter", ",")
         encoding = data.get("encoding", "utf-8")
@@ -140,7 +173,28 @@ class DatasetConfig:
             raise ValueError("dataset.delimiter must be exactly one character")
         if provider != "csv" and (delimiter != "," or encoding != "utf-8"):
             raise ValueError("dataset.delimiter and encoding only apply to CSV datasets")
-        return cls(path, smiles_column, targets, delimiter, encoding, provider, dataset_name)
+        input_format = data.get("input_format", "smiles")
+        if not isinstance(input_format, str) or not input_format:
+            raise ValueError("dataset.input_format must be a non-empty string")
+        if provider != "csv" and input_format != "smiles":
+            raise ValueError("TDC datasets provide SMILES; dataset.input_format must be smiles")
+        input_options = dict(_mapping(data.get("input_options", {}), "dataset.input_options"))
+        raw_conditions = _mapping(data.get("conditions", {}), "dataset.conditions")
+        conditions = {
+            name: ConditionConfig.parse(item, name) for name, item in raw_conditions.items()
+        }
+        return cls(
+            path, smiles_column, targets, delimiter, encoding, provider, dataset_name,
+            input_format, input_options, conditions,
+        )
+
+_MOLECULAR_FEATURE_TYPES = {
+    "elements", "bond_pairs", "smarts", "python", "benson_groups",
+    "rdkit_descriptors", "morgan", "descriptors_3d",
+}
+_FEATURE_TYPES = _MOLECULAR_FEATURE_TYPES | {"condition"}
+_CONDITION_TRANSFORMS = {"identity", "inverse", "log", "log10", "inverse_kilo"}
+_REACTION_SIDES = {"reactants", "products", "difference"}
 
 @dataclass(frozen=True)
 class FeatureConfig:
@@ -151,13 +205,19 @@ class FeatureConfig:
     interpretation: str | None = None
     source: str | None = None
     definition: str | None = None
+    @property
+    def is_condition(self) -> bool:
+        return self.type == "condition"
+    @property
+    def reaction_side(self) -> str:
+        return str(self.options.get("reaction_side", "reactants"))
     @classmethod
     def parse(cls, value: Any, name: str) -> FeatureConfig:
         data = _mapping(value, f"features.{name}")
         if "type" not in data or not isinstance(data["type"], str):
             raise ValueError(f"features.{name}.type must be a string")
         feature_type = data["type"]
-        if feature_type not in {"elements", "bond_pairs", "smarts", "python", "benson_groups"}:
+        if feature_type not in _FEATURE_TYPES:
             raise ValueError(f"unsupported feature type {feature_type!r} for {name}")
         annotations = {
             key: data[key]
@@ -174,12 +234,19 @@ class FeatureConfig:
             for key, item in data.items()
             if key != "type" and key not in annotations
         }
+        side_key: set[str] = set()
+        if feature_type in _MOLECULAR_FEATURE_TYPES and "reaction_side" in options:
+            if options["reaction_side"] not in _REACTION_SIDES:
+                raise ValueError(
+                    f"features.{name}.reaction_side must be reactants, products, or difference"
+                )
+            side_key = {"reaction_side"}
         if feature_type in {"elements", "bond_pairs"}:
             elements = _string_list(options.get("elements"), f"features.{name}.elements")
             if not elements:
                 raise ValueError(f"features.{name}.elements must not be empty")
             allowed = {"elements"} if feature_type == "elements" else {"elements", "bond_orders"}
-            _only_keys(options, allowed, f"features.{name}")
+            _only_keys(options, allowed | side_key, f"features.{name}")
             if feature_type == "bond_pairs":
                 orders = _string_list(
                     options.get("bond_orders", ["1", "2", "3", "a"]),
@@ -188,7 +255,7 @@ class FeatureConfig:
                 if not orders or set(orders) - {"1", "2", "3", "a"}:
                     raise ValueError(f"features.{name}.bond_orders must use a non-empty subset of 1, 2, 3, a")
         elif feature_type == "smarts":
-            _only_keys(options, {"pattern", "mode", "applies_to"}, f"features.{name}")
+            _only_keys(options, {"pattern", "mode", "applies_to"} | side_key, f"features.{name}")
             if not isinstance(options.get("pattern"), str) or not options["pattern"]:
                 raise ValueError(f"features.{name}.pattern must be a SMARTS string")
             mode = options.get("mode", "count")
@@ -197,13 +264,13 @@ class FeatureConfig:
             if "applies_to" in options:
                 _string_list(options["applies_to"], f"features.{name}.applies_to")
         elif feature_type == "python":
-            _only_keys(options, {"fn", "domain", "version"}, f"features.{name}")
+            _only_keys(options, {"fn", "domain", "version"} | side_key, f"features.{name}")
             if not isinstance(options.get("fn"), str) or ":" not in options["fn"]:
                 raise ValueError(f"features.{name}.fn must use 'module:function' syntax")
             if "version" in options and not isinstance(options["version"], str):
                 raise TypeError(f"features.{name}.version must be a string")
         elif feature_type == "benson_groups":
-            _only_keys(options, {"fn", "min_count", "version"}, f"features.{name}")
+            _only_keys(options, {"fn", "min_count", "version"} | side_key, f"features.{name}")
             min_count = options.get("min_count", 1)
             if not isinstance(min_count, int) or min_count < 1:
                 raise ValueError(f"features.{name}.min_count must be a positive integer")
@@ -214,6 +281,41 @@ class FeatureConfig:
                 )
             if "version" in options and not isinstance(options["version"], str):
                 raise TypeError(f"features.{name}.version must be a string")
+        elif feature_type == "rdkit_descriptors":
+            _only_keys(options, {"names", "families"} | side_key, f"features.{name}")
+            if "names" in options and "families" in options:
+                raise ValueError(f"features.{name}: use names or families, not both")
+            if "names" in options:
+                if not _string_list(options["names"], f"features.{name}.names"):
+                    raise ValueError(f"features.{name}.names must not be empty")
+            if "families" in options:
+                if not _string_list(options["families"], f"features.{name}.families"):
+                    raise ValueError(f"features.{name}.families must not be empty")
+        elif feature_type == "morgan":
+            _only_keys(options, {"radius", "n_bits", "counts"} | side_key, f"features.{name}")
+            radius, n_bits = options.get("radius", 2), options.get("n_bits", 1024)
+            if not isinstance(radius, int) or isinstance(radius, bool) or not 0 <= radius <= 6:
+                raise ValueError(f"features.{name}.radius must be an integer in [0, 6]")
+            if not isinstance(n_bits, int) or isinstance(n_bits, bool) or not 8 <= n_bits <= 16384:
+                raise ValueError(f"features.{name}.n_bits must be an integer in [8, 16384]")
+            if not isinstance(options.get("counts", False), bool):
+                raise TypeError(f"features.{name}.counts must be a boolean")
+        elif feature_type == "descriptors_3d":
+            _only_keys(options, {"names", "seed"} | side_key, f"features.{name}")
+            if "names" in options and not _string_list(options["names"], f"features.{name}.names"):
+                raise ValueError(f"features.{name}.names must not be empty")
+            if not isinstance(options.get("seed", 0), int):
+                raise TypeError(f"features.{name}.seed must be an integer")
+        elif feature_type == "condition":
+            _only_keys(options, {"column", "transform"}, f"features.{name}")
+            if not isinstance(options.get("column"), str) or not options["column"]:
+                raise ValueError(f"features.{name}.column must name a dataset condition")
+            transform = options.get("transform", "identity")
+            if transform not in _CONDITION_TRANSFORMS:
+                raise ValueError(
+                    f"features.{name}.transform must be one of "
+                    f"{', '.join(sorted(_CONDITION_TRANSFORMS))}"
+                )
         return cls(
             feature_type,
             options,
@@ -223,6 +325,214 @@ class FeatureConfig:
             source=annotations.get("source"),
             definition=annotations.get("definition"),
         )
+
+_INPUT_KINDS = {"descriptors", "graph"}
+_FUSIONS = {"additive", "weighted", "gated", "concatenate"}
+
+@dataclass(frozen=True)
+class ComponentConfig:
+    """One role-specific predictive component (prior or residual).
+
+    ``model`` is a name in the component registry (``linear``, ``ridge``,
+    ``logistic``, ``random_forest``, ``xgboost``, ``mlp``, ``gnn``, ...) or
+    ``custom`` with ``params.factory: module:callable``. ``features`` lists
+    feature blocks (or resolved feature columns) visible to this component
+    only; prior and residual feature spaces are independent.
+    """
+    model: str
+    features: tuple[str, ...] = ()
+    input: str = "descriptors"
+    params: dict[str, Any] = field(default_factory=dict)
+    standardize: bool = True
+    @classmethod
+    def parse(cls, value: Any, name: str) -> ComponentConfig:
+        if isinstance(value, str):
+            value = {"model": value}
+        data = _mapping(value, name)
+        _only_keys(data, {"model", "features", "input", "params", "standardize"}, name)
+        model = data.get("model")
+        if not isinstance(model, str) or not model:
+            raise ValueError(f"{name}.model must be a non-empty string")
+        raw_features = data.get("features", [])
+        features = (
+            (raw_features,) if isinstance(raw_features, str)
+            else _string_list(raw_features, f"{name}.features")
+        )
+        input_kind = data.get("input", "descriptors")
+        if input_kind not in _INPUT_KINDS:
+            raise ValueError(f"{name}.input must be descriptors or graph")
+        if input_kind == "descriptors" and not features and model != "zero":
+            raise ValueError(f"{name}.features must list feature blocks for descriptor input")
+        params = dict(_mapping(data.get("params", {}), f"{name}.params"))
+        standardize = data.get("standardize", True)
+        if not isinstance(standardize, bool):
+            raise TypeError(f"{name}.standardize must be a boolean")
+        return cls(model, features, input_kind, params, standardize)
+
+@dataclass(frozen=True)
+class ArchitectureConfig:
+    """Role-based model: prior component, residual component, and fusion."""
+    name: str
+    prior: ComponentConfig | None = None
+    residual: ComponentConfig | None = None
+    fusion: str = "additive"
+    fusion_params: dict[str, Any] = field(default_factory=dict)
+    cross_fit_folds: int | None = None
+    description: str = ""
+    @classmethod
+    def parse(cls, value: Any, name: str) -> ArchitectureConfig:
+        data = _mapping(value, f"architectures.{name}")
+        _only_keys(
+            data,
+            {"prior", "residual", "fusion", "cross_fit_folds", "description"},
+            f"architectures.{name}",
+        )
+        prior = (
+            ComponentConfig.parse(data["prior"], f"architectures.{name}.prior")
+            if data.get("prior") is not None else None
+        )
+        residual = (
+            ComponentConfig.parse(data["residual"], f"architectures.{name}.residual")
+            if data.get("residual") is not None else None
+        )
+        raw_fusion = data.get("fusion", "additive")
+        if isinstance(raw_fusion, str):
+            fusion, fusion_params = raw_fusion, {}
+        else:
+            fusion_data = _mapping(raw_fusion, f"architectures.{name}.fusion")
+            _only_keys(fusion_data, {"strategy", "params"}, f"architectures.{name}.fusion")
+            fusion = fusion_data.get("strategy", "additive")
+            fusion_params = dict(
+                _mapping(fusion_data.get("params", {}), f"architectures.{name}.fusion.params")
+            )
+        if fusion not in _FUSIONS:
+            raise ValueError(
+                f"architectures.{name}.fusion must be one of {', '.join(sorted(_FUSIONS))}"
+            )
+        cross_fit = data.get("cross_fit_folds", "auto")
+        if cross_fit == "auto" or cross_fit is None:
+            cross_fit = None
+        elif not isinstance(cross_fit, int) or isinstance(cross_fit, bool) or cross_fit == 1 or cross_fit < 0:
+            raise ValueError(
+                f"architectures.{name}.cross_fit_folds must be 'auto', 0, or an integer >= 2"
+            )
+        description = data.get("description", "")
+        if not isinstance(description, str):
+            raise TypeError(f"architectures.{name}.description must be a string")
+        return cls(name, prior, residual, fusion, fusion_params, cross_fit, description).validated()
+    def validated(self) -> ArchitectureConfig:
+        if self.prior is None and self.residual is None:
+            raise ValueError(f"architecture {self.name!r} needs a prior, a residual, or both")
+        if self.fusion != "additive" and (self.prior is None or self.residual is None):
+            raise ValueError(
+                f"architecture {self.name!r}: non-additive fusion requires both a prior and a residual"
+            )
+        return self
+    def feature_blocks(self) -> tuple[str, ...]:
+        names: list[str] = []
+        for component in (self.prior, self.residual):
+            if component is not None:
+                names.extend(component.features)
+        return tuple(dict.fromkeys(names))
+    def to_dict(self) -> dict[str, Any]:
+        def component(value: ComponentConfig | None) -> dict[str, Any] | None:
+            if value is None:
+                return None
+            return {
+                "model": value.model,
+                "features": list(value.features),
+                "input": value.input,
+                "params": dict(value.params),
+                "standardize": value.standardize,
+            }
+        return {
+            "prior": component(self.prior),
+            "residual": component(self.residual),
+            "fusion": {"strategy": self.fusion, "params": dict(self.fusion_params)},
+            "cross_fit_folds": "auto" if self.cross_fit_folds is None else self.cross_fit_folds,
+            "description": self.description,
+        }
+
+@dataclass(frozen=True)
+class IntelligenceConfig:
+    """Settings for the feature intelligence engine (train/validation only)."""
+    cv_folds: int = 5
+    bootstrap_rounds: int = 20
+    stability_splits: tuple[str, ...] = ("random", "scaffold", "size")
+    nonlinear_model: str = "random_forest"
+    seed: int = 0
+    output_dir: str = "analysis"
+    @classmethod
+    def parse(cls, value: Any) -> IntelligenceConfig:
+        data = _mapping(value, "intelligence")
+        _only_keys(
+            data,
+            {"cv_folds", "bootstrap_rounds", "stability_splits", "nonlinear_model", "seed", "output_dir"},
+            "intelligence",
+        )
+        splits = _string_list(
+            data.get("stability_splits", ["random", "scaffold", "size"]),
+            "intelligence.stability_splits",
+        )
+        if set(splits) - {"random", "size", "scaffold"}:
+            raise ValueError("intelligence.stability_splits supports random, size, scaffold")
+        config = cls(
+            cv_folds=data.get("cv_folds", 5),
+            bootstrap_rounds=data.get("bootstrap_rounds", 20),
+            stability_splits=splits,
+            nonlinear_model=data.get("nonlinear_model", "random_forest"),
+            seed=data.get("seed", 0),
+            output_dir=data.get("output_dir", "analysis"),
+        )
+        if not isinstance(config.cv_folds, int) or config.cv_folds < 2:
+            raise ValueError("intelligence.cv_folds must be an integer >= 2")
+        if not isinstance(config.bootstrap_rounds, int) or config.bootstrap_rounds < 0:
+            raise ValueError("intelligence.bootstrap_rounds must be a non-negative integer")
+        if config.nonlinear_model not in {"random_forest", "extra_trees", "gradient_boosting"}:
+            raise ValueError("intelligence.nonlinear_model must be random_forest, extra_trees, or gradient_boosting")
+        if not isinstance(config.seed, int):
+            raise TypeError("intelligence.seed must be an integer")
+        if not isinstance(config.output_dir, str) or not config.output_dir:
+            raise ValueError("intelligence.output_dir must not be empty")
+        return config
+
+@dataclass(frozen=True)
+class DesignConfig:
+    """Settings for framework-guided design studies."""
+    seeds: tuple[int, ...] = (0, 1, 2)
+    max_candidates: int = 12
+    include_baselines: bool = True
+    selection_metric: str | None = None
+    output_dir: str = "design"
+    @classmethod
+    def parse(cls, value: Any) -> DesignConfig:
+        data = _mapping(value, "design")
+        _only_keys(
+            data,
+            {"seeds", "max_candidates", "include_baselines", "selection_metric", "output_dir"},
+            "design",
+        )
+        seeds = data.get("seeds", [0, 1, 2])
+        if not isinstance(seeds, list) or not seeds or any(
+            not isinstance(item, int) or isinstance(item, bool) for item in seeds
+        ):
+            raise ValueError("design.seeds must be a non-empty list of integers")
+        config = cls(
+            tuple(seeds),
+            data.get("max_candidates", 12),
+            data.get("include_baselines", True),
+            data.get("selection_metric"),
+            data.get("output_dir", "design"),
+        )
+        if not isinstance(config.max_candidates, int) or config.max_candidates < 1:
+            raise ValueError("design.max_candidates must be a positive integer")
+        if not isinstance(config.include_baselines, bool):
+            raise TypeError("design.include_baselines must be a boolean")
+        if config.selection_metric is not None and not isinstance(config.selection_metric, str):
+            raise TypeError("design.selection_metric must be a string")
+        if not isinstance(config.output_dir, str) or not config.output_dir:
+            raise ValueError("design.output_dir must not be empty")
+        return config
 
 @dataclass(frozen=True)
 class PriorConfig:

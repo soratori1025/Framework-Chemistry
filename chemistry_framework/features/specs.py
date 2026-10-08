@@ -19,6 +19,7 @@ class FeatureSpec:
     interpretation: str | None = None
     source: str | None = None
     definition: str | None = None
+    reaction_side: str = "reactants"
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise ValueError("feature name must not be empty")

@@ -91,6 +91,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                         interpretation=config.interpretation,
                         source=config.source or "elements",
                         definition=config.definition or f"Count of element {element}",
+                        reaction_side=config.reaction_side,
                     )
                 )
                 names.append(name)
@@ -115,6 +116,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                             source=config.source or "bond_pairs",
                             definition=config.definition
                             or f"Count of {order_label} bonds between {left} and {right}",
+                            reaction_side=config.reaction_side,
                         )
                     )
                     names.append(name)
@@ -130,6 +132,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                 interpretation=config.interpretation,
                 source=config.source or "smarts",
                 definition=config.definition,
+                reaction_side=config.reaction_side,
             )
             names.append(name)
         elif config.type == "python":
@@ -146,6 +149,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                     interpretation=config.interpretation,
                     source=config.source or "python",
                     definition=config.definition or options["fn"],
+                    reaction_side=config.reaction_side,
                 )
             )
             names.append(name)
@@ -187,9 +191,72 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                         interpretation=config.interpretation,
                         source=config.source or "benson_groups",
                         definition=config.definition or provider_ref,
+                        reaction_side=config.reaction_side,
                     )
                 )
                 names.append(feature_name)
+        elif config.type == "condition":
+            registry.add_condition(
+                block_name,
+                options["column"],
+                transform=options.get("transform", "identity"),
+                group=config.group or block_name,
+                description=config.description,
+                interpretation=config.interpretation,
+                source=config.source or "condition",
+                definition=config.definition,
+            )
+            names.append(block_name)
+        elif config.type == "rdkit_descriptors":
+            registry.add_rdkit_descriptors(
+                block_name,
+                reaction_side=config.reaction_side,
+                names=options.get("names"),
+                families=options.get("families"),
+                group=config.group or block_name,
+                description=config.description,
+                interpretation=config.interpretation,
+                source=config.source or "rdkit_descriptors",
+                definition=config.definition,
+            )
+            # Find which names were generated
+            # Since names are registered inside the registry, we retrieve them
+            for feature_name in registry.names():
+                if feature_name.startswith(f"{block_name}.") and feature_name not in names:
+                    names.append(feature_name)
+        elif config.type == "morgan":
+            registry.add_morgan(
+                block_name,
+                reaction_side=config.reaction_side,
+                radius=options.get("radius", 2),
+                n_bits=options.get("n_bits", 1024),
+                counts=options.get("counts", False),
+                group=config.group or block_name,
+                description=config.description,
+                interpretation=config.interpretation,
+                source=config.source or "morgan",
+                definition=config.definition,
+            )
+            # Find generated bits
+            for feature_name in registry.names():
+                if feature_name.startswith(f"{block_name}.bit_") and feature_name not in names:
+                    names.append(feature_name)
+        elif config.type == "descriptors_3d":
+            registry.add_descriptors_3d(
+                block_name,
+                reaction_side=config.reaction_side,
+                names=options["names"],
+                seed=options.get("seed", 0),
+                group=config.group or block_name,
+                description=config.description,
+                interpretation=config.interpretation,
+                source=config.source or "descriptors_3d",
+                definition=config.definition,
+            )
+            for feature_name in registry.names():
+                if feature_name.startswith(f"{block_name}.") and feature_name not in names:
+                    names.append(feature_name)
+                    
         resolved_names[block_name] = tuple(names)
     return registry, resolved_names
 
