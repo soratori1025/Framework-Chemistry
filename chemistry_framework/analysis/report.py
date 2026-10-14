@@ -1,4 +1,3 @@
-"""Feature and target distribution reports for a prepared experiment."""
 from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
@@ -8,7 +7,6 @@ import numpy as np
 from ..diagnostics import diagnose_features
 from ..features import FeatureMatrix
 from ..splits import DatasetSplit
-
 
 class DistributionSummary(TypedDict):
     count: int
@@ -20,9 +18,7 @@ class DistributionSummary(TypedDict):
     histogram_edges: list[float]
     histogram_counts: list[int]
 
-
 TargetValues = Sequence[float] | Sequence[Sequence[float]]
-
 
 @dataclass(frozen=True)
 class AnalysisReport:
@@ -63,16 +59,7 @@ def _distribution(values: np.ndarray, bins: int) -> DistributionSummary:
         "histogram_counts": counts.astype(int).tolist(),
     }
 
-def analyze_features_and_targets(
-    matrix: FeatureMatrix,
-    split: DatasetSplit,
-    targets: Mapping[str, TargetValues],
-    *,
-    bins: int = 20,
-    support_threshold: int = 1,
-    correlation_threshold: float = 0.95,
-) -> AnalysisReport:
-    """Summarize train-only feature support/distribution and test extrapolation."""
+def analyze_features_and_targets(matrix: FeatureMatrix, split: DatasetSplit, targets: Mapping[str, TargetValues], *, bins: int = 20, support_threshold: int = 1, correlation_threshold: float = 0.95,) -> AnalysisReport:
     if bins < 1 or support_threshold < 1:
         raise ValueError("bins and support_threshold must be positive")
     indices = np.concatenate((split.train, split.validation, split.test))

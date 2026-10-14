@@ -1,10 +1,8 @@
-"""Property-task metadata kept separate from chemistry and model layers."""
 from __future__ import annotations
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class PropertyTask:
-    """Describe a target and the feature routes used by its blocks."""
     name: str
     target: str
     unit: str

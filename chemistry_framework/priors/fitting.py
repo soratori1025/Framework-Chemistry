@@ -1,8 +1,6 @@
-"""Fit train-only linear priors and freeze their coefficients."""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
-
 import numpy as np
 from numpy.typing import ArrayLike
 from .additive import LinearAdditivePrior
@@ -15,7 +13,6 @@ class PriorFit:
     residual_std: float
 
 def fit_linear_prior(features: ArrayLike, targets: ArrayLike, feature_names: Sequence[str], *, fixed: dict[str, float] | None = None, method: str = "ridge", ridge_alpha: float = 1e-3,) -> PriorFit:
-    """Fit only on supplied training rows; fixed coefficients remain unchanged."""
     x = np.asarray(features, dtype=np.float64)
     y = np.asarray(targets, dtype=np.float64)
     names = tuple(feature_names)

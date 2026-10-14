@@ -1,4 +1,3 @@
-"""Typed experiment configuration and validation."""
 from __future__ import annotations
 import math
 from dataclasses import dataclass, field
@@ -59,6 +58,8 @@ def _parse_graph_config(value: Any) -> dict[str, Any]:
     data.setdefault("aggregation", "sum")
     return data
 
+_TARGET_KINDS = {"scalar", "vector", "temperature_dependent", "custom", "atom", "bond"}
+
 @dataclass(frozen=True)
 class TargetConfig:
     columns: tuple[str, ...]
@@ -86,15 +87,14 @@ class TargetConfig:
         kind = data.get("kind", "scalar")
         if not isinstance(unit, str) or not isinstance(kind, str):
             raise TypeError(f"dataset.targets.{name}.unit and kind must be strings")
-        if kind not in {"scalar", "vector", "temperature_dependent", "custom"}:
+        if kind not in _TARGET_KINDS:
             raise ValueError(f"unsupported target kind {kind!r} for {name}")
-        if kind == "scalar" and len(target_columns) != 1:
-            raise ValueError(f"scalar target {name!r} must have exactly one column")
+        if kind in {"scalar", "atom", "bond"} and len(target_columns) != 1:
+            raise ValueError(f"{kind} target {name!r} must have exactly one column")
         return cls(target_columns, unit, kind)
 
 @dataclass(frozen=True)
 class ConditionConfig:
-    """A numeric row-level condition column such as temperature or pressure."""
     column: str
     unit: str = ""
     @classmethod
@@ -110,7 +110,10 @@ class ConditionConfig:
             raise TypeError(f"dataset.conditions.{name}.unit must be a string")
         return cls(column, unit)
 
-_INPUT_FORMATS = {"smiles", "selfies", "inchi", "molblock", "sdf", "xyz", "reaction_smiles"}
+_INPUT_FORMATS = {
+    "smiles", "selfies", "inchi", "molblock", "sdf", "xyz", "reaction_smiles",
+    "mixture", "complex",
+}
 
 @dataclass(frozen=True)
 class DatasetConfig:
@@ -331,14 +334,6 @@ _FUSIONS = {"additive", "weighted", "gated", "concatenate"}
 
 @dataclass(frozen=True)
 class ComponentConfig:
-    """One role-specific predictive component (prior or residual).
-
-    ``model`` is a name in the component registry (``linear``, ``ridge``,
-    ``logistic``, ``random_forest``, ``xgboost``, ``mlp``, ``gnn``, ...) or
-    ``custom`` with ``params.factory: module:callable``. ``features`` lists
-    feature blocks (or resolved feature columns) visible to this component
-    only; prior and residual feature spaces are independent.
-    """
     model: str
     features: tuple[str, ...] = ()
     input: str = "descriptors"
@@ -371,7 +366,6 @@ class ComponentConfig:
 
 @dataclass(frozen=True)
 class ArchitectureConfig:
-    """Role-based model: prior component, residual component, and fusion."""
     name: str
     prior: ComponentConfig | None = None
     residual: ComponentConfig | None = None
@@ -455,7 +449,6 @@ class ArchitectureConfig:
 
 @dataclass(frozen=True)
 class IntelligenceConfig:
-    """Settings for the feature intelligence engine (train/validation only)."""
     cv_folds: int = 5
     bootstrap_rounds: int = 20
     stability_splits: tuple[str, ...] = ("random", "scaffold", "size")
@@ -498,7 +491,6 @@ class IntelligenceConfig:
 
 @dataclass(frozen=True)
 class DesignConfig:
-    """Settings for framework-guided design studies."""
     seeds: tuple[int, ...] = (0, 1, 2)
     max_candidates: int = 12
     include_baselines: bool = True
@@ -596,6 +588,8 @@ class SplitConfig:
             raise TypeError("split.test_smarts must be a string")
         return cls(method, fractions, seed, test_smarts)
 
+_SCHEDULERS = {"none", "noam", "cosine", "plateau"}
+
 @dataclass(frozen=True)
 class TrainingConfig:
     epochs: int = 100
@@ -608,16 +602,68 @@ class TrainingConfig:
     loss: str = "mse"
     patience: int | None = None
     checkpoint_dir: str = "checkpoints"
+    scheduler: str = "none"
+    warmup_epochs: float = 2.0
+    grad_clip: float | None = None
+    amp: bool = False
+    ensemble_size: int = 1
+    evidential_lambda: float = 0.1
+    multitask_weighting: str = "static"
+    pos_weight: float | None = None
     @classmethod
     def parse(cls, value: Any) -> TrainingConfig:
         data = _mapping(value, "training")
         _only_keys(
             data,
             {"epochs", "batch_size", "learning_rate", "weight_decay", "seed", "device",
-             "num_workers", "loss", "patience", "checkpoint_dir"},
+             "num_workers", "loss", "patience", "checkpoint_dir", "scheduler",
+             "warmup_epochs", "grad_clip", "amp", "ensemble_size", "evidential_lambda",
+             "multitask_weighting", "pos_weight"},
             "training",
         )
         config = cls(**data)
+        if config.pos_weight is not None and (
+            not isinstance(config.pos_weight, (int, float))
+            or isinstance(config.pos_weight, bool)
+            or not math.isfinite(config.pos_weight)
+            or config.pos_weight <= 0
+        ):
+            raise ValueError("training.pos_weight must be a positive number or null")
+        if not isinstance(config.scheduler, str) or config.scheduler not in _SCHEDULERS:
+            raise ValueError(
+                f"training.scheduler must be one of {', '.join(sorted(_SCHEDULERS))}"
+            )
+        if (
+            not isinstance(config.warmup_epochs, (int, float))
+            or isinstance(config.warmup_epochs, bool)
+            or not math.isfinite(config.warmup_epochs)
+            or config.warmup_epochs < 0
+        ):
+            raise ValueError("training.warmup_epochs must be a non-negative number")
+        if config.grad_clip is not None and (
+            not isinstance(config.grad_clip, (int, float))
+            or isinstance(config.grad_clip, bool)
+            or not math.isfinite(config.grad_clip)
+            or config.grad_clip <= 0
+        ):
+            raise ValueError("training.grad_clip must be a positive number or null")
+        if not isinstance(config.amp, bool):
+            raise TypeError("training.amp must be a boolean")
+        if (
+            not isinstance(config.ensemble_size, int)
+            or isinstance(config.ensemble_size, bool)
+            or config.ensemble_size < 1
+        ):
+            raise ValueError("training.ensemble_size must be a positive integer")
+        if (
+            not isinstance(config.evidential_lambda, (int, float))
+            or isinstance(config.evidential_lambda, bool)
+            or not math.isfinite(config.evidential_lambda)
+            or config.evidential_lambda < 0
+        ):
+            raise ValueError("training.evidential_lambda must be a non-negative number")
+        if config.multitask_weighting not in {"static", "uncertainty"}:
+            raise ValueError("training.multitask_weighting must be static or uncertainty")
         integer_fields = {
             "epochs": config.epochs,
             "batch_size": config.batch_size,
@@ -646,7 +692,7 @@ class TrainingConfig:
         if config.num_workers < 0 or (config.patience is not None and config.patience < 1):
             raise ValueError("training.num_workers must be non-negative and patience positive")
         if not isinstance(config.loss, str) or config.loss not in {
-            "mse", "mae", "huber", "bce", "custom"
+            "mse", "mae", "huber", "bce", "focal", "pairwise_ranking", "gaussian_nll", "evidential", "custom"
         }:
             raise ValueError(f"unsupported training.loss {config.loss!r}")
         if not isinstance(config.device, str) or config.device not in {"auto", "cpu", "cuda", "mps"}:
@@ -665,7 +711,7 @@ class EvaluationConfig:
         _only_keys(data, {"metrics", "checkpoint"}, "evaluation")
         metrics = _string_list(data.get("metrics", ["mae", "rmse", "r2"]), "evaluation.metrics")
         allowed = {
-            "mae", "rmse", "r2", "mape",
+            "mae", "rmse", "r2", "mape", "spearman",
             "auroc", "auprc", "accuracy", "precision", "recall", "f1",
         }
         unknown = set(metrics) - allowed
@@ -799,7 +845,7 @@ class ExperimentConfig:
             kind = task.get("kind", "scalar")
             if not isinstance(kind, str) or kind not in {
                 "scalar", "vector", "temperature_dependent", "custom",
-                "binary_classification", "multilabel_classification",
+                "binary_classification", "multilabel_classification", "atom", "bond",
             }:
                 raise ValueError(f"tasks.{task_name}.kind is unsupported: {kind!r}")
             target_kind = dataset_config.targets[target].kind
@@ -825,9 +871,9 @@ class ExperimentConfig:
                     f"dataset target kind {target_kind!r}"
                 )
             if kind in {"binary_classification", "multilabel_classification"}:
-                if training_config.loss not in {"bce", "custom"}:
+                if training_config.loss not in {"bce", "focal", "custom"}:
                     raise ValueError(
-                        f"tasks.{task_name} classification requires training.loss='bce' "
+                        f"tasks.{task_name} classification requires training.loss='bce', 'focal' "
                         "or a custom loss_fn"
                     )
             prior_name = task.get("prior")
@@ -851,6 +897,10 @@ class ExperimentConfig:
             }
         model = _mapping(data.get("model", {}), "model")
         graph = _parse_graph_config(data.get("graph", {}))
+        # Validate the trainable-model specification early (pure Python).
+        from .model_spec import ModelSpec
+
+        ModelSpec.parse(model, graph)
         return cls(
             name=name,
             dataset=dataset_config,
@@ -873,3 +923,9 @@ class ExperimentConfig:
         if path.is_absolute() or self.source_path is None:
             return path
         return (self.source_path.parent / path).resolve()
+
+    @property
+    def model_spec(self) -> Any:
+        from .model_spec import ModelSpec
+        return ModelSpec.parse(self.model, self.graph)
+

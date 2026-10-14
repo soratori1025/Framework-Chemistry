@@ -1,16 +1,11 @@
-"""SMARTS-derived per-atom and per-bond graph input flags."""
 from __future__ import annotations
-
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol
-
 import numpy as np
-
 
 class _BondLike(Protocol):
     def GetIdx(self) -> int: ...
-
 
 class _MoleculeLike(Protocol):
     def GetNumAtoms(self) -> int: ...
@@ -29,7 +24,6 @@ class _MoleculeLike(Protocol):
         end_atom_idx: int,
     ) -> _BondLike | None: ...
 
-
 @dataclass(frozen=True)
 class SMARTSFlag:
     name: str
@@ -40,7 +34,6 @@ class SMARTSFlag:
             raise ValueError("SMARTS flag name and pattern must not be empty")
 
 class AtomSMARTSFlags:
-    """Create one binary graph feature per SMARTS flag and atom."""
     def __init__(self, flags: Sequence[SMARTSFlag]) -> None:
         self.flags = tuple(flags)
         if len({flag.name for flag in self.flags}) != len(self.flags):
@@ -72,7 +65,6 @@ class AtomSMARTSFlags:
         return values
 
 class BondSMARTSFlags:
-    """Create one binary graph feature per SMARTS flag and molecular bond."""
     def __init__(self, flags: Sequence[SMARTSFlag]) -> None:
         self.flags = tuple(flags)
         if len({flag.name for flag in self.flags}) != len(self.flags):

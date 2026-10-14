@@ -1,4 +1,3 @@
-"""Compile configured feature definitions into a deterministic registry."""
 from __future__ import annotations
 import importlib
 from collections import Counter
@@ -11,11 +10,14 @@ from .specs import FeatureCalculator, FeatureSpec
 import hashlib
 import inspect
 import json
+try:
+    from rdkit import Chem
+except ImportError as exc:
+    raise ImportError("configured molecular features require RDKit") from exc
 
 _FEATURE_ENGINE_VERSION = 2
 
 def load_python_callable(reference: str) -> Callable[..., Any]:
-    """Load a trusted user plugin referenced as ``package.module:function``."""
     module_name, function_name = reference.split(":", maxsplit=1)
     if not module_name or not function_name:
         raise ValueError(f"invalid plugin reference {reference!r}; expected 'module:function'")
@@ -53,15 +55,6 @@ def _bond_pair_calculator(left: str, right: str, bond_type: str) -> FeatureCalcu
     return calculate
 
 def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: Sequence[Any], train_indices: Sequence[int],) -> tuple[FeatureRegistry, dict[str, tuple[str, ...]]]:
-    """Build feature calculators; Benson group vocabulary is fitted on train only.
-    A Benson provider plugin must accept an RDKit molecule and return a mapping
-    from group label to occurrence count. Its train-set vocabulary is filtered
-    by the configured minimum molecule support.
-    """
-    try:
-        from rdkit import Chem
-    except ImportError as exc:
-        raise ImportError("configured molecular features require RDKit") from exc
     registry = FeatureRegistry()
     resolved_names: dict[str, tuple[str, ...]] = {}
     for block_name, config in definitions.items():
@@ -261,7 +254,6 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
     return registry, resolved_names
 
 def configured_feature_fingerprint(definitions: Mapping[str, FeatureConfig]) -> str:
-    """Stable canonical representation used as one part of feature-cache keys."""
     plugin_hashes: dict[str, str] = {}
     for name, config in definitions.items():
         if config.type not in {"python", "benson_groups"}:

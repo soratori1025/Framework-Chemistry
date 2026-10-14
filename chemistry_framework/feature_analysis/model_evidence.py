@@ -1,12 +1,8 @@
-"""Prior stability and model-specific feature-family evidence utilities."""
 from __future__ import annotations
-
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
-
 import numpy as np
-
 
 @dataclass(frozen=True)
 class PriorCoefficientEvidence:
@@ -19,16 +15,8 @@ class PriorCoefficientEvidence:
     sign_consistency: float
     bootstrap_95_ci: tuple[float, float]
 
-
 @dataclass(frozen=True)
 class ModelContribution:
-    """Metric change when a feature group is perturbed or removed.
-
-    Positive deltas always mean that the complete, unperturbed model performed
-    better. These are model-specific predictive measurements, not causal
-    effects.
-    """
-
     group: str
     method: str
     metric: str
@@ -39,15 +27,7 @@ class ModelContribution:
     standard_deviation: float
     positive_fraction: float
 
-
-def summarize_prior_coefficients(
-    runs: Sequence[Mapping[str, float]],
-    *,
-    fixed_coefficients: Mapping[str, float] | None = None,
-    bootstrap_samples: int = 5000,
-    seed: int = 0,
-) -> dict[str, PriorCoefficientEvidence]:
-    """Summarize fitted coefficients across runs with exploratory bootstrap CIs."""
+def summarize_prior_coefficients(runs: Sequence[Mapping[str, float]], *, fixed_coefficients: Mapping[str, float] | None = None, bootstrap_samples: int = 5000, seed: int = 0,) -> dict[str, PriorCoefficientEvidence]:
     if not runs:
         raise ValueError("at least one coefficient mapping is required")
     if bootstrap_samples < 100:
@@ -55,7 +35,6 @@ def summarize_prior_coefficients(
     features = sorted({feature for run in runs for feature in run})
     if not features:
         raise ValueError("coefficient mappings contain no features")
-
     rng = np.random.default_rng(seed)
     output: dict[str, PriorCoefficientEvidence] = {}
     for feature in features:
@@ -90,7 +69,6 @@ def summarize_prior_coefficients(
             sign_consistency=sign_consistency,
             bootstrap_95_ci=confidence_interval,
         )
-
     for feature, coefficient in (fixed_coefficients or {}).items():
         value = float(coefficient)
         if not np.isfinite(value):
@@ -107,16 +85,7 @@ def summarize_prior_coefficients(
         )
     return output
 
-
-def _contribution(
-    group: str,
-    method: str,
-    metric: str,
-    baseline_score: float,
-    comparison_scores: Sequence[float],
-    *,
-    higher_is_better: bool,
-) -> ModelContribution:
+def _contribution(group: str, method: str, metric: str, baseline_score: float, comparison_scores: Sequence[float], *, higher_is_better: bool,) -> ModelContribution:
     comparisons = np.asarray(comparison_scores, dtype=np.float64).reshape(-1)
     if comparisons.size == 0 or not np.isfinite(comparisons).all():
         raise ValueError("comparison scores must contain finite values")
@@ -136,25 +105,7 @@ def _contribution(
         positive_fraction=float(np.mean(deltas > 0)),
     )
 
-
-def permutation_group_importance(
-    predictor: Callable[[np.ndarray], Any],
-    test_features: np.ndarray,
-    test_targets: np.ndarray,
-    groups: Mapping[str, Sequence[int]],
-    metric: Callable[[np.ndarray, np.ndarray], float],
-    *,
-    metric_name: str,
-    higher_is_better: bool = True,
-    repeats: int = 20,
-    seed: int = 0,
-) -> dict[str, ModelContribution]:
-    """Measure test-metric change after joint row permutation of feature groups.
-
-    Columns in a group share each row permutation, preserving dependencies
-    within that group. Correlations across groups can still distort this
-    model-specific estimate.
-    """
+def permutation_group_importance(predictor: Callable[[np.ndarray], Any], test_features: np.ndarray, test_targets: np.ndarray, groups: Mapping[str, Sequence[int]], metric: Callable[[np.ndarray, np.ndarray], float], *, metric_name: str, higher_is_better: bool = True, repeats: int = 20, seed: int = 0,) -> dict[str, ModelContribution]:
     features = np.asarray(test_features, dtype=np.float64)
     targets = np.asarray(test_targets)
     if features.ndim != 2 or targets.shape[0] != features.shape[0]:
@@ -177,7 +128,6 @@ def permutation_group_importance(
         normalized[name] = indices
     if not normalized:
         raise ValueError("at least one feature group is required")
-
     baseline_predictions = np.asarray(predictor(features))
     baseline_score = float(metric(targets, baseline_predictions))
     if not np.isfinite(baseline_score):
@@ -205,22 +155,7 @@ def permutation_group_importance(
         )
     return results
 
-
-def leave_group_out_importance(
-    fit_predict: Callable[[tuple[int, ...]], Any],
-    feature_names: Sequence[str],
-    groups: Mapping[str, Sequence[str]],
-    test_targets: np.ndarray,
-    metric: Callable[[np.ndarray, np.ndarray], float],
-    *,
-    metric_name: str,
-    higher_is_better: bool = True,
-) -> dict[str, ModelContribution]:
-    """Compare a full model with models retrained after removing each group.
-
-    ``fit_predict`` receives the retained column indices and is responsible
-    for fitting with the same training/validation protocol on every call.
-    """
+def leave_group_out_importance(fit_predict: Callable[[tuple[int, ...]], Any], feature_names: Sequence[str], groups: Mapping[str, Sequence[str]], test_targets: np.ndarray, metric: Callable[[np.ndarray, np.ndarray], float], *, metric_name: str, higher_is_better: bool = True,) -> dict[str, ModelContribution]:
     names = tuple(feature_names)
     if not names or len(set(names)) != len(names):
         raise ValueError("feature_names must be non-empty and unique")
@@ -247,7 +182,6 @@ def leave_group_out_importance(
     baseline_score = float(metric(np.asarray(test_targets), baseline_predictions))
     if not np.isfinite(baseline_score):
         raise ValueError("metric returned a non-finite full-model score")
-
     results: dict[str, ModelContribution] = {}
     for group, removed_columns in normalized.items():
         retained = tuple(index for index in all_columns if index not in removed_columns)
@@ -265,7 +199,5 @@ def leave_group_out_importance(
         )
     return results
 
-
 def model_contribution_dict(value: ModelContribution) -> dict[str, object]:
-    """Return a JSON-ready representation of a model contribution."""
     return asdict(value)

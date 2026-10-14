@@ -11,3 +11,11 @@ venv/
 .env
 .idea/
 .vscode/
+
+# Framework outputs, checkpoints & caches
+.chemistry_cache/
+outputs/
+benchmarks/
+checkpoints/
+data/
+tests/

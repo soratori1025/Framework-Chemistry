@@ -1,11 +1,9 @@
-"""Adapter for user-provided differentiable physical equations."""
 from __future__ import annotations
 from collections.abc import Callable
 from torch import Tensor
 from .base import BaselineBlock
 
 class CallablePhysicsPrior(BaselineBlock):
-    """Adapt a user-supplied differentiable physical equation as a prior block."""
     def __init__(self, function: Callable[[Tensor], Tensor], output_dim: int = 1) -> None:
         super().__init__()
         if not callable(function):

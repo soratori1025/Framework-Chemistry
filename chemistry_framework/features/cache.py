@@ -1,4 +1,3 @@
-"""Configuration- and molecule-specific feature cache."""
 from __future__ import annotations
 import hashlib
 import json
@@ -11,7 +10,6 @@ from .molecule import MoleculeFeatureBlock
 from .specs import FeatureMatrix
 
 class FeatureCache:
-    """Persist one feature row per canonical molecule and feature schema."""
     def __init__(self, directory: str | Path, configuration_fingerprint: str) -> None:
         if not configuration_fingerprint:
             raise ValueError("configuration_fingerprint must not be empty")

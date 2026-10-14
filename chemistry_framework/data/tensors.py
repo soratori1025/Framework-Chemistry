@@ -1,4 +1,3 @@
-"""Tensor data loaders for descriptor-based tasks."""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -65,7 +64,6 @@ def make_tensor_dataloaders(experiment: PreparedExperiment, target_name: str, *,
         dtype=torch.float32,
     )
     targets = np.asarray(experiment.dataset.targets[target_name], dtype=np.float32)
-
     def loader(indices: np.ndarray, shuffle: bool) -> DataLoader:
         row_targets = targets[indices]
         finite = np.isfinite(row_targets)

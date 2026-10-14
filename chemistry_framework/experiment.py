@@ -1,4 +1,3 @@
-"""Prepare datasets, feature matrices, splits, caches, and analysis from config."""
 from __future__ import annotations
 import hashlib
 import json
@@ -40,7 +39,6 @@ def _resolve_blocks(selected_blocks: tuple[str, ...], resolved_names: dict[str, 
     return tuple(names)
 
 def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
-    """Load the user dataset and compute reproducible splits/features/reports."""
     dataset = load_configured_dataset(config)
     split = split_indices(dataset.smiles, config.split)
     registry, feature_blocks = build_feature_registry(
@@ -128,7 +126,6 @@ def prepare_experiment(config: ExperimentConfig) -> PreparedExperiment:
     )
 
 def fit_experiment_prior(experiment: PreparedExperiment, property_name: str, *, target_name: str | None = None, ridge_alpha: float = 1e-3,) -> PriorFit:
-    """Fit and freeze the configured prior using training rows only."""
     if property_name not in experiment.config.priors:
         raise KeyError(f"no prior configured for property {property_name!r}")
     if target_name is None:

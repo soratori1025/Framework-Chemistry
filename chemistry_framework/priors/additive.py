@@ -1,4 +1,3 @@
-"""Frozen linear-additive baseline implementation."""
 from __future__ import annotations
 from collections.abc import Sequence
 import torch
@@ -6,11 +5,8 @@ from torch import Tensor
 from .base import BaselineBlock
 
 class LinearAdditivePrior(BaselineBlock):
-    """Frozen additive prior: x @ coefficients + intercept."""
-
     coefficients: Tensor
     intercept: Tensor
-
     def __init__(self, coefficients: Sequence[float] | Sequence[Sequence[float]], intercept: float | Sequence[float] = 0.0, feature_names: Sequence[str] | None = None,) -> None:
         super().__init__()
         weights = torch.as_tensor(coefficients, dtype=torch.float64)

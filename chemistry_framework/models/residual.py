@@ -1,4 +1,3 @@
-"""Composition model for prior-plus-residual property prediction."""
 from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
@@ -8,12 +7,6 @@ from ..heads import IdentityOutputHead
 from ..priors import BaselineBlock
 
 class ResidualPropertyModel(nn.Module):
-    """Compose an encoder, frozen baseline, learned residual, and output head.
-    ``encoder`` may be an MLP or any compatible graph/3-D encoder. For graph
-    encoders, pass a tensor separately as ``baseline_features``. The residual
-    is added to the baseline before the optional output transformation. Output
-    blocks may return a tensor or a mapping of named tensor channels.
-    """
     def __init__(
         self, encoder: nn.Module, prior: BaselineBlock, residual: nn.Module, output_head: nn.Module | None = None,) -> None:
         super().__init__()

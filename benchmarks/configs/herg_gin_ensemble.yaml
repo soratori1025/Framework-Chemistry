@@ -1,4 +1,4 @@
-name: tdc-herg-scaffold
+name: tdc-herg-gin-ensemble
 
 dataset:
   provider: tdc_tox
@@ -32,27 +32,46 @@ tasks:
 
 split:
   method: scaffold
-  fractions: [0.7, 0.1, 0.2]
+  fractions: [0.8, 0.1, 0.1]
   seed: 42
 
+model:
+  structure:
+    encoder: gin
+    hidden_dim: 64
+    depth: 3
+    aggregation: sum
+    dropout: 0.1
+  descriptors:
+    enabled: true
+    hidden_dim: 32
+    depth: 1
+    dropout: 0.1
+  fusion: concat
+  ffn:
+    hidden_dim: 64
+    depth: 2
+    dropout: 0.1
+  head: classification
+
 training:
-  epochs: 100
-  batch_size: 64
+  epochs: 25
+  batch_size: 32
   learning_rate: 0.001
   loss: bce
-  patience: 15
+  scheduler: cosine
+  warmup_epochs: 2
+  grad_clip: 1.0
+  patience: 10
+  ensemble_size: 2
   device: auto
+  checkpoint_dir: ../results/checkpoints
 
 evaluation:
   metrics: [auroc, auprc, accuracy]
 
 analysis:
-  enabled: true
-  support_threshold: 5
-  correlation_threshold: 0.95
-  bins: 20
-  output_dir: analysis
+  enabled: false
 
 cache:
-  enabled: true
-  directory: .chemistry_cache/features
+  enabled: false

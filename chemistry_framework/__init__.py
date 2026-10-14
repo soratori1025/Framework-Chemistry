@@ -1,10 +1,37 @@
-"""Composable building blocks for molecular property prediction."""
-
 __version__ = "0.1.0"
 
+from .analysis import (
+    AdvisorRecommendation,
+    ChemicalProfile,
+    DatasetAdvisor,
+    DatasetReport,
+    TabularFeatureProfile,
+    TargetProfile,
+)
+from .config import ExperimentConfig, ModelSpec, load_config
 from .core import ArchitectureRecipe, FeatureRole, FusionStrategy, RoleAssignment
+from .data import (
+    ATOM_FEATURE_DIM,
+    BOND_FEATURE_DIM,
+    BatchMolGraph,
+    ChemistryDataset,
+    ExperimentDataLoaders,
+    MolGraph,
+    MolecularDataset,
+    collate_mol_graphs,
+    make_experiment_dataloaders,
+    mol_to_graph,
+)
 from .diagnostics import FeatureDiagnostics, FeatureReport, diagnose_features
-from .encoders import MLPEncoder, MLPResidual
+from .encoders import (
+    DMPNNEncoder,
+    EGNNEncoder,
+    GINEncoder,
+    GraphAggregation,
+    MLPEncoder,
+    MLPResidual,
+    ProteinEncoder,
+)
 from .experiment import PreparedExperiment, fit_experiment_prior, prepare_experiment
 from .feature_analysis import (
     FeatureEvidence,
@@ -23,8 +50,35 @@ from .features import (
     MoleculeFeatureBlock,
     molecular_feature_registry,
 )
-from .heads import IdentityOutputHead, NASA7OutputBlock, ScalarOutputHead, VectorOutputHead
-from .models import ResidualPropertyModel
+from .heads import (
+    EvidentialRegressionHead,
+    GaussianNLLHead,
+    IdentityOutputHead,
+    MultiTaskHead,
+    NASA7OutputBlock,
+    NodeLevelHead,
+    ScalarOutputHead,
+    VectorOutputHead,
+)
+from .inputs import (
+    ChemicalRecord,
+    ComplexAdapter,
+    ComplexObject,
+    MixtureAdapter,
+    MixtureObject,
+    MoleculeObject,
+    ReactionObject,
+    available_input_formats,
+    get_input_adapter,
+)
+from .models import (
+    EnsembleModel,
+    HybridChemistryModel,
+    ResidualPropertyModel,
+    RolePredictor,
+    build_hybrid_model,
+    build_role_predictor,
+)
 from .priors import (
     BaselineBlock,
     CallablePhysicsPrior,
@@ -33,12 +87,30 @@ from .priors import (
     ZeroPrior,
 )
 from .tasks import PropertyTask
+from .training import TrainingResult, train_ensemble, train_model
 
 __all__ = [
+    "ATOM_FEATURE_DIM",
+    "AdvisorRecommendation",
     "ArchitectureRecipe",
+    "BOND_FEATURE_DIM",
     "BaselineBlock",
+    "BatchMolGraph",
     "CallablePhysicsPrior",
+    "ChemicalRecord",
+    "ChemicalProfile",
+    "ChemistryDataset",
+    "ComplexAdapter",
+    "ComplexObject",
     "CompositePrior",
+    "DMPNNEncoder",
+    "DatasetAdvisor",
+    "DatasetReport",
+    "EGNNEncoder",
+    "EnsembleModel",
+    "EvidentialRegressionHead",
+    "ExperimentConfig",
+    "ExperimentDataLoaders",
     "FeatureDiagnostics",
     "FeatureEvidence",
     "FeatureEvidenceReport",
@@ -48,27 +120,56 @@ __all__ = [
     "FeatureRole",
     "FeatureSpec",
     "FusionStrategy",
+    "GINEncoder",
+    "GaussianNLLHead",
+    "GraphAggregation",
+    "HybridChemistryModel",
     "IdentityOutputHead",
     "LinearAdditivePrior",
     "MLPEncoder",
     "MLPResidual",
+    "MixtureAdapter",
+    "MixtureObject",
     "ModelContribution",
+    "ModelSpec",
+    "MolGraph",
+    "MolecularDataset",
     "MoleculeFeatureBlock",
+    "MoleculeObject",
+    "MultiTaskHead",
     "NASA7OutputBlock",
-    "PropertyTask",
-    "PriorCoefficientEvidence",
+    "NodeLevelHead",
     "PreparedExperiment",
+    "PriorCoefficientEvidence",
+    "ProteinEncoder",
+    "PropertyTask",
+    "ReactionObject",
     "ResidualPropertyModel",
     "RoleAssignment",
+    "RolePredictor",
     "ScalarOutputHead",
+    "TabularFeatureProfile",
+    "TargetProfile",
+    "TrainingResult",
     "VectorOutputHead",
     "ZeroPrior",
-    "diagnose_features",
     "analyze_feature_evidence",
+    "available_input_formats",
+    "build_hybrid_model",
+    "build_role_predictor",
+    "collate_mol_graphs",
+    "diagnose_features",
+    "fit_experiment_prior",
+    "get_input_adapter",
     "leave_group_out_importance",
+    "load_config",
+    "make_experiment_dataloaders",
+    "mol_to_graph",
     "molecular_feature_registry",
     "permutation_group_importance",
-    "summarize_prior_coefficients",
-    "fit_experiment_prior",
     "prepare_experiment",
+    "summarize_prior_coefficients",
+    "train_ensemble",
+    "train_model",
 ]
+

@@ -1,4 +1,3 @@
-"""Compare external prediction molecules with training feature distributions."""
 from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
@@ -8,7 +7,6 @@ if TYPE_CHECKING:
     from ..experiment import PreparedExperiment
 
 def analyze_prediction_molecules(experiment: PreparedExperiment, molecules: Sequence[str | Any],) -> FeatureReport:
-    """Report train-range extrapolation for molecules supplied at inference time."""
     if not molecules:
         raise ValueError("at least one prediction molecule is required")
     block = MoleculeFeatureBlock(experiment.feature_registry, experiment.features.names)

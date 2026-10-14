@@ -1,4 +1,3 @@
-"""Feature metadata and validated feature matrices."""
 from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -8,7 +7,6 @@ FeatureCalculator = Callable[[Any], float]
 
 @dataclass(frozen=True)
 class FeatureSpec:
-    """One named, independently replaceable molecular descriptor."""
     name: str
     calculator: FeatureCalculator
     domain: str
@@ -34,7 +32,6 @@ class FeatureSpec:
 
 @dataclass(frozen=True)
 class FeatureMatrix:
-    """Dense values paired with the exact feature order used to create them."""
     names: tuple[str, ...]
     values: np.ndarray
     def __post_init__(self) -> None:

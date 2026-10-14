@@ -1,17 +1,14 @@
-"""Default, broadly applicable molecular descriptor calculators."""
 from __future__ import annotations
 from collections.abc import Sequence
 from .registry import FeatureRegistry
 from .specs import FeatureCalculator, FeatureSpec
+try:
+    from rdkit.Chem import rdMolDescriptors
+ except ImportError as exc:
+    raise ImportError("RDKit is required for built-in molecular features") from exc
 
 def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S", "F", "Cl", "Br", "P", "I"),) -> FeatureRegistry:
-    """Create a registry of general-purpose molecular composition and topology features."""
-    try:
-        from rdkit.Chem import rdMolDescriptors
-    except ImportError as exc:
-        raise ImportError("RDKit is required for built-in molecular features") from exc
     registry = FeatureRegistry()
-    
     def atom_count(symbol: str) -> FeatureCalculator:
         return lambda mol: float(
             sum(atom.GetSymbol() == symbol for atom in mol.GetAtoms())

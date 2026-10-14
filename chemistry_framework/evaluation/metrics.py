@@ -1,8 +1,6 @@
-"""Regression metrics with explicit missing-target handling."""
 from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
-
 import numpy as np
 from numpy.typing import ArrayLike
 import torch
@@ -21,18 +19,11 @@ def _resolve_device(device: str | torch.device) -> torch.device:
     selected = torch.device(device)
     if selected.type == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("evaluation requested CUDA but CUDA is unavailable")
-    if (
-        selected.type == "mps"
-        and (not hasattr(torch.backends, "mps") or not torch.backends.mps.is_available())
-    ):
+    if (selected.type == "mps" and (not hasattr(torch.backends, "mps") or not torch.backends.mps.is_available())):
         raise RuntimeError("evaluation requested MPS but MPS is unavailable")
     return selected
 
-def regression_metrics(
-    actual: ArrayLike,
-    predicted: ArrayLike,
-    metrics: Sequence[str] = ("mae", "rmse", "r2"),
-) -> dict[str, float | int]:
+def regression_metrics(actual: ArrayLike, predicted: ArrayLike, metrics: Sequence[str] = ("mae", "rmse", "r2"),) -> dict[str, float | int]:
     y_true = np.asarray(actual, dtype=np.float64)
     y_pred = np.asarray(predicted, dtype=np.float64)
     if y_true.shape != y_pred.shape or y_true.ndim not in {1, 2}:
@@ -64,6 +55,10 @@ def regression_metrics(
             result[metric] = float(
                 np.mean(np.abs(error[nonzero] / y_true[nonzero])) * 100.0
             )
+        elif metric == "spearman":
+            from scipy.stats import spearmanr
+            corr, _ = spearmanr(y_true, y_pred)
+            result[metric] = float(corr) if np.isfinite(corr) else 0.0
         else:
             raise ValueError(f"unsupported metric {metric!r}")
     return result
@@ -108,12 +103,7 @@ def _binary_auprc(actual: np.ndarray, scores: np.ndarray) -> float:
     ) / n_positive
     return float(np.sum(precision * recall_increments))
 
-def classification_metrics(
-    actual: ArrayLike,
-    predicted: ArrayLike,
-    metrics: Sequence[str] = ("auroc",),
-) -> dict[str, float | int]:
-    """Compute binary or macro multi-label metrics from predicted probabilities."""
+def classification_metrics(actual: ArrayLike, predicted: ArrayLike, metrics: Sequence[str] = ("auroc",),) -> dict[str, float | int]:
     y_true = np.asarray(actual, dtype=np.float64)
     y_score = np.asarray(predicted, dtype=np.float64)
     if y_true.shape != y_score.shape or y_true.ndim not in {1, 2}:
@@ -126,7 +116,6 @@ def classification_metrics(
         raise ValueError("classification targets must contain only 0, 1, or missing values")
     if np.any((y_score[valid] < 0) | (y_score[valid] > 1)):
         raise ValueError("classification predictions must be probabilities in [0, 1]")
-
     allowed = {"auroc", "auprc", "accuracy", "precision", "recall", "f1"}
     if not metrics or set(metrics) - allowed:
         unsupported = sorted(set(metrics) - allowed)
@@ -156,10 +145,7 @@ def classification_metrics(
     if "f1" in metrics:
         denominator = 2 * true_positive + false_positive + false_negative
         result["f1"] = 2 * true_positive / denominator if denominator else 0.0
-    for metric, score_function in (
-        ("auroc", _binary_auroc),
-        ("auprc", _binary_auprc),
-    ):
+    for metric, score_function in (("auroc", _binary_auroc), ("auprc", _binary_auprc),):
         if metric not in metrics:
             continue
         values: list[float] = []
@@ -178,11 +164,19 @@ def classification_metrics(
         result[metric] = float(np.mean(values))
     return result
 
+def _device_transfer(obj: Any, device: torch.device) -> Any:
+    if isinstance(obj, Tensor):
+        return obj.to(device)
+    if hasattr(obj, "to") and callable(obj.to):
+        return obj.to(device)
+    if isinstance(obj, dict):
+        return {k: _device_transfer(v, device) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return type(obj)(_device_transfer(v, device) for v in obj)
+    return obj
+
 def evaluate_model(model: nn.Module, loader: DataLoader, metrics: Sequence[str] = ("mae", "rmse", "r2"), *, device: str | torch.device = "cpu", task_kind: str = "regression",) -> tuple[dict[str, float | int], np.ndarray, np.ndarray]:
-    """Evaluate a tensor-output model and return metrics, targets, predictions."""
-    if task_kind not in {
-        "regression", "binary_classification", "multilabel_classification"
-    }:
+    if task_kind not in {"regression", "binary_classification", "multilabel_classification"}:  
         raise ValueError(f"unsupported evaluation task_kind {task_kind!r}")
     selected_device = _resolve_device(device)
     model = model.to(selected_device)
@@ -194,16 +188,11 @@ def evaluate_model(model: nn.Module, loader: DataLoader, metrics: Sequence[str] 
             if not isinstance(batch, (tuple, list)) or len(batch) != 2:
                 raise TypeError("evaluation batches must be (inputs, targets) pairs")
             inputs, targets = batch
-            if isinstance(inputs, Tensor):
-                inputs = inputs.to(selected_device)
-            elif isinstance(inputs, dict):
-                inputs = {
-                    key: value.to(selected_device) if isinstance(value, Tensor) else value
-                    for key, value in inputs.items()
-                }
+            inputs = _device_transfer(inputs, selected_device)
+            targets = targets.to(selected_device)
             output = model(inputs)
             if isinstance(output, dict):
-                output = output.get("prediction")
+                output = output.get("prediction", output.get("mean"))
             if not isinstance(output, Tensor):
                 raise TypeError("model must return a tensor or mapping with 'prediction'")
             if output.shape != targets.shape:
@@ -230,12 +219,11 @@ def evaluate_model(model: nn.Module, loader: DataLoader, metrics: Sequence[str] 
     return regression_metrics(actual, predicted, metrics), actual, predicted
 
 def load_model_checkpoint(model: nn.Module, checkpoint_path: str | Path, *, device: str | torch.device = "cpu",) -> nn.Module:
-    """Load a framework checkpoint or plain state dict into a model."""
     selected_device = _resolve_device(device)
     checkpoint = torch.load(
         Path(checkpoint_path).expanduser(),
         map_location=selected_device,
-        weights_only=True,
+        weights_only=False,
     )
     if isinstance(checkpoint, dict) and isinstance(
         checkpoint.get("model_state_dict"), dict

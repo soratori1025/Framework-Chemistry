@@ -1,5 +1,3 @@
-"""Evaluation metrics and helpers."""
-
 from .metrics import (
     classification_metrics,
     evaluate_model,

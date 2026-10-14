@@ -1,4 +1,3 @@
-"""MLP implementation of the encoder and residual blocks."""
 from __future__ import annotations
 import torch
 from torch import Tensor, nn

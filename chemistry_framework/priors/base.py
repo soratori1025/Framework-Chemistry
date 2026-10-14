@@ -1,4 +1,3 @@
-"""Prior block contract."""
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from torch import Tensor, nn

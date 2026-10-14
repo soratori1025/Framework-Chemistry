@@ -1,13 +1,16 @@
-"""Molecule-to-feature-matrix transformation."""
 from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from typing import Any
 import numpy as np
+try:
+    from rdkit import Chem
+except ImportError as exc:
+    raise ImportError("RDKit is required to parse SMILES") from exc
+from ..inputs.objects import ChemicalRecord, record_molecule
 from .registry import FeatureRegistry
 from .specs import FeatureMatrix, FeatureSpec
 
 class MoleculeFeatureBlock:
-    """Turn SMILES or RDKit molecules into an ordered numeric feature matrix."""
     def __init__(self, registry: FeatureRegistry, feature_names: Sequence[str]) -> None:
         if not feature_names:
             raise ValueError("at least one feature must be selected")
@@ -20,16 +23,9 @@ class MoleculeFeatureBlock:
         )
 
     def transform(self, molecules_or_records: Iterable[Any], conditions: dict[str, tuple[float, ...]] | None = None) -> FeatureMatrix:
-        try:
-            from rdkit import Chem
-        except ImportError as exc:
-            raise ImportError("RDKit is required to parse SMILES") from exc
-        from ..inputs.objects import ChemicalRecord, record_molecule
-
         rows: list[list[float]] = []
         # Convert inputs to a list to iterate alongside conditions
         items = list(molecules_or_records)
-        
         for row_index, item in enumerate(items):
             if isinstance(item, ChemicalRecord):
                 # We won't get a single mol right away because different features might need different sides
@@ -43,7 +39,6 @@ class MoleculeFeatureBlock:
                         f"row {row_index} must be a SMILES string, ChemicalRecord or RDKit molecule, "
                         f"got {type(item).__name__}"
                     )
-
             row: list[float] = []
             for spec in self.feature_specs:
                 try:

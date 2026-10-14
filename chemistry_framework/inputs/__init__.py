@@ -1,8 +1,8 @@
-"""Input layer: notation adapters and format-independent chemical records."""
-
 from .adapters import (
+    ComplexAdapter,
     InChIAdapter,
     InputAdapter,
+    MixtureAdapter,
     MolBlockAdapter,
     ReactionSMILESAdapter,
     SELFIESAdapter,
@@ -14,6 +14,8 @@ from .adapters import (
 )
 from .objects import (
     ChemicalRecord,
+    ComplexObject,
+    MixtureObject,
     MoleculeObject,
     ReactionObject,
     record_molecule,
@@ -22,8 +24,12 @@ from .objects import (
 
 __all__ = [
     "ChemicalRecord",
+    "ComplexAdapter",
+    "ComplexObject",
     "InChIAdapter",
     "InputAdapter",
+    "MixtureAdapter",
+    "MixtureObject",
     "MolBlockAdapter",
     "MoleculeObject",
     "ReactionObject",

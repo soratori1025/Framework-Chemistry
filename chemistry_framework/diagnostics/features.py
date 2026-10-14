@@ -1,4 +1,3 @@
-"""Train/test feature-range and collinearity diagnostic implementation."""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence

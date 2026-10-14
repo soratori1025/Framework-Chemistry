@@ -1,4 +1,3 @@
-"""CSV-backed molecule and target loading."""
 from __future__ import annotations
 import csv
 import importlib

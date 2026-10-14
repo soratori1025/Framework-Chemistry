@@ -1,5 +1,3 @@
-"""Chemical feature evidence independent of the downstream predictor."""
-
 from .model_evidence import (
     ModelContribution,
     PriorCoefficientEvidence,

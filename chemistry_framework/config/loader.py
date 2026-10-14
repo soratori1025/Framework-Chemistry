@@ -1,14 +1,9 @@
-"""Safe YAML loading for experiment configuration."""
 from __future__ import annotations
 from pathlib import Path
 from typing import Any
 from .schema import ExperimentConfig
 
 def load_config(path: str | Path) -> ExperimentConfig:
-    """Load and validate one experiment YAML file.
-    YAML is parsed with ``safe_load``; Python plugin references are not imported
-    until a configured plugin feature is explicitly constructed.
-    """
     config_path = Path(path).expanduser().resolve()
     if not config_path.is_file():
         raise FileNotFoundError(f"configuration file not found: {config_path}")

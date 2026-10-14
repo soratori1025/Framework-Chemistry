@@ -1,6 +1,4 @@
-"""Model-independent chemical feature evidence and report artifacts."""
 from __future__ import annotations
-
 import csv
 import html
 import json
@@ -9,14 +7,13 @@ import zlib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Mapping, Sequence
-
 import numpy as np
-
 from ..diagnostics import diagnose_features
 from ..features import FeatureMatrix, FeatureRegistry
 from ..splits import DatasetSplit
 from .model_evidence import ModelContribution, PriorCoefficientEvidence
-
+import io
+import matplotlib.pyplot as plt
 
 @dataclass(frozen=True)
 class FeatureEvidence:
@@ -45,7 +42,6 @@ class FeatureEvidence:
     prior_evidence: dict[str, object] | None
     model_evidence: tuple[dict[str, object], ...]
     evidence_class: str
-
 
 @dataclass(frozen=True)
 class FeatureEvidenceReport:
@@ -226,19 +222,13 @@ class FeatureEvidenceReport:
         ) / standard_deviation[active]
         correlation = standardized.T @ standardized / len(train)
         correlation[np.diag_indices(n_features)] = active.astype(float)
-        
-        import io
-        import matplotlib.pyplot as plt
-        
         fig, ax = plt.subplots(figsize=(8, 6))
         im = ax.imshow(correlation, cmap="coolwarm", vmin=-1.0, vmax=1.0)
         cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         cbar.set_label("Pearson Correlation", rotation=270, labelpad=15)
         ax.set_title("Feature Correlation Heatmap")
-        
         ax.set_xticks([])
         ax.set_yticks([])
-        
         buf = io.BytesIO()
         fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
         plt.close(fig)
@@ -257,7 +247,6 @@ def _average_ranks(values: np.ndarray) -> np.ndarray:
         start = end
     return ranks
 
-
 def _spearman(left: np.ndarray, right: np.ndarray) -> float | None:
     finite = np.isfinite(left) & np.isfinite(right)
     if np.count_nonzero(finite) < 2:
@@ -268,13 +257,7 @@ def _spearman(left: np.ndarray, right: np.ndarray) -> float | None:
         return None
     return float(np.corrcoef(left_ranks, right_ranks)[0, 1])
 
-
-def _target_associations(
-    feature_values: np.ndarray,
-    targets: Mapping[str, Sequence[float] | Sequence[Sequence[float]]],
-    train_indices: np.ndarray,
-    row_count: int,
-) -> dict[str, float | None]:
+def _target_associations(feature_values: np.ndarray, targets: Mapping[str, Sequence[float] | Sequence[Sequence[float]]], train_indices: np.ndarray, row_count: int,) -> dict[str, float | None]:
     result: dict[str, float | None] = {}
     for target_name, raw_values in targets.items():
         values = np.asarray(raw_values, dtype=np.float64)
@@ -294,21 +277,7 @@ def _target_associations(
                 )
     return result
 
-
-def analyze_feature_evidence(
-    matrix: FeatureMatrix,
-    split: DatasetSplit,
-    targets: Mapping[str, Sequence[float] | Sequence[Sequence[float]]],
-    registry: FeatureRegistry,
-    *,
-    feature_groups: Mapping[str, Sequence[str]] | None = None,
-    support_threshold: int = 1,
-    correlation_threshold: float = 0.95,
-    fixed_coefficients: Mapping[str, float] | None = None,
-    prior_evidence: Mapping[str, PriorCoefficientEvidence] | None = None,
-    model_contributions: Sequence[ModelContribution] = (),
-) -> FeatureEvidenceReport:
-    """Build model-independent evidence and attach optional prior/model evidence."""
+def analyze_feature_evidence(matrix: FeatureMatrix, split: DatasetSplit, targets: Mapping[str, Sequence[float] | Sequence[Sequence[float]]], registry: FeatureRegistry, *, feature_groups: Mapping[str, Sequence[str]] | None = None, support_threshold: int = 1, correlation_threshold: float = 0.95, fixed_coefficients: Mapping[str, float] | None = None, prior_evidence: Mapping[str, PriorCoefficientEvidence] | None = None, model_contributions: Sequence[ModelContribution] = (),) -> FeatureEvidenceReport:
     if support_threshold < 1:
         raise ValueError("support_threshold must be positive")
     values = matrix.values
@@ -347,7 +316,6 @@ def analyze_feature_evidence(
     contributions_by_group: dict[str, list[ModelContribution]] = {}
     for contribution in model_contributions:
         contributions_by_group.setdefault(contribution.group, []).append(contribution)
-
     fixed = fixed_coefficients or {}
     prior_runs = prior_evidence or {}
     feature_items: list[FeatureEvidence] = []
@@ -403,7 +371,6 @@ def analyze_feature_evidence(
             evidence_class = "model_dependent"
         else:
             evidence_class = "weak_uncertain"
-
         provenance = {
             "domain": spec.domain,
             "source": spec.source or "unspecified",

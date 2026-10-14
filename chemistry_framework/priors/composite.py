@@ -1,11 +1,9 @@
-"""Composition of compatible prior blocks."""
 from __future__ import annotations
 from collections.abc import Sequence
 from torch import Tensor, nn
 from .base import BaselineBlock
 
 class CompositePrior(BaselineBlock):
-    """Sum compatible prior blocks to express additive/hybrid baselines."""
     def __init__(self, priors: Sequence[BaselineBlock]) -> None:
         super().__init__()
         if not priors:

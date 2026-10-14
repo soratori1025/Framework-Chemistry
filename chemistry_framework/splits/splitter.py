@@ -1,10 +1,18 @@
-"""Reproducible random, size, scaffold, and SMARTS data splits."""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 import numpy as np
 from ..config.schema import SplitConfig
-
+try:
+    from rdkit import Chem
+except ImportError as exc:
+    raise ImportError("RDKit is required for SMARTS-based splitting") from exc
+try:
+    from rdkit import Chem
+    from rdkit.Chem.Scaffolds import MurckoScaffold
+except ImportError as exc:
+    raise ImportError("RDKit is required for scaffold splitting") from exc
+    
 @dataclass(frozen=True)
 class DatasetSplit:
     train: np.ndarray
@@ -40,7 +48,6 @@ def _partition(indices: np.ndarray, fractions: tuple[float, float, float]) -> Da
     )
 
 def split_indices(smiles: Sequence[str], config: SplitConfig) -> DatasetSplit:
-    """Create deterministic dataset partitions without consulting target values."""
     if len(smiles) < 3:
         raise ValueError("at least three molecules are required for a three-way split")
     rng = np.random.default_rng(config.seed)
@@ -70,15 +77,7 @@ def split_indices(smiles: Sequence[str], config: SplitConfig) -> DatasetSplit:
         return _scaffold_split(smiles, config, rng)
     raise ValueError(f"unsupported split method: {config.method}")
 
-def _smarts_split(
-    smiles: Sequence[str],
-    config: SplitConfig,
-    rng: np.random.Generator,
-) -> DatasetSplit:
-    try:
-        from rdkit import Chem
-    except ImportError as exc:
-        raise ImportError("RDKit is required for SMARTS-based splitting") from exc
+def _smarts_split(smiles: Sequence[str], config: SplitConfig, rng: np.random.Generator,) -> DatasetSplit:
     query = Chem.MolFromSmarts(config.test_smarts or "")
     if query is None:
         raise ValueError(f"invalid SMARTS pattern: {config.test_smarts!r}")
@@ -101,11 +100,6 @@ def _smarts_split(
     )
 
 def _scaffold_split(smiles: Sequence[str], config: SplitConfig, rng: np.random.Generator,) -> DatasetSplit:
-    try:
-        from rdkit import Chem
-        from rdkit.Chem.Scaffolds import MurckoScaffold
-    except ImportError as exc:
-        raise ImportError("RDKit is required for scaffold splitting") from exc
     groups: dict[str, list[int]] = {}
     for row, value in enumerate(smiles):
         mol = Chem.MolFromSmiles(value)

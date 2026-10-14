@@ -1,4 +1,3 @@
-"""Analytic NASA-7 thermochemistry output block."""
 from __future__ import annotations
 import math
 from collections.abc import Sequence
@@ -6,10 +5,6 @@ import torch
 from torch import Tensor, nn
 
 class NASA7OutputBlock(nn.Module):
-    """Convert Cp coefficients and reference H/S into continuous NASA-7 curves.
-    Inputs use SI units: H in J/mol, S and Cp in J/(mol K), and temperatures in K.
-    """
-
     temperature_grid: Tensor | None
     gas_constant = 8.314462618
     def __init__(self, t_ref: float = 298.15, t_mid: float = 1000.0, temperatures: Sequence[float] | Tensor | None = None,) -> None:
@@ -136,7 +131,7 @@ class NASA7OutputBlock(nn.Module):
                 a1 * torch.log(t) + a2 * t + a3 * t**2 / 2 + a4 * t**3 / 3
                 + a5 * t**4 / 4 + a7
             )
-
+            
         evaluate(low_mask, (a1_l, a2_l, a3_l, a4_l, a5_l, a6_l, a7_l))
         evaluate(~low_mask, (a1_h, a2_h, a3_h, a4_h, a5_h, a6_h, a7_h))
         coeffs_low = torch.stack((a1_l, a2_l, a3_l, a4_l, a5_l, a6_l, a7_l), dim=-1)

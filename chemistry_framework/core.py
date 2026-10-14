@@ -1,53 +1,32 @@
-"""Public recipe objects for role-based chemistry model construction."""
 from __future__ import annotations
-
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable
 
-
 class FeatureRole(str, Enum):
-    """How a feature block participates in a predictive model."""
-
     PRIOR = "prior"
     RESIDUAL = "residual"
     AUXILIARY = "auxiliary"
     DIRECT = "direct"
 
-
 class FusionStrategy(str, Enum):
-    """How predictions from multiple low-level branches are combined."""
-
     ADDITIVE = "additive"
     WEIGHTED = "weighted"
     CONCATENATE = "concatenate"
     GATED = "gated"
 
-
 @dataclass(frozen=True)
 class RoleAssignment:
-    """Describe how a feature family is assigned to a model role."""
-
     name: str
     role: FeatureRole | str
     features: tuple[str, ...] = ()
     description: str = ""
-
     def __post_init__(self) -> None:
         if isinstance(self.role, str):
             object.__setattr__(self, "role", FeatureRole(self.role.lower()))
 
-
 @dataclass(frozen=True)
 class ArchitectureRecipe:
-    """High-level recipe for building a domain-specific chemistry model.
-
-    The recipe keeps the public library explicit about the role of each feature
-    family and how separate prior/residual components are fused. This lets users
-    swap feature groups or model backbones without rewriting the baseline model
-    skeleton.
-    """
-
     name: str
     prior_features: tuple[str, ...] = ()
     residual_features: tuple[str, ...] = ()
@@ -57,7 +36,6 @@ class ArchitectureRecipe:
     residual_model: str = "mlp"
     description: str = ""
     assignments: tuple[RoleAssignment, ...] = field(default_factory=tuple)
-
     def __post_init__(self) -> None:
         if isinstance(self.fusion_strategy, str):
             object.__setattr__(
@@ -65,15 +43,7 @@ class ArchitectureRecipe:
                 "fusion_strategy",
                 FusionStrategy(self.fusion_strategy.lower()),
             )
-
-    def with_assignment(
-        self,
-        name: str,
-        role: FeatureRole | str,
-        features: Iterable[str] | str | None = None,
-        description: str = "",
-    ) -> "ArchitectureRecipe":
-        """Return a new recipe with a role assignment appended."""
+    def with_assignment(self, name: str, role: FeatureRole | str, features: Iterable[str] | str | None = None, description: str = "",) -> "ArchitectureRecipe":
         normalized_features: tuple[str, ...]
         if features is None:
             normalized_features = ()
@@ -103,7 +73,6 @@ class ArchitectureRecipe:
             description=self.description,
             assignments=updated_assignments,
         )
-
 
 __all__ = [
     "ArchitectureRecipe",

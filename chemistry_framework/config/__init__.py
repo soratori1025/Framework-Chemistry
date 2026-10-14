@@ -1,6 +1,5 @@
-"""Experiment configuration schema and YAML loader."""
-
 from .loader import load_config
+from .model_spec import ModelSpec
 from .schema import (
     AnalysisConfig,
     CacheConfig,
@@ -21,6 +20,7 @@ __all__ = [
     "EvaluationConfig",
     "ExperimentConfig",
     "FeatureConfig",
+    "ModelSpec",
     "PriorConfig",
     "SplitConfig",
     "TargetConfig",
