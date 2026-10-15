@@ -6,7 +6,6 @@ from typing import Sequence
 import numpy as np
 from scipy import stats
 
-
 def select_evidence_recommendation(
     X_train: np.ndarray,
     y_train: np.ndarray,
@@ -62,7 +61,6 @@ def select_evidence_recommendation(
         if len(selected) >= k:
             break
 
-    # Pad if necessary
     if len(selected) < k:
         for col in ranked_cols:
             c = int(col)
@@ -72,7 +70,6 @@ def select_evidence_recommendation(
                 break
 
     return selected[:k]
-
 
 def select_evidence_recommendation_names(
     X_train: np.ndarray,

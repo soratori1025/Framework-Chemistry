@@ -22,7 +22,6 @@ from chemistry_framework.experiment import fit_experiment_prior, prepare_experim
 from chemistry_framework.models import build_hybrid_model
 from chemistry_framework.training import train_ensemble, train_model
 
-# Published TDC Leaderboard Benchmarks (Scaffold Split 80/10/10)
 PUBLISHED_WORKS = {
     "caco2": {
         "dataset_name": "Caco-2 Wang (Permeability)",
@@ -66,7 +65,6 @@ PUBLISHED_WORKS = {
     },
 }
 
-
 def train_and_eval(
     base_config_path: Path,
     override_spec: dict[str, Any],
@@ -75,7 +73,6 @@ def train_and_eval(
 ) -> dict[str, Any]:
     config = load_config(base_config_path)
 
-    # Apply overrides
     if "loss" in override_spec:
         object.__setattr__(config.training, "loss", override_spec["loss"])
     if "scheduler" in override_spec:
@@ -169,7 +166,6 @@ def train_and_eval(
         "override_spec": override_spec,
     }
 
-
 def main():
     print("=" * 78)
     print("🔬 STUDY: COMPARING PERFORMANCE BEFORE AND AFTER ADVISOR RECOMMENDATIONS")
@@ -185,7 +181,7 @@ def main():
             "id": "caco2",
             "name": "Caco-2 Wang (Permeability)",
             "config": configs_dir / "caco2_dmpnn.yaml",
-            # Baseline (Before Recommend): Naive graph-only, MSE loss, no scheduler/warmup
+
             "baseline": {
                 "loss": "mse",
                 "scheduler": "none",
@@ -195,7 +191,7 @@ def main():
                 "batch_size": 64,
                 "ensemble_size": 1,
             },
-            # Recommended (After Recommend): Hybrid (Graph+Descriptors), Huber loss, Cosine with warmup
+
             "recommended": {
                 "loss": "huber",
                 "scheduler": "cosine",
@@ -212,7 +208,7 @@ def main():
             "id": "lipophilicity",
             "name": "Lipophilicity AstraZeneca (logD)",
             "config": configs_dir / "lipophilicity_evidential.yaml",
-            # Baseline (Before Recommend): Pure Graph-only, MSE loss, no scheduler
+
             "baseline": {
                 "loss": "mse",
                 "scheduler": "none",
@@ -222,7 +218,7 @@ def main():
                 "batch_size": 64,
                 "ensemble_size": 1,
             },
-            # Recommended (After Recommend): D-MPNN Hybrid, Huber loss, Cosine with warmup, Virtual Supernode
+
             "recommended": {
                 "loss": "huber",
                 "scheduler": "cosine",
@@ -239,7 +235,7 @@ def main():
             "id": "bbb",
             "name": "BBB Martins (Penetration)",
             "config": configs_dir / "bbb_martins_dmpnn.yaml",
-            # Baseline (Before Recommend): Pure Graph-only, no scheduler
+
             "baseline": {
                 "loss": "bce",
                 "scheduler": "none",
@@ -249,7 +245,7 @@ def main():
                 "batch_size": 64,
                 "ensemble_size": 1,
             },
-            # Recommended (After Recommend): D-MPNN Hybrid, Cosine with warmup, Virtual Supernode
+
             "recommended": {
                 "loss": "bce",
                 "scheduler": "cosine",
@@ -266,7 +262,7 @@ def main():
             "id": "herg",
             "name": "hERG (Cardiotoxicity)",
             "config": configs_dir / "herg_gin_ensemble.yaml",
-            # Baseline (Before Recommend): Single model (no ensemble), pure graph, no scheduler
+
             "baseline": {
                 "loss": "bce",
                 "scheduler": "none",
@@ -276,7 +272,7 @@ def main():
                 "batch_size": 64,
                 "ensemble_size": 1,
             },
-            # Recommended (After Recommend): Deep Ensemble (K=3), Hybrid, Cosine with warmup, Virtual Supernode
+
             "recommended": {
                 "loss": "bce",
                 "scheduler": "cosine",
@@ -298,12 +294,10 @@ def main():
         task_name = t["name"]
         print(f"\n{'='*60}\n▶ Running Study for: {task_name}\n{'='*60}")
 
-        # 1. Train Baseline
         print(f"--- [1/2] Training Baseline (Before Recommend) ---")
         base_res = train_and_eval(t["config"], t["baseline"], f"{task_id}_baseline", output_dir)
         print(f"Baseline Test Metrics: {base_res['test_metrics']}")
 
-        # 2. Train Recommended
         print(f"--- [2/2] Training Recommended (After Recommend) ---")
         rec_res = train_and_eval(t["config"], t["recommended"], f"{task_id}_recommended", output_dir)
         print(f"Recommended Test Metrics: {rec_res['test_metrics']}")
@@ -315,14 +309,12 @@ def main():
             "published": PUBLISHED_WORKS[task_id],
         }
 
-    # Save summary JSON
     summary_path = output_dir / "comparison_summary.json"
     with summary_path.open("w", encoding="utf-8") as f:
         json.dump(results_record, f, indent=2)
 
     print(f"\n✓ Saved comparison summary to: {summary_path}")
 
-    # Generate Markdown Report
     report_lines = [
         "# Empirical Comparison: Before vs After Advisor Recommendations",
         "",
@@ -342,7 +334,6 @@ def main():
         base_val = res["baseline"]["test_metrics"][p_metric]
         rec_val = res["recommended"]["test_metrics"][p_metric]
 
-        # Calculate improvement: for error metrics (mae, rmse) lower is better; for auroc/accuracy higher is better
         if p_metric in {"mae", "rmse"}:
             improvement = (base_val - rec_val) / base_val * 100.0
             imp_str = f"**{improvement:+.1f}% error reduction**"
@@ -383,7 +374,6 @@ def main():
 
     print(f"✓ Saved Markdown report to: {report_path}")
     print("\n" + "\n".join(report_lines[:25]))
-
 
 if __name__ == "__main__":
     main()

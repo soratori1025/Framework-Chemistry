@@ -86,7 +86,6 @@ DATASET_CONFIGS = {
     },
 }
 
-
 def build_scaffold_groups(smiles: list[str]) -> list[list[int]]:
     groups: dict[str, list[int]] = {}
     for idx, smi in enumerate(smiles):
@@ -100,7 +99,6 @@ def build_scaffold_groups(smiles: list[str]) -> list[list[int]]:
             key = f"raw_{smi}"
         groups.setdefault(key, []).append(idx)
     return list(groups.values())
-
 
 def scaffold_split_from_groups(group_values: list[list[int]], n_total: int, fractions: tuple[float, float, float], seed: int) -> tuple[list[int], list[int], list[int]]:
     rng = np.random.default_rng(seed)
@@ -117,7 +115,6 @@ def scaffold_split_from_groups(group_values: list[list[int]], n_total: int, frac
 
     return bins[0], bins[1], bins[2]
 
-
 def random_split(n_total: int, fractions: tuple[float, float, float], seed: int) -> tuple[list[int], list[int], list[int]]:
     rng = np.random.default_rng(seed)
     indices = np.arange(n_total, dtype=int)
@@ -128,7 +125,6 @@ def random_split(n_total: int, fractions: tuple[float, float, float], seed: int)
     val_idx = indices[n_train:n_train + n_val].tolist()
     test_idx = indices[n_train + n_val:].tolist()
     return train_idx, val_idx, test_idx
-
 
 def prepare_dataset(name: str, cfg: dict[str, Any]) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -142,14 +138,12 @@ def prepare_dataset(name: str, cfg: dict[str, Any]) -> dict[str, Any]:
     else:
         df = pd.read_csv(csv_path)
 
-    # Specific fix for ClinTox columns if needed
     smiles_col = cfg["smiles_col"]
     if smiles_col not in df.columns:
         possible = [c for c in df.columns if "smiles" in c.lower() or c.lower() == "mol"]
         if possible:
             smiles_col = possible[0]
 
-    # Validate SMILES
     valid_mask = []
     clean_smiles = []
     for val in df[smiles_col].astype(str):
@@ -170,7 +164,6 @@ def prepare_dataset(name: str, cfg: dict[str, Any]) -> dict[str, Any]:
     n_samples = len(df_clean)
     print(f"✓ {name.upper()}: {n_samples} valid molecules (dropped {len(df) - n_samples} invalid)")
 
-    # Generate split indices for 5 seeds
     split_info = {}
     scaffold_groups = build_scaffold_groups(clean_smiles) if cfg["split_method"] == "scaffold" else []
     for seed in SEEDS:
@@ -212,7 +205,6 @@ def prepare_dataset(name: str, cfg: dict[str, Any]) -> dict[str, Any]:
         "splits": split_info,
     }
 
-
 def main():
     print("=" * 70)
     print("MoleculeNet Benchmark Data & Canonical Split Preparation (80/10/10)")
@@ -230,7 +222,6 @@ def main():
         json.dump(manifest, f, indent=2)
     print(f"\n✅ All datasets and 5-seed split indices generated successfully!")
     print(f"Manifest saved to: {summary_path}")
-
 
 if __name__ == "__main__":
     main()

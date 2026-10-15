@@ -90,7 +90,7 @@ class FeatureRegistry:
             for family in families:
                 if family == "all":
                     resolved_names.extend([n for n, _ in Descriptors.descList])
-                # We could add more families like 'properties', 'fragments'
+
             descriptor_names = resolved_names
         else:
             descriptor_names = names or []
@@ -115,10 +115,10 @@ class FeatureRegistry:
             )
 
     def add_morgan(self, name: str, *, reaction_side: str = "reactants", radius: int = 2, n_bits: int = 1024, counts: bool = False, group: str | None = None, description: str | None = None, interpretation: str | None = None, source: str = "morgan", definition: str | None = None,) -> None:
-        # Create one feature per bit
+
         for bit in range(n_bits):
             feature_name = f"{name}.bit_{bit}"
-            
+
             def make_calculator(b: int) -> FeatureCalculator:
                 def calculate(mol: Any) -> float:
                     if counts:

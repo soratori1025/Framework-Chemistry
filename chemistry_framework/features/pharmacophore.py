@@ -21,7 +21,7 @@ def extract_morgan_fingerprints(mols: Sequence[Any], radius: int = 2, n_bits: in
                 feature_matrix[idx, bit] = float(val)
         else:
             fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-            # Fast bit unpacking
+
             on_bits = list(fp.GetOnBits())
             if on_bits:
                 feature_matrix[idx, on_bits] = 1.0
@@ -55,18 +55,18 @@ def select_top_features(feature_matrix: np.ndarray, feature_names: list[str], ta
     n_samples, n_features = feature_matrix.shape
     if n_features <= top_k:
         return feature_matrix, feature_names, np.arange(n_features)
-    # 1. Eliminate constant and near-zero variance features
+
     selector_var = VarianceThreshold(threshold=1e-4)
     try:
         reduced_matrix = selector_var.fit_transform(feature_matrix)
         retained_indices = selector_var.get_support(indices=True)
     except ValueError:
-        # In case all features have zero variance
+
         return feature_matrix[:, :top_k], feature_names[:top_k], np.arange(top_k)
     if reduced_matrix.shape[1] <= top_k:
         selected_names = [feature_names[i] for i in retained_indices]
         return reduced_matrix, selected_names, retained_indices
-    # 2. Impute NaNs with column median
+
     finite_mask = np.isfinite(reduced_matrix)
     if not finite_mask.all():
         for col_idx in range(reduced_matrix.shape[1]):
@@ -75,18 +75,18 @@ def select_top_features(feature_matrix: np.ndarray, feature_names: list[str], ta
             med = np.median(valid_col) if len(valid_col) > 0 else 0.0
             col[~np.isfinite(col)] = med
             reduced_matrix[:, col_idx] = col
-    # Ensure target is 1D finite array
+
     y = np.asarray(targets, dtype=np.float64).reshape(-1)
     finite_y = np.isfinite(y)
     if not finite_y.all():
-        # Subset to finite target rows
+
         reduced_matrix = reduced_matrix[finite_y]
         y = y[finite_y]
-    # 3. Score features
+
     is_classification = "classification" in task_kind
     try:
         if is_classification:
-            # Check unique classes
+
             unique_classes = np.unique(y)
             if len(unique_classes) < 2:
                 scores = np.ones(reduced_matrix.shape[1])
@@ -96,13 +96,13 @@ def select_top_features(feature_matrix: np.ndarray, feature_names: list[str], ta
             scores, _ = f_regression(reduced_matrix, y)
         scores = np.nan_to_num(scores, nan=0.0, posinf=0.0, neginf=0.0)
     except Exception:
-        # Fallback to standard correlation
+
         scores = np.abs([
             np.corrcoef(reduced_matrix[:, c], y)[0, 1] if np.std(reduced_matrix[:, c]) > 1e-6 else 0.0
             for c in range(reduced_matrix.shape[1])
         ])
         scores = np.nan_to_num(scores, nan=0.0)
-    # 4. Pick top-K highest scoring features
+
     top_indices_local = np.argsort(scores)[::-1][:top_k]
     final_indices = retained_indices[top_indices_local]
     selected_matrix = feature_matrix[:, final_indices]

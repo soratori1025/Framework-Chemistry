@@ -25,7 +25,7 @@ class EnsembleModel(nn.Module):
             else:
                 raise TypeError(f"model output must be Tensor or dict, got {type(out).__name__}")
             predictions.append(pred)
-        stacked_preds = torch.stack(predictions, dim=0)  # (K, B, ...)
+        stacked_preds = torch.stack(predictions, dim=0)
         mean_pred = stacked_preds.mean(dim=0)
         epistemic_var = stacked_preds.var(dim=0, unbiased=False)
         res: dict[str, Tensor] = {

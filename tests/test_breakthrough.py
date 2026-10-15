@@ -17,17 +17,13 @@ from chemistry_framework.features.pharmacophore import (
 from chemistry_framework.models.hybrid import build_hybrid_model
 from chemistry_framework.training.engine import _focal_loss, _pairwise_ranking_loss, train_model
 
-# =====================================================================
-# Pillar 1 Tests: Pharmacophore & Feature Intelligence
-# =====================================================================
-
 def test_extract_morgan_fingerprints():
     smiles = ["c1ccccc1", "c1ccccc1O", "CC(=O)O"]
     fps, names = extract_morgan_fingerprints(smiles, radius=2, n_bits=1024, use_counts=False)
     assert fps.shape == (3, 1024)
     assert len(names) == 1024
     assert names[0] == "ecfp_2_1024.bit_0"
-    # Benzene has active bits
+
     assert np.sum(fps[0]) > 0
 
 def test_extract_rdkit_2d_descriptors():
@@ -40,22 +36,21 @@ def test_extract_rdkit_2d_descriptors():
 
 def test_select_top_features():
     np.random.seed(42)
-    # 50 samples, 20 features
+
     X = np.random.randn(50, 20).astype(np.float32)
-    # Constant column
+
     X[:, 0] = 5.0
-    # True signal on column 1
+
     y = X[:, 1] * 3.0 + np.random.randn(50) * 0.1
     names = [f"f_{i}" for i in range(20)]
 
     X_sel, sel_names, idxs = select_top_features(X, names, y, task_kind="scalar_regression", max_features=5)
     assert X_sel.shape == (50, 5)
     assert len(sel_names) == 5
-    # Feature 0 (constant) must not be in top features
-    assert "f_0" not in sel_names
-    # Feature 1 (strong signal) must be selected
-    assert "f_1" in sel_names
 
+    assert "f_0" not in sel_names
+
+    assert "f_1" in sel_names
 
 def test_auto_pharmacophore_block():
     train_smiles = ["c1ccccc1", "c1ccccc1O", "c1ccccc1N", "CC(=O)O", "CCO", "CCCO"] * 5
@@ -73,11 +68,6 @@ def test_auto_pharmacophore_block():
     assert X_test.shape == (len(test_smiles), 25)
     assert np.all(np.isfinite(X_test))
 
-
-# =====================================================================
-# Pillar 2 Tests: Global Virtual Supernode in GNNs
-# =====================================================================
-
 def test_dmpnn_with_virtual_node():
     smiles_list = ["c1ccccc1", "c1ccccc1O", "CC(=O)Oc1ccccc1C(=O)O"]
     graphs = [mol_to_graph(Chem.MolFromSmiles(s)) for s in smiles_list]
@@ -87,12 +77,10 @@ def test_dmpnn_with_virtual_node():
     out = encoder(batch)
     assert out.shape == (3, 64)
 
-    # Check backprop gradients
     loss = out.sum()
     loss.backward()
     assert encoder.vn_embedding.grad is not None
     assert torch.all(torch.isfinite(encoder.vn_embedding.grad))
-
 
 def test_gin_with_virtual_node():
     smiles_list = ["c1ccccc1", "c1ccccc1O", "CC(=O)Oc1ccccc1C(=O)O"]
@@ -103,12 +91,10 @@ def test_gin_with_virtual_node():
     out = encoder(batch)
     assert out.shape == (3, 64)
 
-    # Check backprop gradients
     loss = out.sum()
     loss.backward()
     assert encoder.vn_embedding.grad is not None
     assert torch.all(torch.isfinite(encoder.vn_embedding.grad))
-
 
 def test_hybrid_model_with_virtual_node():
     spec_dict = {
@@ -136,13 +122,8 @@ def test_hybrid_model_with_virtual_node():
     assert "prediction" in out
     assert out["prediction"].shape in {(2,), (2, 1)}
 
-
-# =====================================================================
-# Pillar 3 Tests: Specialized Loss Functions & Ranking Metrics
-# =====================================================================
-
 def test_focal_loss_formulation():
-    # Extreme class imbalance: 1 positive, 9 negatives
+
     logits = torch.tensor([2.0, -3.0, -4.0, -2.5, -5.0, -3.2, -4.1, -2.9, -3.5, -4.8], requires_grad=True)
     targets = torch.tensor([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
@@ -152,9 +133,8 @@ def test_focal_loss_formulation():
     assert logits.grad is not None
     assert torch.all(torch.isfinite(logits.grad))
 
-
 def test_pairwise_ranking_loss():
-    # 4 predictions and 4 true continuous values
+
     preds = torch.tensor([1.0, 2.0, 3.0, 4.0], requires_grad=True)
     targets = torch.tensor([1.0, 2.5, 3.1, 4.5])
     base_loss = torch.nn.functional.mse_loss(preds, targets)
@@ -164,7 +144,6 @@ def test_pairwise_ranking_loss():
     total_loss.backward()
     assert preds.grad is not None
 
-
 def test_spearman_ranking_metric():
     actual = [1.0, 2.0, 3.0, 4.0, 5.0]
     predicted = [1.2, 2.3, 2.9, 4.1, 5.2]
@@ -172,24 +151,19 @@ def test_spearman_ranking_metric():
     assert res["count"] == 5
     assert res["spearman"] == pytest.approx(1.0, abs=1e-3)
 
-
-# =====================================================================
-# Pillar 4 Tests: Dataset Advisor v2
-# =====================================================================
-
 def test_advisor_v2_tanimoto_and_breakthrough_recommendations():
     advisor = DatasetAdvisor()
-    # Diverse set of drugs and small molecules
+
     smiles = [
-        "c1ccccc1",  # Benzene
-        "c1ccccc1O",  # Phenol
-        "CC(=O)Oc1ccccc1C(=O)O",  # Aspirin
-        "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",  # Caffeine
-        "CC(C)Cc1ccc(cc1)C(C)C(=O)O",  # Ibuprofen
-        "CCN(CC)CC",  # Triethylamine
-        "C1CCOC1",  # THF
-        "CC#N",  # Acetonitrile
-    ] * 20  # 160 compounds
+        "c1ccccc1",
+        "c1ccccc1O",
+        "CC(=O)Oc1ccccc1C(=O)O",
+        "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "CC(C)Cc1ccc(cc1)C(C)C(=O)O",
+        "CCN(CC)CC",
+        "C1CCOC1",
+        "CC#N",
+    ] * 20
 
     targets = {"activity": np.linspace(0.5, 9.5, len(smiles)).tolist()}
     report = advisor.profile_dataset(smiles, targets, dataset_name="diverse_assay")
@@ -199,9 +173,9 @@ def test_advisor_v2_tanimoto_and_breakthrough_recommendations():
     assert chem.tanimoto_diversity_score > 0.0
 
     rec = report.recommendation
-    # Regression with 160 compounds without severe outliers
+
     assert "spearman" in rec.recommended_metrics
-    # Virtual node enabled for diverse compounds
+
     assert rec.config_dict["model"]["structure"]["virtual_node"] is True
     assert rec.config_dict["model"]["structure"]["aggregation"] == "attention"
 

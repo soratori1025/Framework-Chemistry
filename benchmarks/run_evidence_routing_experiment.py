@@ -56,11 +56,6 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 K_CANDIDATES = [10, 20, 50]
 RANDOM_DRAWS = 3
 
-
-# -------------------------------------------------------------
-# PyTorch Datasets and Models
-# -------------------------------------------------------------
-
 class MoleculeGraphDataset(Dataset):
     def __init__(self, graphs: list[Any], descriptors: np.ndarray, targets: np.ndarray, prior_preds: np.ndarray | None = None):
         self.graphs = graphs
@@ -75,12 +70,10 @@ class MoleculeGraphDataset(Dataset):
         p = self.prior_preds[idx] if self.prior_preds is not None else torch.zeros(1)
         return self.graphs[idx], self.descriptors[idx], self.targets[idx], p
 
-
 def collate_graph_batch(batch: list[tuple[Any, torch.Tensor, torch.Tensor, torch.Tensor | None]]):
     graphs, descs, targets, priors = zip(*batch)
     batch_graph = BatchMolGraph(graphs)
     return batch_graph, torch.stack(descs), torch.stack(targets), torch.stack(priors)
-
 
 class DirectHybridGNN(nn.Module):
     def __init__(self, desc_dim: int, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
@@ -105,7 +98,6 @@ class DirectHybridGNN(nn.Module):
         fused = torch.cat([hg, hd], dim=-1)
         return self.head(fused)
 
-
 class PriorResidualGNN(nn.Module):
     def __init__(self, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
         super().__init__()
@@ -122,11 +114,6 @@ class PriorResidualGNN(nn.Module):
         res = self.residual_head(h)
         return prior_pred + res
 
-
-# -------------------------------------------------------------
-# Training with Validation-Metric Selection
-# -------------------------------------------------------------
-
 def train_and_eval_model(
     model: nn.Module,
     train_loader: DataLoader,
@@ -138,7 +125,7 @@ def train_and_eval_model(
     lr: float = 1e-3,
 ) -> tuple[float, dict[str, float]]:
     """Trains model with early checkpoint selection on validation metric.
-    
+
     Returns:
         (best_val_metric, test_metrics_dict)
     """
@@ -166,7 +153,6 @@ def train_and_eval_model(
             loss.backward()
             optimizer.step()
 
-        # Validation evaluation
         model.eval()
         vpreds, vtrues = [], []
         with torch.no_grad():
@@ -232,11 +218,6 @@ def train_and_eval_model(
 
     return best_val_score, test_metrics
 
-
-# -------------------------------------------------------------
-# Core Experiment Execution
-# -------------------------------------------------------------
-
 def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"🚀 Experiment E1: Evidence-Guided Routing on {dataset_name.upper()}")
@@ -256,7 +237,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     is_classification = "classification" in meta["task_type"]
     primary_metric = "roc_auc" if is_classification else "rmse"
 
-    # Pre-parse graphs and filter valid
     print("Pre-parsing molecular graphs...")
     valid_flags = []
     parsed_graphs = []
@@ -283,7 +263,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     seeds = [1, 2, 3, 4, 5]
     per_split_results: list[dict[str, Any]] = []
 
-    # Load baseline direct_hybrid and residual_only from modularity ablation
     ablation_file = RESULTS_DIR / f"modularity_ablation_{dataset_name}.json"
     cached_ablation = {}
     if ablation_file.exists():
@@ -304,7 +283,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         val_idx = [orig_to_clean[i] for i in split_dict["val"] if i in orig_to_clean]
         test_idx = [orig_to_clean[i] for i in split_dict["test"] if i in orig_to_clean]
 
-        # Scaler fit strictly on train
         scaler = StandardScaler()
         X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
         scaler.fit(X_clean[train_idx])
@@ -322,9 +300,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         graphs_val = [graphs[i] for i in val_idx]
         graphs_te = [graphs[i] for i in test_idx]
 
-        # -------------------------------------------------------------
-        # Step A: hybrid_rec selection (K* chosen on validation)
-        # -------------------------------------------------------------
         best_val_score_rec = -float("inf") if is_classification else float("inf")
         best_k_rec = K_CANDIDATES[0]
         best_rec_test_metrics = None
@@ -363,9 +338,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
 
         print(f"  ★ Selected K*={best_k_rec} (val {primary_metric}={best_val_score_rec:.4f}, test {primary_metric}={best_rec_test_metrics[primary_metric]:.4f})")
 
-        # -------------------------------------------------------------
-        # Step B: hybrid_spearman with same K*
-        # -------------------------------------------------------------
         indices_spearman = select_spearman_top_k(X_tr, y_tr, feature_names, best_k_rec)
         tr_ds_sp = MoleculeGraphDataset(graphs_tr, X_tr[:, indices_spearman], y_tr)
         val_ds_sp = MoleculeGraphDataset(graphs_val, X_val[:, indices_spearman], y_val)
@@ -381,9 +353,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         )
         print(f"  ✓ hybrid_spearman (K*={best_k_rec}): test {primary_metric}={sp_test_metrics[primary_metric]:.4f}")
 
-        # -------------------------------------------------------------
-        # Step C: hybrid_mi with same K*
-        # -------------------------------------------------------------
         indices_mi = select_mutual_info_top_k(X_tr, y_tr, best_k_rec, is_classification=is_classification, seed=seed)
         tr_ds_mi = MoleculeGraphDataset(graphs_tr, X_tr[:, indices_mi], y_tr)
         val_ds_mi = MoleculeGraphDataset(graphs_val, X_val[:, indices_mi], y_val)
@@ -399,9 +368,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         )
         print(f"  ✓ hybrid_mi (K*={best_k_rec}): test {primary_metric}={mi_test_metrics[primary_metric]:.4f}")
 
-        # -------------------------------------------------------------
-        # Step D: hybrid_random (3 random draws, averaged)
-        # -------------------------------------------------------------
         rnd_metrics_list = []
         rng = np.random.RandomState(seed * 1000 + 7)
         for draw in range(RANDOM_DRAWS):
@@ -426,9 +392,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         }
         print(f"  ✓ hybrid_random (K*={best_k_rec}, 3 draws): test {primary_metric}={avg_rnd_metrics[primary_metric]:.4f}")
 
-        # -------------------------------------------------------------
-        # Step E: prior_rec (Prior + Residual on recommended top-K*)
-        # -------------------------------------------------------------
         X_rec_tr = X_tr[:, best_rec_indices]
         X_rec_val = X_val[:, best_rec_indices]
         X_rec_te = X_te[:, best_rec_indices]
@@ -461,7 +424,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         )
         print(f"  ✓ prior_rec (K*={best_k_rec}): test {primary_metric}={pr_test_metrics[primary_metric]:.4f}")
 
-        # Baseline references from cached modularity ablation
         dir_hyb_metric = cached_ablation.get("direct_hybrid", [{}])[split_idx].get(primary_metric, float("nan"))
         res_only_metric = cached_ablation.get("residual_only", [{}])[split_idx].get(primary_metric, float("nan"))
 
@@ -479,9 +441,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         }
         per_split_results.append(split_record)
 
-    # -------------------------------------------------------------
-    # Aggregated Statistics & Paired Comparisons
-    # -------------------------------------------------------------
     models_to_summarize = ["direct_hybrid", "residual_only", "hybrid_rec", "hybrid_spearman", "hybrid_mi", "hybrid_random", "prior_rec"]
     summary: dict[str, Any] = {}
 
@@ -493,7 +452,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
             "per_split": vals,
         }
 
-    # Paired comparisons against direct_hybrid and residual_only
     rec_vals = np.array(summary["hybrid_rec"]["per_split"])
     dir_vals = np.array(summary["direct_hybrid"]["per_split"])
     res_vals = np.array(summary["residual_only"]["per_split"])
@@ -551,7 +509,6 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
 
     return out_payload
 
-
 def main():
     parser = argparse.ArgumentParser(description="Run Experiment E1: Evidence-Guided Descriptor Routing.")
     parser.add_argument("--dataset", type=str, default="all", choices=["all", "esol", "freesolv", "bbbp", "lipophilicity", "bace"])
@@ -560,7 +517,6 @@ def main():
     datasets = ["esol", "freesolv", "bbbp", "lipophilicity", "bace"] if args.dataset == "all" else [args.dataset]
     for d in datasets:
         run_evidence_routing_dataset(d)
-
 
 if __name__ == "__main__":
     main()

@@ -176,7 +176,7 @@ def _device_transfer(obj: Any, device: torch.device) -> Any:
     return obj
 
 def evaluate_model(model: nn.Module, loader: DataLoader, metrics: Sequence[str] = ("mae", "rmse", "r2"), *, device: str | torch.device = "cpu", task_kind: str = "regression",) -> tuple[dict[str, float | int], np.ndarray, np.ndarray]:
-    if task_kind not in {"regression", "binary_classification", "multilabel_classification"}:  
+    if task_kind not in {"regression", "binary_classification", "multilabel_classification"}:
         raise ValueError(f"unsupported evaluation task_kind {task_kind!r}")
     selected_device = _resolve_device(device)
     model = model.to(selected_device)

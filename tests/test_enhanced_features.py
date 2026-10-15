@@ -45,7 +45,6 @@ from chemistry_framework.training import TrainingResult, train_ensemble, train_m
 from chemistry_framework.training.engine import _evidential_loss, _gaussian_nll_loss
 from chemistry_framework.cli import main as cli_main
 
-
 def test_input_adapters():
     """Test Mixture and Complex adapters and registry."""
     formats = available_input_formats()
@@ -67,7 +66,6 @@ def test_input_adapters():
     assert comp_obj.ligand.smiles == "CC(=O)O"
     assert comp_obj.protein_sequence == "MVLSPADKTN"
     assert comp_obj.ligand.mol is not None
-
 
 def test_graph_featurizer_and_batching():
     """Test mol_to_graph and collate_mol_graphs."""
@@ -91,28 +89,23 @@ def test_graph_featurizer_and_batching():
     assert batch.a2b.shape[0] == total_atoms
     assert batch.b2rev.shape[0] == total_edges
 
-
 def test_encoders_forward():
     """Test forward passes for DMPNN, GIN, EGNN, and Protein encoders."""
     graphs = [mol_to_graph("CC"), mol_to_graph("CCC")]
     batch = collate_mol_graphs(graphs)
 
-    # D-MPNN
     dmpnn = DMPNNEncoder(hidden_dim=32, depth=3, aggregation="mean")
     out_dmpnn = dmpnn(batch)
     assert out_dmpnn.shape == (2, 32)
 
-    # GIN
     gin = GINEncoder(hidden_dim=32, depth=3, aggregation="sum")
     out_gin = gin(batch)
     assert out_gin.shape == (2, 32)
 
-    # EGNN
     egnn = EGNNEncoder(hidden_dim=32, depth=2)
     out_egnn = egnn(batch)
     assert out_egnn.shape == (2, 32)
 
-    # Protein Encoder
     prot_encoder = ProteinEncoder(embedding_dim=16, channels=32)
     seqs = ["MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSA", "ACDEFGHIKLMNPQRSTVWY"]
     from chemistry_framework.data.loaders import _tokenize_protein
@@ -120,10 +113,9 @@ def test_encoders_forward():
     out_prot = prot_encoder(tokens)
     assert out_prot.shape == (2, 32)
 
-
 def test_specialized_heads_and_losses():
     """Test Gaussian NLL and Evidential Regression heads and loss functions."""
-    # Gaussian NLL
+
     head_gauss = GaussianNLLHead(in_features=32, out_targets=1)
     x = torch.randn(4, 32)
     y = torch.randn(4, 1)
@@ -134,7 +126,6 @@ def test_specialized_heads_and_losses():
     assert loss_gauss.dim() == 0
     assert not torch.isnan(loss_gauss)
 
-    # Evidential Regression
     head_evid = EvidentialRegressionHead(in_features=32, out_targets=1)
     res_evid = head_evid(x)
     assert "prediction" in res_evid
@@ -144,17 +135,15 @@ def test_specialized_heads_and_losses():
     assert loss_evid.dim() == 0
     assert not torch.isnan(loss_evid)
 
-    # MultiTaskHead
     head_multi = MultiTaskHead(in_dim=32, task_dims={"solubility": 1, "lipophilicity": 1, "clearance": 2})
     res_multi = head_multi(x)
     assert res_multi["solubility"].shape == (4, 1)
     assert res_multi["lipophilicity"].shape == (4, 1)
     assert res_multi["clearance"].shape == (4, 2)
 
-
 def test_hybrid_chemistry_model():
     """Test build_hybrid_model for pure graph and hybrid setups."""
-    # 1. Pure graph with D-MPNN
+
     spec_graph = ModelSpec(
         structure={"encoder": "dmpnn", "hidden_dim": 32, "depth": 2, "aggregation": "mean"},
         ffn={"hidden_dim": 32, "depth": 1, "dropout": 0.0},
@@ -167,7 +156,6 @@ def test_hybrid_chemistry_model():
     assert isinstance(pred_graph, dict)
     assert pred_graph["prediction"].shape == (2,)
 
-    # 2. Hybrid graph + descriptors
     spec_hybrid = ModelSpec(
         structure={"encoder": "gin", "hidden_dim": 32, "depth": 2},
         descriptors={"hidden_dim": 32, "depth": 2},
@@ -181,7 +169,6 @@ def test_hybrid_chemistry_model():
     assert isinstance(pred_hybrid, dict)
     assert pred_hybrid["prediction"].shape == (2, 1)
     assert pred_hybrid["epistemic_variance"].shape == (2, 1)
-
 
 def test_ensemble_model():
     """Test deep ensemble predictions and variance decomposition."""
@@ -202,7 +189,6 @@ def test_ensemble_model():
     assert "total_variance" in res
     assert res["mean"].shape == (2, 1)
     assert (res["total_variance"] >= 0).all()
-
 
 def _make_test_experiment(tmp_path: Path):
     """Helper to create a minimal PreparedExperiment with CSV dataset."""
@@ -257,7 +243,6 @@ def _make_test_experiment(tmp_path: Path):
     cfg = ExperimentConfig.parse(config_data, source_path=tmp_path / "experiment.yaml")
     return prepare_experiment(cfg)
 
-
 def test_chemistry_dataset_and_loaders(tmp_path: Path):
     """Test ChemistryDataset and make_experiment_dataloaders."""
     experiment = _make_test_experiment(tmp_path)
@@ -268,7 +253,6 @@ def test_chemistry_dataset_and_loaders(tmp_path: Path):
     assert isinstance(batch_inputs["graph"], BatchMolGraph)
     assert "descriptors" in batch_inputs
     assert batch_targets.ndim >= 1
-
 
 def test_training_engine_schedulers_and_ensemble(tmp_path: Path):
     """Test train_model with warmup/cosine scheduler and train_ensemble."""
@@ -290,7 +274,6 @@ def test_training_engine_schedulers_and_ensemble(tmp_path: Path):
     assert len(result.history) == 3
     assert result.best_epoch > 0
 
-    # Test train_ensemble
     ensemble, member_results = train_ensemble(
         model_factory=factory,
         train_loader=loaders.train,
@@ -299,7 +282,6 @@ def test_training_engine_schedulers_and_ensemble(tmp_path: Path):
     )
     assert len(member_results) == 2
     assert isinstance(ensemble, EnsembleModel)
-
 
 def test_yaml_config_with_model_spec(tmp_path: Path):
     """Test loading and validating complete YAML config with new model spec."""
@@ -362,7 +344,6 @@ model:
     assert cfg.model_spec.structure.encoder == "dmpnn"
     assert cfg.model_spec.head == "evidential"
 
-
 def test_cli_validate_and_train_mock(tmp_path: Path):
     """Test CLI validate command."""
     csv_file = tmp_path / "toy.csv"
@@ -394,6 +375,5 @@ model:
     config_file = tmp_path / "toy_config.yaml"
     config_file.write_text(yaml_content)
 
-    # CLI validate should succeed (exit code 0)
     exit_code = cli_main(["validate", str(config_file)])
     assert exit_code == 0

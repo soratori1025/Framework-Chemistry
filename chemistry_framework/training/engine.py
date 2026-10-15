@@ -62,7 +62,7 @@ def _evidential_loss(output: dict[str, Tensor], targets: Tensor, coeff: float = 
     nu = output["nu"]
     alpha = output["alpha"]
     beta = output["beta"]
-    # Negative log-likelihood of NIG
+
     omega = 2.0 * beta * (1.0 + nu)
     error_sq = (targets - gamma) ** 2
     nll = (
@@ -72,7 +72,7 @@ def _evidential_loss(output: dict[str, Tensor], targets: Tensor, coeff: float = 
         + torch.lgamma(alpha)
         - torch.lgamma(alpha + 0.5)
     )
-    # Evidence regularizer penalizing overconfident errors
+
     error = error_sq.sqrt()
     reg = error * (2.0 * nu + alpha)
     return nll + coeff * reg
@@ -114,7 +114,7 @@ def _loss_function(config: TrainingConfig) -> nn.Module:
     if config.loss == "pairwise_ranking":
         return nn.HuberLoss()
     if config.loss in {"gaussian_nll", "evidential", "focal"}:
-        # Specialized loss handled directly in _batch_loss
+
         return nn.Identity()
     raise ValueError(f"training.loss={config.loss!r} requires passing loss_fn")
 
@@ -125,7 +125,7 @@ def _batch_loss(model: nn.Module, batch: Any, loss_fn: nn.Module, device: torch.
     inputs = _transfer_to_device(inputs, device)
     targets = targets.to(device)
     output = model(inputs)
-    # Handle specialized uncertainty losses
+
     if config.loss == "gaussian_nll" and isinstance(output, dict):
         elementwise = _gaussian_nll_loss(output, targets)
         valid = torch.isfinite(targets)
@@ -138,7 +138,7 @@ def _batch_loss(model: nn.Module, batch: Any, loss_fn: nn.Module, device: torch.
         if not valid.any():
             return targets.sum() * 0.0, 0
         return elementwise[valid].mean(), int(valid.sum().item())
-    # Extract prediction tensor
+
     if isinstance(output, Tensor):
         prediction = output
     elif isinstance(output, dict) and isinstance(output.get("prediction"), Tensor):

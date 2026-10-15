@@ -29,7 +29,6 @@ from chemistry_framework.models import ResidualPropertyModel as ResidualProperty
 from chemistry_framework.priors import LinearAdditivePrior as LinearAdditivePrior_layer
 from chemistry_framework.tasks import PropertyTask as PropertyTask_layer
 
-
 def test_layer_packages_expose_top_level_public_components() -> None:
     assert FeatureRegistry_layer is FeatureRegistry
     assert MLPEncoder_layer is MLPEncoder
@@ -38,7 +37,6 @@ def test_layer_packages_expose_top_level_public_components() -> None:
     assert LinearAdditivePrior_layer is LinearAdditivePrior
     assert diagnose_features_layer is diagnose_features
     assert PropertyTask_layer is PropertyTask
-
 
 def test_registry_builds_named_smiles_features() -> None:
     registry = molecular_feature_registry()
@@ -49,7 +47,6 @@ def test_registry_builds_named_smiles_features() -> None:
     assert matrix.names == ("n_C", "n_O", "n_ester")
     np.testing.assert_array_equal(matrix.values, [[2, 1, 0], [3, 2, 1]])
 
-
 def test_registry_rejects_duplicate_and_invalid_features() -> None:
     registry = FeatureRegistry()
     registry.register(FeatureSpec("x", lambda _: 1.0, domain="custom"))
@@ -59,7 +56,6 @@ def test_registry_rejects_duplicate_and_invalid_features() -> None:
         registry.add_smarts("bad", "[")
     with pytest.raises(ValueError, match="invalid molecule"):
         MoleculeFeatureBlock(registry, ["x"]).transform(["not a smiles"])
-
 
 def test_prior_and_residual_are_composed_before_scalar_head() -> None:
     features = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
@@ -78,7 +74,6 @@ def test_prior_and_residual_are_composed_before_scalar_head() -> None:
     torch.testing.assert_close(output["residual"], torch.tensor([[-0.5], [-0.5]]))
     torch.testing.assert_close(output["prediction"], torch.tensor([6.5, 12.5]))
 
-
 def test_composite_physics_prior_adds_independent_terms() -> None:
     prior = CompositePrior(
         [
@@ -88,7 +83,6 @@ def test_composite_physics_prior_adds_independent_terms() -> None:
     )
     actual = prior(torch.tensor([[3.0], [4.0]]))
     torch.testing.assert_close(actual, torch.tensor([[16.0], [25.0]]))
-
 
 def test_descriptor_model_runs_end_to_end() -> None:
     features = torch.randn(4, 3)
@@ -101,7 +95,6 @@ def test_descriptor_model_runs_end_to_end() -> None:
     prediction = model(features)["prediction"]
     assert prediction.shape == (4,)
 
-
 def test_diagnostics_report_extrapolation_and_collinearity() -> None:
     train = np.array([[0, 0, 1], [1, 2, 1], [2, 4, 1], [3, 6, 1]], dtype=float)
     test = np.array([[4, 8, 2], [1, 2, 1]], dtype=float)
@@ -113,7 +106,6 @@ def test_diagnostics_report_extrapolation_and_collinearity() -> None:
     assert by_name["constant"].out_of_range_count == 1
     assert report.collinear_pairs == (("x", "twice_x", pytest.approx(1.0)),)
     assert "outside the training range" in report.format_report()
-
 
 def test_nasa7_preserves_reference_values_and_midpoint_continuity() -> None:
     block = NASA7OutputBlock(t_ref=300.0, t_mid=1000.0)
@@ -151,7 +143,6 @@ def test_nasa7_preserves_reference_values_and_midpoint_continuity() -> None:
         )
     assert result["coeffs_low"].shape == (1, 7)
     assert result["coeffs_high"].shape == (1, 7)
-
 
 def test_nasa7_output_block_composes_with_property_model() -> None:
     temperatures = torch.tensor([300.0, 1000.0, 1200.0], dtype=torch.float64)

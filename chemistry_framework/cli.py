@@ -19,7 +19,7 @@ from .analysis.advisor import DatasetAdvisor
 def _run_train(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     prepared = prepare_experiment(config)
-    # Determine which target/task to train
+
     if args.task:
         task_name = args.task
         task_info = config.tasks.get(task_name)
@@ -31,7 +31,7 @@ def _run_train(args: argparse.Namespace) -> int:
         task_name = target_name
         task_info = config.tasks.get(task_name)
     else:
-        # Default to first configured task or target
+
         if config.tasks:
             task_name = next(iter(config.tasks))
             task_info = config.tasks[task_name]
@@ -43,25 +43,25 @@ def _run_train(args: argparse.Namespace) -> int:
     target_cfg = config.dataset.targets[target_name]
     task_kind = task_info.get("kind", target_cfg.kind if target_cfg.kind in {"scalar", "vector"} else "scalar")
     out_dim = len(target_cfg.columns)
-    # Fit prior if configured
+
     prior_obj = None
     prior_name = task_info.get("prior")
     if prior_name and prior_name in config.priors:
         prior_fit = fit_experiment_prior(prepared, prior_name, target_name=target_name)
         prior_obj = prior_fit.prior
-    # Descriptor dimensions
+
     route_name = task_info.get("route")
     if route_name and route_name in prepared.route_features:
         desc_dim = len(prepared.route_features[route_name])
     else:
         desc_dim = len(prepared.features.names)
-    # Dataloaders
+
     loaders = make_experiment_dataloaders(
         prepared,
         target_name,
         task_name=task_name,
     )
-    # Build model factory
+
     def create_model() -> torch.nn.Module:
         return build_hybrid_model(
             config.model,
@@ -91,7 +91,7 @@ def _run_train(args: argparse.Namespace) -> int:
             checkpoint_dir=ckpt_dir,
         )
         best_val_loss = float(np.mean([r.best_validation_loss for r in results]))
-        # Save complete ensemble checkpoint
+
         torch.save(
             {
                 "ensemble_state_dicts": [m.state_dict() for m in model.models],
@@ -110,7 +110,7 @@ def _run_train(args: argparse.Namespace) -> int:
             checkpoint_metadata=metadata,
         )
         best_val_loss = res.best_validation_loss
-    # Evaluate on test set
+
     test_metrics, _, _ = evaluate_model(
         model,
         loaders.test,
@@ -144,7 +144,7 @@ def _run_predict(args: argparse.Namespace) -> int:
     task_kind = metadata.get("task_kind", "scalar")
     out_dim = metadata.get("out_dim", 1)
     desc_dim = metadata.get("descriptor_dim", 0)
-    # Reconstruct model
+
     if "ensemble_state_dicts" in checkpoint:
         members = []
         for state in checkpoint["ensemble_state_dicts"]:
@@ -158,7 +158,7 @@ def _run_predict(args: argparse.Namespace) -> int:
         model = build_hybrid_model(model_spec, task_kind=task_kind, out_dim=out_dim, descriptor_dim=desc_dim)
         load_model_checkpoint(model, ckpt_path)
         model.eval()
-    # Read input molecules
+
     input_path = Path(args.input).expanduser().resolve()
     smiles_col = args.smiles_column or "smiles"
     smiles_list: list[str] = []
@@ -170,7 +170,7 @@ def _run_predict(args: argparse.Namespace) -> int:
                 smiles_list.append(val)
     if not smiles_list:
         raise ValueError(f"no molecules found in {input_path}")
-    # Generate predictions in batches
+
     batch_size = args.batch_size or 64
     all_preds: list[float | list[float]] = []
     all_vars: list[float | None] = []
@@ -190,7 +190,7 @@ def _run_predict(args: argparse.Namespace) -> int:
                 else:
                     all_preds.append([float(x) for x in preds_arr[row_idx]])
                 all_vars.append(float(vars_arr[row_idx].reshape(-1)[0]) if vars_arr is not None else None)
-    # Save to output CSV
+
     output_path = Path(args.output).expanduser().resolve() if args.output else input_path.with_name(f"{input_path.stem}_preds.csv")
     has_var = any(v is not None for v in all_vars)
     with output_path.open("w", encoding="utf-8", newline="") as stream:

@@ -18,7 +18,6 @@ from chemistry_framework.feature_analysis import (
 from chemistry_framework.features import FeatureMatrix, FeatureRegistry, FeatureSpec
 from chemistry_framework.splits import DatasetSplit
 
-
 def _feature_fixture():
     registry = FeatureRegistry()
     registry.register(
@@ -54,7 +53,6 @@ def _feature_fixture():
     )
     targets = {"property": np.asarray([0, 1, 2, 3, 4, 5], dtype=float)}
     return registry, matrix, split, targets
-
 
 def test_feature_evidence_reports_provenance_association_and_ood(tmp_path) -> None:
     registry, matrix, split, targets = _feature_fixture()
@@ -105,7 +103,6 @@ def test_feature_evidence_reports_provenance_association_and_ood(tmp_path) -> No
             break
     assert len(zlib.decompress(image_data)) > 0
 
-
 def test_fixed_features_are_not_described_as_learned_evidence() -> None:
     registry, matrix, split, targets = _feature_fixture()
     report = analyze_feature_evidence(
@@ -120,7 +117,6 @@ def test_fixed_features_are_not_described_as_learned_evidence() -> None:
     assert carbon.prior_evidence is not None
     assert carbon.prior_evidence["mean"] == 2.5
     assert carbon.prior_evidence["count"] == 0
-
 
 def test_supported_label_requires_prior_and_model_evidence() -> None:
     registry = FeatureRegistry()
@@ -168,7 +164,6 @@ def test_supported_label_requires_prior_and_model_evidence() -> None:
     assert report.features[0].evidence_class == "supported"
     assert "not causal" in report.interpretation_note
 
-
 def test_prior_coefficient_stability_and_fixed_values() -> None:
     evidence = summarize_prior_coefficients(
         [
@@ -185,7 +180,6 @@ def test_prior_coefficient_stability_and_fixed_values() -> None:
     assert evidence["stable"].bootstrap_95_ci[0] <= evidence["stable"].mean
     assert evidence["fixed"].count == 0
     assert evidence["fixed"].bootstrap_95_ci == (3.0, 3.0)
-
 
 def test_group_permutation_importance_preserves_joint_group_rows() -> None:
     features = np.asarray([[0, 0], [1, 1], [2, 2], [3, 3]], dtype=float)
@@ -207,7 +201,6 @@ def test_group_permutation_importance_preserves_joint_group_rows() -> None:
     assert result["both"].method == "group_permutation"
     assert result["both"].mean_delta > 0
     assert len(result["both"].contribution_deltas) == 4
-
 
 def test_leave_group_out_retrains_for_each_feature_subset() -> None:
     targets = np.asarray([1.0, 2.0])
@@ -231,14 +224,9 @@ def test_leave_group_out_retrains_for_each_feature_subset() -> None:
     assert result["fragment"].method == "leave_group_out"
     assert result["fragment"].mean_delta == pytest.approx(2.5)
 
-
 def test_select_evidence_recommendation_prunes_redundancy() -> None:
     from chemistry_framework.feature_analysis import select_evidence_recommendation
 
-    # col 0: strong signal
-    # col 1: identical to col 0 (collinear, r=1.0)
-    # col 2: independent moderate signal
-    # col 3: noise
     np.random.seed(42)
     y = np.linspace(0, 10, 100)
     col0 = y + np.random.normal(0, 0.1, 100)
@@ -247,7 +235,6 @@ def test_select_evidence_recommendation_prunes_redundancy() -> None:
     col3 = np.random.normal(0, 1.0, 100)
     X = np.column_stack([col0, col1, col2, col3])
 
-    # K=2: should pick exactly one of {col0, col1} and the independent col2!
     selected = select_evidence_recommendation(X, y, k=2, redundancy_threshold=0.85)
     assert len(selected) == 2
     assert len(set(selected) & {0, 1}) == 1
