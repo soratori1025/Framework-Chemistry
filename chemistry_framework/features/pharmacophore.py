@@ -40,9 +40,13 @@ def extract_rdkit_2d_descriptors(mols: Sequence[Any],) -> tuple[np.ndarray, list
         for j, fn in enumerate(desc_fns):
             try:
                 val = float(fn(mol))
-                matrix[i, j] = val if math.isfinite(val) else 0.0
+                if not math.isfinite(val) or abs(val) > 1e10:
+                    val = 0.0
+                matrix[i, j] = np.float32(val)
             except Exception:
                 matrix[i, j] = 0.0
+
+    matrix = np.nan_to_num(matrix, nan=0.0, posinf=1e6, neginf=-1e6)
     return matrix, [f"rdkit_2d.{name}" for name in desc_names]
 
 def select_top_features(feature_matrix: np.ndarray, feature_names: list[str], targets: np.ndarray, task_kind: str = "scalar_regression", top_k: int = 64, max_features: int | None = None,) -> tuple[np.ndarray, list[str], np.ndarray]:

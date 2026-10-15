@@ -41,6 +41,8 @@ from .feature_analysis import (
     analyze_feature_evidence,
     leave_group_out_importance,
     permutation_group_importance,
+    select_evidence_recommendation,
+    select_evidence_recommendation_names,
     summarize_prior_coefficients,
 )
 from .features import (
@@ -168,6 +170,8 @@ __all__ = [
     "molecular_feature_registry",
     "permutation_group_importance",
     "prepare_experiment",
+    "select_evidence_recommendation",
+    "select_evidence_recommendation_names",
     "summarize_prior_coefficients",
     "train_ensemble",
     "train_model",

@@ -15,7 +15,11 @@ venv/
 # Framework outputs, checkpoints & caches
 .chemistry_cache/
 outputs/
-benchmarks/
 checkpoints/
+
+# Raw dataset files
 data/
-tests/
+
+# Local documentation & artifacts (kept local, private)
+docs/
+framework_docs_backup/

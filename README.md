@@ -20,21 +20,21 @@ Designed as an extensible platform for molecular property prediction, ADMET prof
 
 1. **Kiến trúc Lai Đa phương thức (Hybrid Multi-Modal Modeling):**
    - Hỗ trợ kết hợp song song biểu diễn đồ thị phân tử (**D-MPNN**, **GIN**) và nhánh mạng nơ-ron đa tầng (**MLP Descriptors**) qua các chiến lược hợp nhất (*Concat*, *Additive*, *Gated*).
-2. **Đột phá Kiến trúc GNN với Global Virtual Supernode & Attention Pooling:**
-   - Tích hợp `virtual_node: true` triệt tiêu điểm nghẽn nén ép thông tin (**over-squashing**) trên khung phân tử lớn bằng nút siêu việt toàn cục $O(1)$, kết hợp cơ chế **Graph Attention Pooling** (`aggregation: attention`) tự động gán trọng số cao cho các pharmacophore quyết định hoạt tính.
-3. **Loss Functions & Metrics Chuyên dụng cho Khám phá Thuốc (Drug Discovery):**
-   - **Focal Loss** (`loss: focal`): Khắc phục triệt để tình trạng mất cân bằng lớp cực đoan (1–5% binder dương tính) trong sàng lọc bioassay.
-   - **Pairwise Ranking Loss** (`loss: pairwise_ranking`): Tối ưu trực tiếp khả năng xếp hạng và làm giàu hợp chất (virtual screening enrichment) kèm hệ số tương quan hạng **Spearman** (`metrics: [spearman]`).
-4. **Trí tuệ Dược lý & Chọn Lọc Đặc trưng Tự động (Pharmacophore Intelligence):**
-   - Hỗ trợ trích xuất Morgan Fingerprint ECFP4/ECFP6 vector hóa siêu tốc (1024/2048-bit), 200+ RDKit 2D physicochemical descriptors và khối `AutoPharmacophoreBlock` tự động chọn lọc Top-$K$ đặc trưng tối ưu trên tập huấn luyện chống data leakage.
-5. **Cố vấn Dữ liệu Tự động Nâng cấp (Dataset Advisor v2):**
-   - Tự động khảo sát độ đa dạng không gian hóa học (**Tanimoto Chemical Space Diversity**), Bemis-Murcko Scaffold Diversity, phát hiện drift phân phối và tự động kê đơn cấu hình tối ưu (Virtual Supernode, Attention readout, Focal/Ranking loss).
+2. **Kiến trúc GNN Mở rộng với Global Virtual Supernode & Attention Pooling:**
+   - Tích hợp `virtual_node: true` cung cấp kênh truyền tin toàn cục $O(1)$ giữa các nguyên tử, giúp giảm thiểu hiện tượng nghẽn truyền tin (**information bottleneck / over-squashing**) trên các khung phân tử lớn, kết hợp cơ chế **Graph Attention Pooling** (`aggregation: attention`) học phân bố trọng số tương ứng với các phân vùng cấu trúc quan trọng.
+3. **Loss Functions & Metrics Phục vụ Sàng lọc Phân tử:**
+   - **Focal Loss** (`loss: focal`): Giảm thiểu tác động của mất cân bằng lớp nặng (imbalanced bioassay datasets) trong phân loại hoạt tính.
+   - **Pairwise Ranking Loss** (`loss: pairwise_ranking`): Hỗ trợ tối ưu hóa trực tiếp thứ tự xếp hạng tương đối giữa các phân tử trong bài toán sàng lọc ảo (virtual screening), đồng thời tích hợp metric hệ số tương quan hạng **Spearman** (`metrics: [spearman]`).
+4. **Phân tích Đặc trưng & Chọn Lọc Dựa trên Bằng chứng (Feature Evidence Selection):**
+   - Hỗ trợ trích xuất Morgan Fingerprint ECFP4/ECFP6 vector hóa (1024/2048-bit), hơn 200 RDKit 2D physicochemical descriptors và khối `AutoPharmacophoreBlock` chọn lọc Top-$K$ đặc trưng có độ phân tách cao trên tập huấn luyện (train-only fit) để ngăn chặn data leakage.
+5. **Cố vấn Dữ liệu Hóa học (Dataset Advisor):**
+   - Tự động khảo sát độ đa dạng không gian hóa học qua độ tương đồng Tanimoto và Bemis-Murcko Scaffold, phân tích phân phối target, rủi ro ngoại lai, và đề xuất cấu hình thử nghiệm ban đầu (Virtual Supernode, Attention readout, loss function, scaling).
 6. **Định lượng Độ bất định (Uncertainty Quantification):**
-   - Tích hợp sẵn **Evidential Deep Learning** (phân phối Normal-Inverse-Gamma) và **Deep Ensembles** ($K \ge 3$) cho phép dự đoán giá trị thuộc tính kèm độ không chắc chắn ($\sigma^2$) của từng phân tử.
+   - Hỗ trợ **Evidential Deep Learning** (phân phối Normal-Inverse-Gamma) và **Deep Ensembles** ($K \ge 3$) cho phép ước lượng độ bất định nhận thức (epistemic uncertainty) của mô hình.
 7. **Hệ thống Đặc trưng Có khả năng Mở rộng (Config-Driven Feature Registry):**
    - Khai báo các khối đặc trưng qua YAML: đếm nguyên tố, cặp liên kết, mẫu SMARTS, nhóm Benson, hoặc hàm Python tùy biến.
 8. **Đánh giá Bằng chứng Đặc trưng (Feature Evidence Scorecard):**
-   - Tự động sinh báo cáo HTML trực quan và ma trận tương quan PNG giúp kiểm chứng tính ổn định và đóng góp thực tế của từng đặc trưng.
+   - Sinh báo cáo phân tích trực quan về độ hỗ trợ (support), tương quan (Spearman association), độ dư thừa (redundancy) và khoảng giá trị train/test của từng đặc trưng.
 
 ---
 

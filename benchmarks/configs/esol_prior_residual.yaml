@@ -1,0 +1,81 @@
+name: esol-prior-residual
+
+dataset:
+  provider: csv
+  path: data/moleculenet/esol_clean.csv
+  smiles_column: smiles
+  targets:
+    solubility:
+      column: measured log solubility in mols per litre
+
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+  bonds:
+    type: bond_pairs
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+    bond_orders: ["1", "2", "3", "a"]
+  physchem:
+    type: rdkit_descriptors
+    names: [MolWt, MolLogP, TPSA, NumHDonors, NumHAcceptors, NumRotatableBonds]
+
+routes:
+  solubility: [composition, bonds, physchem]
+
+priors:
+  enthalpy:
+    use: [physchem]
+    fit: ridge
+
+tasks:
+  solubility:
+    target: solubility
+    kind: scalar
+    route: solubility
+    prior: enthalpy
+
+split:
+  method: scaffold
+  fractions: [0.8, 0.1, 0.1]
+  seed: 1
+
+model:
+  structure:
+    encoder: dmpnn
+    hidden_dim: 128
+    depth: 3
+    aggregation: sum
+    dropout: 0.1
+  descriptors:
+    enabled: true
+    hidden_dim: 64
+    depth: 1
+    dropout: 0.1
+  fusion: concat
+  ffn:
+    hidden_dim: 128
+    depth: 2
+    dropout: 0.1
+  head: scalar
+
+training:
+  epochs: 40
+  batch_size: 64
+  learning_rate: 0.001
+  loss: huber
+  scheduler: cosine
+  warmup_epochs: 2
+  grad_clip: 1.0
+  patience: 10
+  device: auto
+  checkpoint_dir: ../results/checkpoints
+
+evaluation:
+  metrics: [rmse, mae, r2]
+
+analysis:
+  enabled: false
+
+cache:
+  enabled: false

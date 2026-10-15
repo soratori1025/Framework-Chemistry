@@ -543,7 +543,7 @@ class PriorConfig:
                 raise TypeError(f"priors.{name}.fixed.{feature} must be numeric")
             fixed[feature] = float(coefficient)
         fit = data.get("fit", "ridge")
-        if not isinstance(fit, str) or fit not in {"ridge", "least_squares", "none"}:
+        if not isinstance(fit, str) or fit not in {"ridge", "least_squares", "logistic", "none"}:
             raise ValueError(f"unsupported prior fit method {fit!r}")
         return cls(use, fixed, fit)
 

@@ -1,0 +1,81 @@
+name: bbbp-prior-residual
+
+dataset:
+  provider: csv
+  path: data/moleculenet/bbbp_clean.csv
+  smiles_column: smiles
+  targets:
+    penetration:
+      column: p_np
+
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+  bonds:
+    type: bond_pairs
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
+    bond_orders: ["1", "2", "3", "a"]
+  physchem:
+    type: rdkit_descriptors
+    names: [MolWt, MolLogP, TPSA, NumHDonors, NumHAcceptors, NumRotatableBonds]
+
+routes:
+  penetration: [composition, bonds, physchem]
+
+priors:
+  baseline_logodds:
+    use: [physchem]
+    fit: logistic
+
+tasks:
+  penetration:
+    target: penetration
+    kind: binary_classification
+    route: penetration
+    prior: baseline_logodds
+
+split:
+  method: scaffold
+  fractions: [0.8, 0.1, 0.1]
+  seed: 1
+
+model:
+  structure:
+    encoder: dmpnn
+    hidden_dim: 128
+    depth: 3
+    aggregation: sum
+    dropout: 0.1
+  descriptors:
+    enabled: true
+    hidden_dim: 64
+    depth: 1
+    dropout: 0.1
+  fusion: concat
+  ffn:
+    hidden_dim: 128
+    depth: 2
+    dropout: 0.1
+  head: classification
+
+training:
+  epochs: 40
+  batch_size: 64
+  learning_rate: 0.001
+  loss: bce
+  scheduler: cosine
+  warmup_epochs: 2
+  grad_clip: 1.0
+  patience: 10
+  device: auto
+  checkpoint_dir: ../results/checkpoints
+
+evaluation:
+  metrics: [auroc, auprc, accuracy]
+
+analysis:
+  enabled: false
+
+cache:
+  enabled: false

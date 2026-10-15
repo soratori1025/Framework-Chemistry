@@ -277,6 +277,16 @@ def test_linear_prior_supports_multi_output_targets() -> None:
     assert result.prior.output_dim == 2
 
 
+def test_logistic_prior_fitting() -> None:
+    x = np.array([[-2.0], [-1.0], [1.0], [2.0]], dtype=float)
+    y = np.array([0, 0, 1, 1], dtype=float)
+    result = fit_linear_prior(x, y, ["feature_a"], method="logistic")
+    assert result.train_count == 4
+    assert result.prior.coefficients[0, 0].item() > 0.0
+    assert result.residual_std < 0.5
+
+
+
 def test_prepared_prior_uses_training_rows_and_external_analysis(tmp_path) -> None:
     experiment = prepare_experiment(_config(tmp_path))
     fit = fit_experiment_prior(experiment, "enthalpy")

@@ -4,7 +4,7 @@ from .registry import FeatureRegistry
 from .specs import FeatureCalculator, FeatureSpec
 try:
     from rdkit.Chem import rdMolDescriptors
- except ImportError as exc:
+except ImportError as exc:
     raise ImportError("RDKit is required for built-in molecular features") from exc
 
 def molecular_feature_registry(elements: Sequence[str] = ("C", "H", "N", "O", "S", "F", "Cl", "Br", "P", "I"),) -> FeatureRegistry:

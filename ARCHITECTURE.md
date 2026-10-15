@@ -67,11 +67,10 @@ chemistry_framework/
 │   ├── dataset.py          # Lớp ChemistryDataset và MolecularDataset
 │   └── loaders.py          # Tạo PyTorch DataLoaders hỗ trợ cả Graph lẫn Tensors
 ├── diagnostics/            # Đo lường khoảng giá trị, độ hỗ trợ và phương sai đặc trưng
-├── encoders/               # Các khối mạng nơ-ron học biểu diễn cấu trúc
-│   ├── gnn.py              # D-MPNN (Directed Message Passing) và GIN (Graph Isomorphism)
-│   ├── base.py             # Lớp cơ sở Encoder và MLPEncoder
-│   ├── egnn.py             # EGNN 3D Equivariant cho cấu hình không gian 3 chiều
-│   └── protein.py          # Bộ mã hóa chuỗi hoặc túi gắn protein (Pocket encoder)
+├── encoders/               # Các khối mạng nơ-ron học biểu diễn cấu trúc đồ thị & phân tử
+│   ├── gnn.py              # D-MPNN (Directed Message Passing) và GIN (2D Graph Isomorphism) tích hợp Virtual Node & Attention Readout
+│   ├── mlp.py              # MLPEncoder học biểu diễn phi tuyến từ đặc trưng hóa lý bảng
+│   └── graph_features.py   # Lớp nhúng đặc trưng nguyên tử và liên kết
 ├── evaluation/             # Đo lường hiệu năng và metrics đánh giá
 │   └── metrics.py          # AUROC, AUPRC, Accuracy, F1, MAE, RMSE, R2, Spearman
 ├── features/               # Đăng ký và tính toán đặc trưng hóa học
@@ -227,10 +226,12 @@ Thư mục [`benchmarks/`](benchmarks/) chứa toàn bộ mã nguồn kiểm th�
 python benchmarks/run_benchmarks.py
 ```
 
-### Kết quả Thực nghiệm Tổng hợp:
-Toàn bộ mô hình được đánh giá trên tập kiểm thử độc lập (Test Set) với phân chia **Bemis-Murcko Scaffold Split (80/10/10)**:
+### Kết quả Thực nghiệm Thăm dò (Exploratory Benchmarks):
+> [!NOTE]
+> Bảng dưới đây phản ánh kết quả thử nghiệm thăm dò đơn lẻ (single-run exploratory partition) trên phân chia Bemis-Murcko Scaffold Split tỷ lệ 80/10/10 (Seed 42).
+> Đối với đối sánh chuẩn mực khoa học (statistical benchmarks), framework tách biệt thành protocol 5 seeds độc lập với chỉ số phân chia cố định (canonical indices manifest), báo cáo mean ± SD và paired confidence intervals tại `benchmarks/results/manifest.json`.
 
-| Tập dữ liệu | Nhiệm vụ | Số mẫu | Kiến trúc Mô hình | Hàm Loss | Kết quả Đạt được |
+| Tập dữ liệu | Nhiệm vụ | Số mẫu | Kiến trúc Mô hình | Hàm Loss | Kết quả Đạt được (Single-Run 80/10/10) |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **BBB Martins** | Khả năng vượt hàng rào máu não | 2,030 | D-MPNN Hybrid | BCE | **AUROC: 0.884**<br>AUPRC: 0.957<br>Accuracy: 0.867 |
 | **Caco-2 Wang** | Tính thấm qua tế bào biểu mô ruột | 910 | D-MPNN Hybrid | Huber | **MAE: 0.354**<br>RMSE: 0.528<br>$R^2$: 0.551 |

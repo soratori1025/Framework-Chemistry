@@ -28,7 +28,7 @@ def fit_linear_prior(features: ArrayLike, targets: ArrayLike, feature_names: Seq
         raise ValueError("features, targets, and feature_names have incompatible shapes")
     if len(set(names)) != len(names):
         raise ValueError("feature_names must be unique")
-    if method not in {"ridge", "least_squares", "none"}:
+    if method not in {"ridge", "least_squares", "logistic", "none"}:
         raise ValueError(f"unsupported prior fit method {method!r}")
     if ridge_alpha < 0:
         raise ValueError("ridge_alpha must be non-negative")
@@ -52,7 +52,18 @@ def fit_linear_prior(features: ArrayLike, targets: ArrayLike, feature_names: Seq
     )
     free_mask = ~fixed_mask
     residual_target = y - offset
-    if method == "none":
+    if method == "logistic":
+        from sklearn.linear_model import LogisticRegression
+        c_val = 1.0 / (ridge_alpha * len(y)) if ridge_alpha > 0 else 1.0
+        clf = LogisticRegression(C=c_val, random_state=42, max_iter=1000)
+        if free_mask.any():
+            x_free = x[:, free_mask]
+            clf.fit(x_free, y.ravel())
+            weights[free_mask, 0] = clf.coef_[0]
+            intercept = np.array([clf.intercept_[0]], dtype=np.float64)
+        else:
+            intercept = np.array([0.0], dtype=np.float64)
+    elif method == "none":
         if free_mask.any():
             raise ValueError("fit='none' requires every selected prior feature coefficient to be fixed")
         intercept = residual_target.mean(axis=0)
@@ -83,7 +94,11 @@ def fit_linear_prior(features: ArrayLike, targets: ArrayLike, feature_names: Seq
     else:
         intercept = residual_target.mean(axis=0)
     prediction = x @ weights + intercept
-    residual_std = float(np.std(y - prediction))
+    if method == "logistic":
+        probs = 1.0 / (1.0 + np.exp(-np.clip(prediction, -20, 20)))
+        residual_std = float(np.std(y - probs))
+    else:
+        residual_std = float(np.std(y - prediction))
     prior = LinearAdditivePrior(
         weights.tolist(),
         intercept=intercept.tolist(),

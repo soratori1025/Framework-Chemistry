@@ -6,6 +6,10 @@ from .model_evidence import (
     summarize_prior_coefficients,
 )
 from .report import FeatureEvidence, FeatureEvidenceReport, analyze_feature_evidence
+from .selection import (
+    select_evidence_recommendation,
+    select_evidence_recommendation_names,
+)
 
 __all__ = [
     "FeatureEvidence",
@@ -15,5 +19,7 @@ __all__ = [
     "analyze_feature_evidence",
     "leave_group_out_importance",
     "permutation_group_importance",
+    "select_evidence_recommendation",
+    "select_evidence_recommendation_names",
     "summarize_prior_coefficients",
 ]

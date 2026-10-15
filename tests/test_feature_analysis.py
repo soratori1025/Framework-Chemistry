@@ -230,3 +230,26 @@ def test_leave_group_out_retrains_for_each_feature_subset() -> None:
     assert calls == [(0, 1), (0,)]
     assert result["fragment"].method == "leave_group_out"
     assert result["fragment"].mean_delta == pytest.approx(2.5)
+
+
+def test_select_evidence_recommendation_prunes_redundancy() -> None:
+    from chemistry_framework.feature_analysis import select_evidence_recommendation
+
+    # col 0: strong signal
+    # col 1: identical to col 0 (collinear, r=1.0)
+    # col 2: independent moderate signal
+    # col 3: noise
+    np.random.seed(42)
+    y = np.linspace(0, 10, 100)
+    col0 = y + np.random.normal(0, 0.1, 100)
+    col1 = col0.copy()
+    col2 = 0.5 * y + np.random.normal(0, 1.0, 100)
+    col3 = np.random.normal(0, 1.0, 100)
+    X = np.column_stack([col0, col1, col2, col3])
+
+    # K=2: should pick exactly one of {col0, col1} and the independent col2!
+    selected = select_evidence_recommendation(X, y, k=2, redundancy_threshold=0.85)
+    assert len(selected) == 2
+    assert len(set(selected) & {0, 1}) == 1
+    assert 2 in selected
+    assert 3 not in selected

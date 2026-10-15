@@ -24,15 +24,18 @@ classifiers = [
 dependencies = [
     "numpy>=1.24",
     "torch>=2.0",
+    "pandas>=1.5",
+    "scipy>=1.9",
+    "scikit-learn>=1.2.0",
+    "PyYAML>=6.0",
+    "matplotlib>=3.6",
 ]
 
 [project.optional-dependencies]
 chemistry = ["rdkit"]
-config = ["PyYAML>=6"]
-benchmark = ["PyTDC>=0.4.0"]
-graph = ["torch-geometric>=2.5"]
-benchmarks = ["torch-geometric>=2.5", "scikit-learn>=1.3"]
-test = ["pytest>=7", "PyYAML>=6"]
+graph = ["torch-geometric>=2.4"]
+benchmarks = ["torch-geometric>=2.4", "PyTDC>=0.4.0"]
+test = ["pytest>=7"]
 
 [project.scripts]
 chemistry-framework = "chemistry_framework.cli:main"
