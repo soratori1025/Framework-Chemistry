@@ -18,7 +18,7 @@ outputs/
 checkpoints/
 
 # Raw dataset files
-data/
+/data/
 
 # Local documentation & artifacts (kept local, private)
 docs/

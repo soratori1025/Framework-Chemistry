@@ -44,7 +44,7 @@ Designed as an extensible platform for molecular property prediction, ADMET prof
 ```bash
 git clone https://github.com/soratori1025/Framework-Chemistry.git
 cd Framework-Chemistry
-pip install -e ".[config,chemistry,benchmark,test]"
+pip install -e ".[chemistry,test]"
 ```
 
 ### Yêu cầu môi trường:
@@ -149,7 +149,7 @@ routes:
 tasks:
   my_target:
     target: my_target
-    kind: scalar_regression          # hoặc binary_classification
+    kind: scalar                     # hoặc binary_classification
     route: my_target
 
 # 5. KHỐI SPLIT: Chiến lược phân chia tập dữ liệu
@@ -171,12 +171,12 @@ model:
     hidden_dim: 64
     depth: 1
     dropout: 0.1
-  fusion: concat                    # concat hoặc additive
+  fusion: concat                    # concat, gated hoặc sum
   ffn:
     hidden_dim: 128
     depth: 2
     dropout: 0.1
-  head: standard                    # standard, classification, evidential, gaussian
+  head: auto                        # auto, regression, classification, evidential, gaussian
 
 # 7. KHỐI TRAINING: Tham số huấn luyện
 training:
@@ -217,6 +217,10 @@ dataset:
   targets:
     penetration:
       column: Y
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
 tasks:
   penetration:
     target: penetration
@@ -256,10 +260,14 @@ dataset:
   targets:
     permeability:
       column: Y
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
 tasks:
   permeability:
     target: permeability
-    kind: scalar_regression
+    kind: scalar
 split:
   method: scaffold
   fractions: [0.8, 0.1, 0.1]
@@ -272,7 +280,7 @@ model:
   descriptors:
     enabled: true
     hidden_dim: 64
-  head: standard
+  head: auto
 training:
   epochs: 50
   batch_size: 32
@@ -296,10 +304,14 @@ dataset:
   targets:
     logD:
       column: Y
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
 tasks:
   logD:
     target: logD
-    kind: scalar_regression
+    kind: scalar
 model:
   structure:
     encoder: dmpnn
@@ -329,6 +341,10 @@ dataset:
   targets:
     blocker:
       column: Y
+features:
+  composition:
+    type: elements
+    elements: [H, C, N, O, S, P, F, Cl, Br, I]
 tasks:
   blocker:
     target: blocker
@@ -377,7 +393,7 @@ loaders = make_experiment_dataloaders(prepared, "my_target")
 # 4. Khởi tạo mô hình Hybrid
 model = build_hybrid_model(
     config.model,
-    task_kind="scalar_regression",
+    task_kind="scalar",
     out_dim=1,
     descriptor_dim=len(prepared.features.names),
 )
@@ -420,7 +436,7 @@ Chi tiết thực nghiệm và biểu đồ đối sánh xem tại [ARCHITECTURE
 
 ## 🧪 Chạy Kiểm thử (Unit Tests)
 
-Bộ kiểm thử bao gồm 46 bài test tự động bao phủ toàn bộ các module:
+Bộ kiểm thử bao gồm 61 bài test tự động bao phủ toàn bộ các module:
 ```bash
 pytest tests/ -v
 ```

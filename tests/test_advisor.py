@@ -204,3 +204,15 @@ def test_advisor_profile_csv_and_cli_inspect(tmp_path: Path):
     assert (out_dir / "sample_dataset-health-report.json").is_file()
     assert (out_dir / "sample_dataset-advisory-report.md").is_file()
     assert rec_cfg.is_file()
+
+@pytest.mark.parametrize("values", [
+    [0.1 * i for i in range(120)],
+    [i % 2 for i in range(120)],
+])
+def test_advisor_generated_config_passes_schema(values):
+    from chemistry_framework.config.schema import ExperimentConfig
+
+    smiles = ["CCO", "CCCO", "c1ccccc1", "c1ccccc1O", "CC(=O)O", "CCN"] * 20
+    report = DatasetAdvisor().profile_dataset(smiles, {"y": values}, dataset_name="schema_check")
+    config = ExperimentConfig.parse(report.recommendation.config_dict)
+    assert config.tasks["y"]["kind"] in {"scalar", "binary_classification"}

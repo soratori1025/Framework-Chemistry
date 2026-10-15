@@ -915,7 +915,7 @@ class DatasetAdvisor:
             "tasks": {
                 primary_target_name: {
                     "target": primary_target_name,
-                    "kind": t_profile.task_kind,
+                    "kind": "scalar" if t_profile.task_kind == "scalar_regression" else t_profile.task_kind,
                     "route": primary_target_name,
                 }
             },
@@ -945,7 +945,7 @@ class DatasetAdvisor:
                     "depth": 2,
                     "dropout": 0.1,
                 },
-                "head": rec_head,
+                "head": "auto" if rec_head == "standard" else rec_head,
             },
             "training": {
                 "epochs": 35 if chem.total_records > 1000 else 50,
