@@ -40,7 +40,6 @@ SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 MANIFEST_PATH = RESULTS_DIR / "manifest.json"
 
-
 class SimpleTabularMLP(nn.Module):
     def __init__(self, in_dim: int, hidden_dim: int = 128, out_dim: int = 1, dropout: float = 0.2):
         super().__init__()
@@ -58,7 +57,6 @@ class SimpleTabularMLP(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
-
 
 def compute_classification_metrics(y_true: np.ndarray, y_pred_prob: np.ndarray) -> dict[str, float]:
     """Computes macro ROC-AUC and AUPRC while ignoring NaN labels."""
@@ -90,7 +88,6 @@ def compute_classification_metrics(y_true: np.ndarray, y_pred_prob: np.ndarray) 
         "auprc": float(np.mean(auprcs)) if auprcs else 0.0,
     }
 
-
 def compute_regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
     yt = np.asarray(y_true).ravel()
     yp = np.asarray(y_pred).ravel()
@@ -101,7 +98,6 @@ def compute_regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[s
     mae = float(mean_absolute_error(yt, yp))
     r2 = float(r2_score(yt, yp)) if len(yt) > 1 else 0.0
     return {"rmse": rmse, "mae": mae, "r2": r2}
-
 
 def run_tabular_mlp(
     X_train: np.ndarray, y_train: np.ndarray,
@@ -142,7 +138,6 @@ def run_tabular_mlp(
             loss.backward()
             optimizer.step()
 
-        # Validation
         model.eval()
         with torch.no_grad():
             vx = torch.tensor(X_val, dtype=torch.float32).to(device)
@@ -157,7 +152,6 @@ def run_tabular_mlp(
                 best_val_loss = vloss
                 best_weights = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
-    # Evaluate on test with best weights
     if best_weights is not None:
         model.load_state_dict(best_weights)
     model.eval()
@@ -169,7 +163,6 @@ def run_tabular_mlp(
             return compute_classification_metrics(y_test, probs)
         else:
             return compute_regression_metrics(y_test, tout.squeeze())
-
 
 def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarray | None = None, X_desc_raw: np.ndarray | None = None,) -> list[dict[str, Any]]:
     print(f"\n🔹 Evaluating Baselines for: {dataset_name.upper()} (Seed {seed})")
@@ -187,11 +180,11 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
     target_cols = meta["targets"]
     targets = df_clean[target_cols].values
     is_classification = "classification" in meta["task_type"]
-    # 1. Dummy Baseline
+
     train_targets = targets[train_idx]
     test_targets = targets[test_idx]
     if is_classification:
-        # Majority class / frequency on train
+
         p_train = np.nanmean(train_targets, axis=0)
         dummy_probs = np.tile(p_train, (len(test_idx), 1))
         dummy_metrics = compute_classification_metrics(test_targets, dummy_probs)
@@ -206,7 +199,7 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
         "metrics": dummy_metrics,
     }]
     print(f"  ✓ Dummy Baseline: {dummy_metrics}")
-    # 2. Extract Features if not precomputed
+
     if X_fp is None:
         print("  ... Extracting Morgan Fingerprints (ECFP4)...")
         X_fp, _ = extract_morgan_fingerprints(smiles, n_bits=2048, radius=2)
@@ -214,12 +207,12 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
         print("  ... Extracting RDKit 2D Descriptors...")
         X_desc_raw, _ = extract_rdkit_2d_descriptors(smiles)
         X_desc_raw = np.nan_to_num(X_desc_raw, nan=0.0, posinf=1e4, neginf=-1e4)
-    # Impute and scale strictly on train
+
     scaler = StandardScaler()
     scaler.fit(X_desc_raw[train_idx])
     X_desc = scaler.transform(X_desc_raw)
     X_desc = np.nan_to_num(X_desc, nan=0.0, posinf=3.0, neginf=-3.0)
-    # ECFP4 + Random Forest
+
     rf_kwargs = {"n_estimators": 100, "random_state": seed, "n_jobs": -1}
     y_tr = train_targets.squeeze() if len(target_cols) == 1 else train_targets
     y_te = test_targets.squeeze() if len(target_cols) == 1 else test_targets
@@ -230,7 +223,7 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
             probs = rf_fp.predict_proba(X_fp[test_idx])[:, 1]
             rf_fp_metrics = compute_classification_metrics(y_te, probs)
         else:
-            # Multi-target RF
+
             probs_list = []
             for t in range(len(target_cols)):
                 mask_tr = ~np.isnan(train_targets[:, t])
@@ -253,7 +246,6 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
     })
     print(f"  ✓ ECFP4 + RF: {rf_fp_metrics}")
 
-    # RDKit 2D + Random Forest
     if is_classification:
         if len(target_cols) == 1:
             rf_desc = RandomForestClassifier(**rf_kwargs)
@@ -283,7 +275,6 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
     })
     print(f"  ✓ RDKit 2D + RF: {rf_desc_metrics}")
 
-    # 4. Descriptor MLP
     mlp_metrics = run_tabular_mlp(
         X_desc[train_idx], train_targets,
         X_desc[val_idx], targets[val_idx],
@@ -300,7 +291,6 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
     print(f"  ✓ Descriptor MLP: {mlp_metrics}")
 
     return results
-
 
 def main():
     parser = argparse.ArgumentParser(description="Run canonical baselines across 8 datasets")
@@ -332,7 +322,7 @@ def main():
             all_results.extend(res)
 
         if args.all_seeds:
-            # Aggregate by model
+
             models = sorted(list({r["model"] for r in all_results}))
             agg: dict[str, dict[str, Any]] = {}
             for m in models:
@@ -362,7 +352,6 @@ def main():
             with open(out_file, "w") as f:
                 json.dump(all_results, f, indent=2)
             print(f"\n🎉 Finished evaluation. Saved to: {out_file}")
-
 
 if __name__ == "__main__":
     main()

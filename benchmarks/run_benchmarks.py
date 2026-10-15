@@ -37,7 +37,7 @@ def run_single_benchmark(config_path: Path,results_dir: Path,device: str = "auto
     prepared = prepare_experiment(config)
     dataset_load_time = time.time() - t0
     print(f"✓ Dataset loaded & split: {len(prepared.dataset)} molecules in {dataset_load_time:.2f}s")
-    # Determine primary task
+
     task_name = next(iter(config.tasks))
     task_info = config.tasks[task_name]
     target_name = task_info["target"]
@@ -45,21 +45,21 @@ def run_single_benchmark(config_path: Path,results_dir: Path,device: str = "auto
     task_kind = task_info.get("kind", target_cfg.kind if target_cfg.kind in {"scalar", "vector"} else "scalar")
     out_dim = len(target_cfg.columns)
     is_classification = "classification" in task_kind
-    # Prior
+
     prior_obj = None
     prior_name = task_info.get("prior")
     if prior_name and prior_name in config.priors:
         prior_fit = fit_experiment_prior(prepared, prior_name, target_name=target_name)
         prior_obj = prior_fit.prior
-    # Descriptors
+
     route_name = task_info.get("route")
     if route_name and route_name in prepared.route_features:
         desc_dim = len(prepared.route_features[route_name])
     else:
         desc_dim = len(prepared.features.names)
-    # Dataloaders
+
     loaders = make_experiment_dataloaders(prepared, target_name, task_name=task_name)
-    # Model factory
+
     def create_model() -> torch.nn.Module:
         return build_hybrid_model(
             config.model,
@@ -110,7 +110,7 @@ def run_single_benchmark(config_path: Path,results_dir: Path,device: str = "auto
         best_val_loss = train_res.best_validation_loss
     training_time = time.time() - train_start
     print(f"Training complete in {training_time:.2f}s | Best Val Loss: {best_val_loss:.4f}")
-    # Evaluate on test set
+
     eval_kind = "binary_classification" if is_classification else "regression"
     test_metrics, actual, predicted = evaluate_model(
         model,
@@ -120,7 +120,7 @@ def run_single_benchmark(config_path: Path,results_dir: Path,device: str = "auto
         task_kind=eval_kind,
     )
     print(f"📊 Test Results: {json.dumps(test_metrics, indent=2)}")
-    # Extract test SMILES and export predictions CSV
+
     test_split_indices = prepared.split.test
     test_smiles = [prepared.dataset.smiles[i] for i in test_split_indices]
     pred_records = {
@@ -128,7 +128,7 @@ def run_single_benchmark(config_path: Path,results_dir: Path,device: str = "auto
         "actual": actual.tolist(),
         "predicted": predicted.tolist(),
     }
-    # If evidential regression or ensemble, gather uncertainty estimations on test set
+
     model.eval()
     dev = next(model.parameters()).device if hasattr(model, "parameters") and list(model.parameters()) else torch.device("cpu")
     all_aleatoric = []
@@ -210,11 +210,11 @@ def main() -> int:
         res["benchmark_title"] = friendly_name
         summary_list.append(res)
     total_time = time.time() - start_all
-    # Save summary JSON
+
     summary_json_path = results_dir / "benchmark_summary.json"
     with open(summary_json_path, "w", encoding="utf-8") as f:
         json.dump(summary_list, f, indent=2)
-    # Print Formatted Table
+
     print("ALL BENCHMARKS COMPLETED - PERFORMANCE SUMMARY")
     print(f"{'Benchmark Dataset':<30} | {'Type':<15} | {'Val Loss':<10} | {'Test Performance':<25} | {'Time (s)'}")
     print("-" * 90)
@@ -222,7 +222,7 @@ def main() -> int:
         perf_str = ", ".join([f"{k.upper()}: {v:.4f}" for k, v in r["test_metrics"].items() if k != "count"])
         print(f"{r['benchmark_title']:<30} | {r['task_kind']:<15} | {r['best_val_loss']:<10.4f} | {perf_str:<25} | {r['training_time_sec']:.1f}s")
     print(f"Total benchmark wall-clock time: {total_time:.2f}s")
-    # Generate Markdown Report
+
     report_md_path = results_dir / "benchmark_report.md"
     with open(report_md_path, "w", encoding="utf-8") as f:
         f.write("# Chemistry Framework - Benchmark Evaluation Report\n\n")

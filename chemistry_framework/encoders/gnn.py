@@ -30,8 +30,8 @@ class GraphAggregation(nn.Module):
         if num_graphs == 0 or atom_hiddens.shape[0] == 0:
             return torch.zeros((num_graphs, hidden_dim), device=device, dtype=dtype)
         if self.mode == "attention":
-            logits = self.gate(atom_hiddens).squeeze(-1)  # (N,)
-            # Softmax per graph using scatter
+            logits = self.gate(atom_hiddens).squeeze(-1)
+
             max_logits = torch.full((num_graphs,), fill_value=-1e9, device=device, dtype=dtype)
             max_logits.scatter_reduce_(0, batch, logits, reduce="amax")
             exp_logits = torch.exp(logits - max_logits[batch])
@@ -70,11 +70,11 @@ class DMPNNEncoder(nn.Module):
         self.depth = depth
         self.dropout = dropout
         self.use_virtual_node = use_virtual_node
-        # Initial message projection: [x_u, e_uv] -> h_uv^0
+
         self.w_i = nn.Linear(atom_dim + bond_dim, hidden_dim, bias=False)
-        # Message update: W_m * m_uv
+
         self.w_m = nn.Linear(hidden_dim, hidden_dim, bias=False)
-        # Atom representation: [x_v, incoming_messages] -> h_v
+
         self.w_a = nn.Linear(atom_dim + hidden_dim, hidden_dim)
         if use_virtual_node:
             self.vn_embedding = nn.Parameter(torch.zeros(1, hidden_dim))
@@ -103,24 +103,24 @@ class DMPNNEncoder(nn.Module):
             return torch.zeros((num_graphs, self.hidden_dim), device=batch_graph.atom_features.device)
         vn = self.vn_embedding.expand(num_graphs, -1) if self.use_virtual_node else None
         if num_edges == 0:
-            # Molecule with only isolated atoms
+
             zero_edges = torch.zeros((num_atoms, self.hidden_dim), device=batch_graph.atom_features.device)
             atom_input = torch.cat([batch_graph.atom_features, zero_edges], dim=-1)
             atom_hiddens = self.act(self.w_a(atom_input))
             if self.use_virtual_node and vn is not None:
                 atom_hiddens = atom_hiddens + vn[batch_graph.batch]
             return self.pool(atom_hiddens, batch_graph.batch, num_graphs)
-        # 1. Initial edge features: [atom_u, bond_uv]
-        src_nodes = batch_graph.edge_index[0]  # source atom u
+
+        src_nodes = batch_graph.edge_index[0]
         edge_inputs = torch.cat([batch_graph.atom_features[src_nodes], batch_graph.edge_features], dim=-1)
-        h_0 = self.act(self.w_i(edge_inputs))  # (num_edges, hidden_dim)
+        h_0 = self.act(self.w_i(edge_inputs))
         h = h_0
-        # Precompute edge target atoms and reverse pointers
-        b2a = batch_graph.b2a  # target atom of edge (num_edges,)
-        b2rev = batch_graph.b2rev  # reverse edge index (num_edges,)
-        # 2. Directed message passing steps
+
+        b2a = batch_graph.b2a
+        b2rev = batch_graph.b2rev
+
         for step in range(self.depth - 1):
-            # Sum incoming messages to each atom: atom_messages (num_atoms, hidden_dim)
+
             atom_messages = torch.zeros((num_atoms, self.hidden_dim), device=h.device, dtype=h.dtype)
             atom_messages.scatter_add_(0, b2a.unsqueeze(-1).expand_as(h), h)
             if self.use_virtual_node and vn is not None:
@@ -129,20 +129,20 @@ class DMPNNEncoder(nn.Module):
                 vn_update = self.vn_mlps[step](self.vn_norms[step](vn + graph_agg))
                 vn = vn + self.drop(vn_update)
                 atom_messages = atom_messages + vn[batch_graph.batch]
-            # For each edge u->v, message is sum(incoming to u) minus reverse edge v->u
+
             incoming_to_src = atom_messages[src_nodes]
             reverse_message = h[b2rev]
             m = incoming_to_src - reverse_message
             h = self.drop(self.act(h_0 + self.w_m(m)))
-        # 3. Aggregate all incoming messages to each atom: (num_atoms, hidden_dim)
+
         final_atom_messages = torch.zeros((num_atoms, self.hidden_dim), device=h.device, dtype=h.dtype)
         final_atom_messages.scatter_add_(0, b2a.unsqueeze(-1).expand_as(h), h)
         if self.use_virtual_node and vn is not None:
             final_atom_messages = final_atom_messages + vn[batch_graph.batch]
-        # 4. Atom representations
+
         atom_repr_input = torch.cat([batch_graph.atom_features, final_atom_messages], dim=-1)
         atom_hiddens = self.drop(self.act(self.w_a(atom_repr_input)))
-        # 5. Graph readout pooling
+
         graph_repr = self.pool(atom_hiddens, batch_graph.batch, num_graphs)
         return graph_repr
 
@@ -212,20 +212,20 @@ class EGNNLayer(nn.Module):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.cutoff = cutoff
-        # Message network: [h_i, h_j, d_ij^2] -> m_ij
+
         self.edge_mlp = nn.Sequential(
             nn.Linear(hidden_dim * 2 + 1, hidden_dim),
             nn.SiLU(),
             nn.Linear(hidden_dim, hidden_dim),
             nn.SiLU(),
         )
-        # Coordinate update weight network: m_ij -> scalar
+
         self.coord_mlp = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
             nn.SiLU(),
             nn.Linear(hidden_dim, 1, bias=False),
         )
-        # Node update network: [h_i, m_i] -> h_i'
+
         self.node_mlp = nn.Sequential(
             nn.Linear(hidden_dim * 2, hidden_dim),
             nn.SiLU(),
@@ -236,15 +236,15 @@ class EGNNLayer(nn.Module):
         if edge_index.shape[1] == 0:
             return h, x
         src, dst = edge_index[0], edge_index[1]
-        diff = x[src] - x[dst]  # (E, 3)
-        dist_sq = (diff ** 2).sum(dim=-1, keepdim=True)  # (E, 1)
-        # Compute message
+        diff = x[src] - x[dst]
+        dist_sq = (diff ** 2).sum(dim=-1, keepdim=True)
+
         msg_input = torch.cat([h[src], h[dst], dist_sq], dim=-1)
         m_ij = self.edge_mlp(msg_input)
-        # Coordinate update (clamp coordinate updates for stability)
+
         coord_weights = self.coord_mlp(m_ij).clamp(-10.0, 10.0)
         coord_delta = diff * coord_weights
-        # Aggregate messages & coordinate deltas to destination nodes
+
         m_i = torch.zeros_like(h)
         m_i.scatter_add_(0, dst.unsqueeze(-1).expand_as(m_ij), m_ij)
         x_delta = torch.zeros_like(x)
@@ -265,7 +265,7 @@ class EGNNEncoder(nn.Module):
         h = self.input_proj(batch_graph.atom_features)
         coords = batch_graph.coordinates
         if coords is None:
-            # Fallback to zeros if no conformer available
+
             coords = torch.zeros((batch_graph.num_atoms, 3), device=h.device, dtype=h.dtype)
         edge_index = batch_graph.edge_index
         for layer in self.layers:
@@ -282,7 +282,7 @@ class ProteinEncoder(nn.Module):
         self.channels = channels
 
     def forward(self, token_ids: Tensor) -> Tensor:
-        x = self.embedding(token_ids).transpose(1, 2)  # (batch, embedding_dim, seq_len)
+        x = self.embedding(token_ids).transpose(1, 2)
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         pooled = F.adaptive_max_pool1d(x, 1).squeeze(-1)

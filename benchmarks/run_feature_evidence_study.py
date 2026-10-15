@@ -44,13 +44,11 @@ RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 K_LEVELS = [5, 10, 20, 50]
 N_RANDOM_REPEATS = 10
 
-
 def jaccard_similarity(set_a: set[str], set_b: set[str]) -> float:
     union = len(set_a | set_b)
     if union == 0:
         return 1.0
     return len(set_a & set_b) / union
-
 
 def compute_stability(feature_sets: list[list[str]]) -> float:
     if len(feature_sets) < 2:
@@ -60,11 +58,6 @@ def compute_stability(feature_sets: list[list[str]]) -> float:
         for a, b in itertools.combinations(feature_sets, 2)
     ]
     return float(np.mean(scores))
-
-
-# ---------------------------------------------------------
-# Selectors (Strictly fit on training fold)
-# ---------------------------------------------------------
 
 def select_spearman_top_k(X_tr: np.ndarray, y_tr: np.ndarray, feature_names: list[str], k: int) -> list[int]:
     """Ranks by absolute Spearman correlation."""
@@ -82,7 +75,6 @@ def select_spearman_top_k(X_tr: np.ndarray, y_tr: np.ndarray, feature_names: lis
     top_indices = np.argsort(scores)[::-1][:k].tolist()
     return top_indices
 
-
 def select_mutual_info_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classification: bool, seed: int) -> list[int]:
     """Ranks by Mutual Information."""
     fn = mutual_info_classif if is_classification else mutual_info_regression
@@ -92,23 +84,20 @@ def select_mutual_info_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_clas
         mi = np.zeros(X_tr.shape[1])
     return np.argsort(mi)[::-1][:k].tolist()
 
-
 def select_variance_correlation_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int) -> list[int]:
     """Filters low variance (< 0.01) and redundant features (|r| > 0.85), then picks top-K by Spearman."""
-    # 1. Variance filter
+
     variances = np.var(X_tr, axis=0)
     keep_mask = variances >= 0.01
     valid_cols = np.where(keep_mask)[0]
     if len(valid_cols) == 0:
         return list(range(min(k, X_tr.shape[1])))
 
-    # 2. Spearman scores for valid cols
     scores = []
     for c in valid_cols:
         r, _ = stats.spearmanr(X_tr[:, c], y_tr)
         scores.append(abs(r) if math.isfinite(r) else 0.0)
 
-    # 3. Correlation matrix on valid cols to prune redundant features
     sorted_order = np.argsort(scores)[::-1]
     selected = []
     for idx_in_valid in sorted_order:
@@ -124,7 +113,6 @@ def select_variance_correlation_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int
         if len(selected) >= k:
             break
 
-    # If not enough features met the threshold, pad with top remaining
     if len(selected) < k:
         for idx_in_valid in sorted_order:
             cand = valid_cols[idx_in_valid]
@@ -133,7 +121,6 @@ def select_variance_correlation_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int
             if len(selected) >= k:
                 break
     return selected[:k]
-
 
 def select_framework_recommendation(X_tr: np.ndarray, y_tr: np.ndarray, feature_names: list[str], k: int) -> list[int]:
     """Framework Recommendation: Evidence Scorecard (Spearman association + greedy redundancy pruning)."""
@@ -144,11 +131,6 @@ def select_framework_recommendation(X_tr: np.ndarray, y_tr: np.ndarray, feature_
         k=k,
         redundancy_threshold=0.85,
     )
-
-
-# ---------------------------------------------------------
-# Evaluation Routine
-# ---------------------------------------------------------
 
 def evaluate_subset(
     X_tr: np.ndarray, y_tr: np.ndarray,
@@ -182,7 +164,6 @@ def evaluate_subset(
         r2 = float(r2_score(y_te, preds)) if len(y_te) > 1 else 0.0
         return {"rmse": rmse, "mae": mae, "r2": r2}
 
-
 def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"📊 Feature Intelligence & Recommendation Study: {dataset_name.upper()}")
@@ -198,7 +179,6 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     targets = df_clean[target_col].values
     is_classification = "classification" in meta["task_type"]
 
-    # Filter out NaNs if any
     valid_target_mask = ~np.isnan(targets)
     if not np.all(valid_target_mask):
         print(f"Filtering {np.sum(~valid_target_mask)} missing targets...")
@@ -219,7 +199,6 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         "random_subsets",
     ]
 
-    # Structure to hold metrics: method -> k -> list of seed metrics
     results: dict[str, dict[str, list[dict[str, float]]]] = {
         m: {str(k): [] for k in K_LEVELS} for m in method_names
     }
@@ -234,13 +213,11 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         with open(split_file, "r") as f:
             split_dict = json.load(f)
 
-        # Map split indices if targets were filtered
         valid_indices = [i for i, v in enumerate(valid_target_mask) if v]
         orig_to_clean = {orig_i: clean_i for clean_i, orig_i in enumerate(valid_indices)}
         train_idx = [orig_to_clean[i] for i in split_dict["train"] if i in orig_to_clean]
         test_idx = [orig_to_clean[i] for i in split_dict["test"] if i in orig_to_clean]
 
-        # Scale strictly on train
         scaler = StandardScaler()
         X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
         X_tr = scaler.fit_transform(X_clean[train_idx])
@@ -252,7 +229,6 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         y_tr = targets[train_idx]
         y_te = targets[test_idx]
 
-        # 1. All features reference
         all_metrics = evaluate_subset(
             X_tr, y_tr, X_te, y_te,
             list(range(n_features_total)),
@@ -260,33 +236,28 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         )
         results["all_features"]["all"].append(all_metrics)
 
-        # 2. Selectors across K
         for k in K_LEVELS:
-            # A) Framework Recommendation
+
             idx_rec = select_framework_recommendation(X_tr, y_tr, feature_names, k)
             m_rec = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_rec, is_classification, seed)
             results["framework_recommendation"][str(k)].append(m_rec)
             selected_feature_sets["framework_recommendation"][str(k)].append([feature_names[i] for i in idx_rec])
 
-            # B) Spearman Top-K
             idx_sp = select_spearman_top_k(X_tr, y_tr, feature_names, k)
             m_sp = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_sp, is_classification, seed)
             results["spearman_top_k"][str(k)].append(m_sp)
             selected_feature_sets["spearman_top_k"][str(k)].append([feature_names[i] for i in idx_sp])
 
-            # C) Mutual Information Top-K
             idx_mi = select_mutual_info_top_k(X_tr, y_tr, k, is_classification, seed)
             m_mi = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_mi, is_classification, seed)
             results["mutual_info_top_k"][str(k)].append(m_mi)
             selected_feature_sets["mutual_info_top_k"][str(k)].append([feature_names[i] for i in idx_mi])
 
-            # D) Variance + Correlation
             idx_vc = select_variance_correlation_top_k(X_tr, y_tr, k)
             m_vc = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_vc, is_classification, seed)
             results["variance_correlation"][str(k)].append(m_vc)
             selected_feature_sets["variance_correlation"][str(k)].append([feature_names[i] for i in idx_vc])
 
-            # E) Random K subsets (Average over N_RANDOM_REPEATS)
             rand_runs = []
             rng = np.random.default_rng(seed * 1000 + k)
             for r in range(N_RANDOM_REPEATS):
@@ -300,14 +271,11 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
             }
             results["random_subsets"][str(k)].append(avg_rand)
 
-    # ---------------------------------------------------------
-    # Aggregate Mean +- SD & Compute Stability
-    # ---------------------------------------------------------
     primary_metric = "roc_auc" if is_classification else "rmse"
     print(f"\n📈 Final Summary Across 5 Seeds ({primary_metric.upper()}):")
 
     summary_table = []
-    # All features
+
     all_vals = [m[primary_metric] for m in results["all_features"]["all"]]
     print(f"  All Features (232): {np.mean(all_vals):.4f} ± {np.std(all_vals):.4f}")
 
@@ -340,13 +308,11 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n✅ Feature Intelligence Study for {dataset_name} saved to: {out_path}")
     return output_payload
 
-
 def main():
     parser = argparse.ArgumentParser(description="Run Feature Intelligence Study")
     parser.add_argument("--dataset", type=str, default="esol", help="Dataset name: bbbp, esol, freesolv, etc.")
     args = parser.parse_args()
     run_feature_study_on_dataset(args.dataset)
-
 
 if __name__ == "__main__":
     main()

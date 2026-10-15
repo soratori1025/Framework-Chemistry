@@ -897,7 +897,7 @@ class ExperimentConfig:
             }
         model = _mapping(data.get("model", {}), "model")
         graph = _parse_graph_config(data.get("graph", {}))
-        # Validate the trainable-model specification early (pure Python).
+
         from .model_spec import ModelSpec
 
         ModelSpec.parse(model, graph)
@@ -928,4 +928,3 @@ class ExperimentConfig:
     def model_spec(self) -> Any:
         from .model_spec import ModelSpec
         return ModelSpec.parse(self.model, self.graph)
-

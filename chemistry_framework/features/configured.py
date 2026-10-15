@@ -212,8 +212,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                 source=config.source or "rdkit_descriptors",
                 definition=config.definition,
             )
-            # Find which names were generated
-            # Since names are registered inside the registry, we retrieve them
+
             for feature_name in registry.names():
                 if feature_name.startswith(f"{block_name}.") and feature_name not in names:
                     names.append(feature_name)
@@ -230,7 +229,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
                 source=config.source or "morgan",
                 definition=config.definition,
             )
-            # Find generated bits
+
             for feature_name in registry.names():
                 if feature_name.startswith(f"{block_name}.bit_") and feature_name not in names:
                     names.append(feature_name)
@@ -249,7 +248,7 @@ def build_feature_registry(definitions: Mapping[str, FeatureConfig], molecules: 
             for feature_name in registry.names():
                 if feature_name.startswith(f"{block_name}.") and feature_name not in names:
                     names.append(feature_name)
-                    
+
         resolved_names[block_name] = tuple(names)
     return registry, resolved_names
 

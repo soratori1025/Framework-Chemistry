@@ -12,7 +12,7 @@ try:
     from rdkit.Chem.Scaffolds import MurckoScaffold
 except ImportError as exc:
     raise ImportError("RDKit is required for scaffold splitting") from exc
-    
+
 @dataclass(frozen=True)
 class DatasetSplit:
     train: np.ndarray

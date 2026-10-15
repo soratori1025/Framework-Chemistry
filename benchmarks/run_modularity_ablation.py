@@ -46,7 +46,6 @@ RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 
 PHYS_FEATURE_SUBSET = ["MolWt", "MolLogP", "TPSA", "NumHDonors", "NumHAcceptors", "NumRotatableBonds"]
 
-
 class MoleculeGraphDataset(Dataset):
     def __init__(self, smiles: list[str], descriptors: np.ndarray, targets: np.ndarray):
         self.smiles = smiles
@@ -60,16 +59,10 @@ class MoleculeGraphDataset(Dataset):
     def __getitem__(self, idx: int) -> tuple[Any, torch.Tensor, torch.Tensor]:
         return self.graphs[idx], self.descriptors[idx], self.targets[idx]
 
-
 def collate_graph_batch(batch: list[tuple[Any, torch.Tensor, torch.Tensor]]) -> tuple[BatchMolGraph, torch.Tensor, torch.Tensor]:
     graphs, descs, targets = zip(*batch)
     batch_graph = BatchMolGraph(graphs)
     return batch_graph, torch.stack(descs), torch.stack(targets)
-
-
-# -------------------------------------------------------------
-# PyTorch Architectures for Modularity Ablation
-# -------------------------------------------------------------
 
 class DirectMLP(nn.Module):
     def __init__(self, in_dim: int, hidden_dim: int = 128, out_dim: int = 1):
@@ -89,7 +82,6 @@ class DirectMLP(nn.Module):
     def forward(self, batch_graph: Any, desc: torch.Tensor) -> torch.Tensor:
         return self.net(desc)
 
-
 class ResidualOnlyGNN(nn.Module):
     def __init__(self, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
         super().__init__()
@@ -104,7 +96,6 @@ class ResidualOnlyGNN(nn.Module):
     def forward(self, batch_graph: BatchMolGraph, desc: torch.Tensor) -> torch.Tensor:
         h = self.encoder(batch_graph)
         return self.head(h)
-
 
 class DirectHybridGNN(nn.Module):
     def __init__(self, desc_dim: int, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
@@ -129,7 +120,6 @@ class DirectHybridGNN(nn.Module):
         fused = torch.cat([hg, hd], dim=-1)
         return self.head(fused)
 
-
 class PriorResidualGNN(nn.Module):
     def __init__(self, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
         super().__init__()
@@ -145,11 +135,6 @@ class PriorResidualGNN(nn.Module):
         h = self.graph_encoder(batch_graph)
         res = self.residual_head(h)
         return prior_pred + res
-
-
-# -------------------------------------------------------------
-# Training and Evaluation Harness
-# -------------------------------------------------------------
 
 def train_and_eval_torch_model(
     model: nn.Module,
@@ -184,8 +169,8 @@ def train_and_eval_torch_model(
             optimizer.zero_grad()
 
             if prior_train is not None:
-                # Prior residual mode
-                p_b = bdesc[:, :1] # dummy placeholder if handled externally
+
+                p_b = bdesc[:, :1]
                 out = model(batch_graph, bdesc, p_b)
             else:
                 out = model(batch_graph, bdesc)
@@ -195,7 +180,6 @@ def train_and_eval_torch_model(
             loss.backward()
             optimizer.step()
 
-        # Val
         model.eval()
         vlosses = []
         with torch.no_grad():
@@ -261,7 +245,6 @@ def train_and_eval_torch_model(
         r2 = float(r2_score(yt[mask], yp[mask])) if len(yt[mask]) > 1 else 0.0
         return {"rmse": rmse, "mae": mae, "r2": r2}
 
-
 def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"🔬 Prior/Residual Modularity Ablation: {dataset_name.upper()}")
@@ -277,7 +260,6 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
     targets = df_clean[target_col].values.astype(np.float32)
     is_classification = "classification" in meta["task_type"]
 
-    # Filter invalid SMILES/targets if any
     valid_mask = [mol_to_graph(s) is not None and not np.isnan(t) for s, t in zip(smiles, targets)]
     smiles = [s for s, v in zip(smiles, valid_mask) if v]
     targets = targets[valid_mask]
@@ -285,7 +267,6 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
     print("Extracting full 2D descriptors and physicochemical prior features...")
     X_raw, feature_names = extract_rdkit_2d_descriptors(smiles)
 
-    # Find indices of physical prior features
     phys_indices = [
         i for i, name in enumerate(feature_names)
         if any(name.endswith(f".{p}") or name == p for p in PHYS_FEATURE_SUBSET)
@@ -302,14 +283,12 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         with open(split_file, "r") as f:
             split_dict = json.load(f)
 
-        # Map indices from original splits to filtered clean molecules
         valid_indices = [i for i, v in enumerate(valid_mask) if v]
         orig_to_clean = {orig_i: clean_i for clean_i, orig_i in enumerate(valid_indices)}
         train_idx = [orig_to_clean[i] for i in split_dict["train"] if i in orig_to_clean]
         val_idx = [orig_to_clean[i] for i in split_dict["val"] if i in orig_to_clean]
         test_idx = [orig_to_clean[i] for i in split_dict["test"] if i in orig_to_clean]
 
-        # Scalers fit strictly on train
         scaler = StandardScaler()
         X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
         scaler.fit(X_clean[train_idx])
@@ -317,7 +296,6 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         X_all = np.nan_to_num(X_all, nan=0.0, posinf=3.0, neginf=-3.0)
         X_phys = X_all[:, phys_indices]
 
-        # 1. Prior-Only Baseline
         if is_classification:
             prior_clf = LogisticRegression(C=1.0, random_state=seed, max_iter=500)
             prior_clf.fit(X_phys[train_idx], targets[train_idx])
@@ -349,7 +327,6 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         results["prior_only"].append(prior_metrics)
         print(f"  ✓ Prior-Only: {prior_metrics}")
 
-        # DataLoaders for PyTorch models
         batch_size = 64
         train_ds = MoleculeGraphDataset([smiles[i] for i in train_idx], X_all[train_idx], targets[train_idx])
         val_ds = MoleculeGraphDataset([smiles[i] for i in val_idx], X_all[val_idx], targets[val_idx])
@@ -359,26 +336,21 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
         test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
 
-        # 2. Direct-Only (MLP on descriptors)
         m_direct = DirectMLP(in_dim=X_all.shape[1], hidden_dim=128)
         dir_metrics = train_and_eval_torch_model(m_direct, train_loader, val_loader, test_loader, is_classification, seed)
         results["direct_only"].append(dir_metrics)
         print(f"  ✓ Direct-Only (MLP): {dir_metrics}")
 
-        # 3. Residual-Only (D-MPNN graph encoder only)
         m_res_only = ResidualOnlyGNN(hidden_dim=128, depth=3)
         res_metrics = train_and_eval_torch_model(m_res_only, train_loader, val_loader, test_loader, is_classification, seed)
         results["residual_only"].append(res_metrics)
         print(f"  ✓ Residual-Only (D-MPNN): {res_metrics}")
 
-        # 4. Direct Hybrid (D-MPNN + All Descriptors Concatenated)
         m_hybrid = DirectHybridGNN(desc_dim=X_all.shape[1], hidden_dim=128, depth=3)
         hyb_metrics = train_and_eval_torch_model(m_hybrid, train_loader, val_loader, test_loader, is_classification, seed)
         results["direct_hybrid"].append(hyb_metrics)
         print(f"  ✓ Direct Hybrid: {hyb_metrics}")
 
-        # 5. Explicit Prior + Residual
-        # Pass prior predictions into model
         train_ds_pr = MoleculeGraphDataset([smiles[i] for i in train_idx], prior_pred_train, targets[train_idx])
         val_ds_pr = MoleculeGraphDataset([smiles[i] for i in val_idx], prior_pred_val, targets[val_idx])
         test_ds_pr = MoleculeGraphDataset([smiles[i] for i in test_idx], prior_pred_test, targets[test_idx])
@@ -397,7 +369,6 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         results["prior_residual"].append(pr_metrics)
         print(f"  ✓ Prior + Residual: {pr_metrics}")
 
-    # Final summary across 5 seeds
     primary_metric = "roc_auc" if is_classification else "rmse"
     print(f"\n📈 Final Modularity Summary Across 5 Seeds ({primary_metric.upper()}):")
     summary = {}
@@ -421,13 +392,11 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n✅ Modularity ablation saved to: {out_file}")
     return out_payload
 
-
 def main():
     parser = argparse.ArgumentParser(description="Run Prior/Residual Modularity Ablation")
     parser.add_argument("--dataset", type=str, default="esol", help="Dataset name: bbbp or esol")
     args = parser.parse_args()
     run_modularity_ablation_on_dataset(args.dataset)
-
 
 if __name__ == "__main__":
     main()

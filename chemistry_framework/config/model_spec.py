@@ -199,7 +199,6 @@ class ModelSpec:
         elif self.head in ("scalar", "vector"):
             object.__setattr__(self, "head", "regression")
 
-
     @classmethod
     def parse(cls, value: Any, graph: dict[str, Any] | None = None) -> ModelSpec:
         data = _mapping(value, "model")
@@ -244,4 +243,3 @@ class ModelSpec:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-

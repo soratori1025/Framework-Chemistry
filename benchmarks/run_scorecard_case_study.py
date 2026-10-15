@@ -43,11 +43,6 @@ DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-
-# ==============================================================================
-# Part 1: BBBP Split Diagnostic Breakdown
-# ==============================================================================
-
 def analyze_bbbp_splits() -> dict[str, Any]:
     print("\n" + "=" * 70)
     print("🔬 E2.1: BBBP Split Breakdown & OOD Descriptor Analysis")
@@ -64,7 +59,6 @@ def analyze_bbbp_splits() -> dict[str, Any]:
     X_raw, feature_names = extract_rdkit_2d_descriptors(smiles)
     X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
 
-    # Load ablation performance
     ablation_file = RESULTS_DIR / "modularity_ablation_bbbp.json"
     ablation_data = {}
     if ablation_file.exists():
@@ -88,22 +82,18 @@ def analyze_bbbp_splits() -> dict[str, Any]:
         train_mins = X_tr.min(axis=0)
         train_maxs = X_tr.max(axis=0)
 
-        # Boolean mask: (N_test, N_features)
         below = X_te < (train_mins - 1e-6)
         above = X_te > (train_maxs + 1e-6)
         is_ood_matrix = below | above
 
-        # Per-descriptor OOD count
         ood_desc_counts = is_ood_matrix.sum(axis=0)
         n_ood_descriptors = int(np.sum(ood_desc_counts > 0))
         pct_ood_descriptors = float(n_ood_descriptors / len(feature_names) * 100)
 
-        # Per-molecule OOD
         mols_affected = np.any(is_ood_matrix, axis=1)
         n_mols_affected = int(np.sum(mols_affected))
         pct_mols_affected = float(n_mols_affected / len(test_idx) * 100)
 
-        # Average OOD features per test molecule
         avg_ood_per_mol = float(np.mean(is_ood_matrix.sum(axis=1)))
 
         dir_hyb_auc = ablation_data.get("direct_hybrid", [{}])[seed - 1].get("roc_auc", float("nan"))
@@ -130,7 +120,6 @@ def analyze_bbbp_splits() -> dict[str, Any]:
               f"{n_mols_affected}/{len(test_idx)} mols ({pct_mols_affected:.1f}%) affected | "
               f"Direct Hybrid AUC={dir_hyb_auc:.4f}, Graph AUC={res_only_auc:.4f}")
 
-    # Contrast Split 5 vs Splits 1-4
     s5 = split_reports[4]
     s1_4_ood_desc = [r["n_ood_descriptors"] for r in split_reports[:4]]
     s1_4_mols = [r["pct_mols_affected"] for r in split_reports[:4]]
@@ -153,11 +142,6 @@ def analyze_bbbp_splits() -> dict[str, Any]:
         }
     }
 
-
-# ==============================================================================
-# Part 2: Scaffold vs Random Split Shift Analysis
-# ==============================================================================
-
 def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
     print("\n" + "=" * 70)
     print(f"🔬 E2.2: Scaffold vs. Random Split Distribution Shift on {dataset_name.upper()}")
@@ -177,12 +161,10 @@ def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
     X_raw, feature_names = extract_rdkit_2d_descriptors(smiles)
     X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
 
-    # 1. Scaffold split (Seed 1)
     split_file = REPO_ROOT / meta["splits"]["seed_1"]["split_file"]
     with open(split_file, "r") as f:
         scaffold_split = json.load(f)
 
-    # 2. Random split (Seed 1)
     np.random.seed(42)
     n = len(smiles)
     indices = np.random.permutation(n)
@@ -201,14 +183,12 @@ def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
         X_te = X_clean[te_idx]
         y_tr = targets[tr_idx]
 
-        # Range check
         tr_min = X_tr.min(axis=0)
         tr_max = X_tr.max(axis=0)
         tr_std = np.std(X_tr, axis=0) + 1e-8
         tr_mean = np.mean(X_tr, axis=0)
         te_mean = np.mean(X_te, axis=0)
 
-        # Standardized mean covariate shift |mu_te - mu_tr| / sigma_tr
         std_shift = np.abs(te_mean - tr_mean) / tr_std
         mean_shift = float(np.mean(std_shift))
         max_shift = float(np.max(std_shift))
@@ -220,18 +200,12 @@ def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
         pct_ood_desc = float(ood_desc_count / len(feature_names) * 100)
         pct_mols_affected = float(np.mean(np.any(is_ood, axis=1)) * 100)
 
-        # Evidence classes:
-        # - ood_unsupported: out_of_range > 0 or support == 0
-        # - redundant: pairwise correlation |r| > 0.85
-        # - supported: top-K relevant and stable
-        # - weak_uncertain: remainder
         n_features = len(feature_names)
         ood_features = set()
         for j in range(n_features):
             if is_ood[:, j].sum() > 0 or np.count_nonzero(np.abs(X_tr[:, j]) > 1e-12) == 0:
                 ood_features.add(j)
 
-        # Redundancy check on remaining
         redundant_features = set()
         corr_mat = np.corrcoef(X_tr.T)
         corr_mat = np.nan_to_num(corr_mat, nan=0.0)
@@ -245,7 +219,6 @@ def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
                     redundant_features.add(i)
                     break
 
-        # Relevance
         spearman_scores = []
         for j in range(n_features):
             if np.std(X_tr[:, j]) < 1e-6:
@@ -292,11 +265,6 @@ def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
         "random": random_res,
     }
 
-
-# ==============================================================================
-# Part 3: Dataset Structural Audit & Duplicate Conflict Analysis
-# ==============================================================================
-
 def audit_dataset_hygiene() -> dict[str, Any]:
     print("\n" + "=" * 70)
     print("🔬 E2.3: Dataset Hygiene & Structural Collision Audit (Schuh et al. 2023)")
@@ -321,7 +289,6 @@ def audit_dataset_hygiene() -> dict[str, Any]:
         raw_targets = df_clean[target_col].values
         is_classification = "classification" in meta["task_type"]
 
-        # Parse and standardize to canonical SMILES and InChIKey
         canonical_smiles = []
         inchikeys = []
         valid_indices = []
@@ -341,7 +308,6 @@ def audit_dataset_hygiene() -> dict[str, Any]:
         targets_valid = raw_targets[valid_indices]
         n_total = len(canonical_smiles)
 
-        # Find duplicate InChIKeys
         df_audit = pd.DataFrame({
             "smiles": canonical_smiles,
             "inchikey": inchikeys,
@@ -353,7 +319,6 @@ def audit_dataset_hygiene() -> dict[str, Any]:
         n_duplicate_mols = len(duplicate_groups)
         n_duplicate_structures = duplicate_groups["inchikey"].nunique()
 
-        # Check for label discrepancies within duplicate groups
         conflicting_groups = 0
         max_discrepancy = 0.0
 
@@ -366,7 +331,7 @@ def audit_dataset_hygiene() -> dict[str, Any]:
                 span = float(np.max(vals) - np.min(vals))
                 if span > max_discrepancy:
                     max_discrepancy = span
-                # For continuous: conflict if discrepancy > 0.5 * std(target)
+
                 if span > 0.5 * float(np.std(targets_valid)):
                     conflicting_groups += 1
 
@@ -387,7 +352,6 @@ def audit_dataset_hygiene() -> dict[str, Any]:
               f"Conflicting: {conflicting_groups} groups (Max discrepancy: {max_discrepancy:.3f} if reg)")
 
     return audit_results
-
 
 def main():
     bbbp_analysis = analyze_bbbp_splits()
@@ -411,7 +375,6 @@ def main():
     print("\n" + "=" * 70)
     print(f"✅ Experiment E2 complete. Results saved to: {out_file}")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     main()

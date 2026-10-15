@@ -25,7 +25,6 @@ from benchmarks.run_modularity_ablation import run_modularity_ablation_on_datase
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-
 def main():
     parser = argparse.ArgumentParser(description="Run 3 Benchmarks Suite")
     parser.add_argument("--skip-a", action="store_true", help="Skip Benchmark A")
@@ -45,10 +44,6 @@ def main():
         "benchmark_c": {},
     }
 
-    # -------------------------------------------------------------
-    # 1. BENCHMARK C: Prior / Residual Modularity Ablation
-    # (Section 3.3 in Manuscript Blueprint)
-    # -------------------------------------------------------------
     if not args.skip_c:
         print("\n" + "#" * 75)
         print("📌 [1/3] BENCHMARK C: PRIOR / RESIDUAL MODULARITY ABLATION")
@@ -58,10 +53,6 @@ def main():
             res_c = run_modularity_ablation_on_dataset(ds)
             suite_manifest["benchmark_c"][ds] = res_c["summary"]
 
-    # -------------------------------------------------------------
-    # 2. BENCHMARK B: Feature Intelligence & Recommendation Study
-    # (Section 3.2 in Manuscript Blueprint - Core Result)
-    # -------------------------------------------------------------
     if not args.skip_b:
         print("\n" + "#" * 75)
         print("📌 [2/3] BENCHMARK B: FEATURE INTELLIGENCE & RECOMMENDATION STUDY")
@@ -71,10 +62,6 @@ def main():
             res_b = run_feature_study_on_dataset(ds)
             suite_manifest["benchmark_b"][ds] = res_b["summary_table"]
 
-    # -------------------------------------------------------------
-    # 3. BENCHMARK A: Canonical Baselines Comparison
-    # (Section 3.1 in Manuscript Blueprint)
-    # -------------------------------------------------------------
     if not args.skip_a:
         print("\n" + "#" * 75)
         print("📌 [3/3] BENCHMARK A: CROSS-TASK BASELINES EVALUATION")
@@ -97,7 +84,6 @@ def main():
     with open(suite_summary_file, "w") as f:
         json.dump(suite_manifest, f, indent=2)
     print(f"Summary saved to: {suite_summary_file}")
-
 
 if __name__ == "__main__":
     main()

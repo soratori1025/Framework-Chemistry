@@ -108,15 +108,15 @@ class ChemicalProfile:
 @dataclass
 class TargetProfile:
     name: str
-    task_kind: str  # "binary_classification", "multiclass_classification", "scalar_regression"
+    task_kind: str
     total_count: int
     valid_count: int
     missing_count: int
     missing_fraction: float
-    # Classification specifics
+
     class_counts: dict[str, int] = field(default_factory=dict)
     class_imbalance_ratio: float = 1.0
-    # Regression specifics
+
     mean: float | None = None
     std: float | None = None
     min: float | None = None
@@ -129,21 +129,21 @@ class TargetProfile:
 
 @dataclass
 class RiskItem:
-    severity: str  # "HIGH", "MEDIUM", "LOW", "INFO"
-    category: str  # "data_quality", "imbalance", "distribution", "features"
+    severity: str
+    category: str
     title: str
     message: str
     recommendation: str
 
 @dataclass
 class AdvisorRecommendation:
-    health_score: int  # 0 to 100
-    health_status: str  # "EXCELLENT", "GOOD", "FAIR", "NEEDS_ATTENTION"
+    health_score: int
+    health_status: str
     risks: list[RiskItem] = field(default_factory=list)
     recommended_split: str = "scaffold"
     recommended_encoder: str = "dmpnn"
-    recommended_model_type: str = "hybrid"  # "graph", "hybrid", "ensemble"
-    recommended_head: str = "standard"  # "classification", "regression", "evidential", "gaussian"
+    recommended_model_type: str = "hybrid"
+    recommended_head: str = "standard"
     recommended_loss: str = "huber"
     recommended_metrics: list[str] = field(default_factory=list)
     recommended_batch_size: int = 64
@@ -305,7 +305,6 @@ class DatasetAdvisor:
         duplicate_count = total - unique_smiles_count
         scaffold_ratio = len(scaffolds_set) / max(1, valid_count)
 
-        # Compute Tanimoto chemical space density and diversity
         tanimoto_sim = 0.0
         tanimoto_diversity = 1.0
         if len(valid_mols) > 1:
@@ -344,15 +343,15 @@ class DatasetAdvisor:
             property_stats=prop_stats,
             invalid_examples=invalid_examples[:10],
         )
-        # Profile targets
+
         target_profiles: dict[str, TargetProfile] = {}
         for t_name, t_values in targets.items():
             target_profiles[t_name] = self._profile_target(t_name, t_values)
-        # Profile tabular features if provided
+
         tab_profile: TabularFeatureProfile | None = None
         if tabular_features:
             tab_profile = self._profile_tabular_features(tabular_features)
-        # Generate prescriptive recommendations
+
         recommendation = self._generate_recommendations(
             chem_profile,
             target_profiles,
@@ -380,7 +379,7 @@ class DatasetAdvisor:
             raise ValueError(f"dataset file {path} is empty")
         if dataset_name is None:
             dataset_name = path.stem
-        # 1. Resolve SMILES column
+
         if smiles_column is None:
             candidates = ["smiles", "canonical_smiles", "drug", "molecule", "structure", "compound", "mol"]
             found = None
@@ -402,7 +401,7 @@ class DatasetAdvisor:
                 )
             smiles_column = found
         smiles_list = df[smiles_column].astype(str).tolist()
-        # 2. Resolve Target columns
+
         if target_columns is None:
             common_targets = ["target", "label", "activity", "pic50", "ic50", "value", "y", "class", "target_value"]
             found_targets = []
@@ -423,7 +422,7 @@ class DatasetAdvisor:
         targets = {col: df[col].tolist() for col in target_cols if col in df.columns}
         if not targets:
             raise ValueError(f"specified target columns {target_cols} not found in {list(df.columns)}")
-        # 3. Resolve Tabular feature columns
+
         tabular_features: dict[str, list[Any]] = {}
         if feature_columns is not None:
             for col in feature_columns:
@@ -487,7 +486,7 @@ class DatasetAdvisor:
                 missing_fraction=1.0,
             )
         unique_vals = np.unique(valid_vals)
-        # Check if binary classification
+
         if set(unique_vals).issubset({0.0, 1.0}):
             pos_count = int((valid_vals == 1.0).sum())
             neg_count = int((valid_vals == 0.0).sum())
@@ -504,7 +503,7 @@ class DatasetAdvisor:
                 class_counts={"0": neg_count, "1": pos_count},
                 class_imbalance_ratio=float(imbalance_ratio),
             )
-        # Continuous regression
+
         mean = float(valid_vals.mean())
         std = float(valid_vals.std())
         v_min = float(valid_vals.min())
@@ -512,7 +511,7 @@ class DatasetAdvisor:
         median = float(np.median(valid_vals))
         skewness = float(stats.skew(valid_vals)) if valid_count > 2 else 0.0
         kurt = float(stats.kurtosis(valid_vals)) if valid_count > 3 else 0.0
-        # Outliers via IQR
+
         q25, q75 = np.percentile(valid_vals, [25, 75])
         iqr = q75 - q25
         lower_bound = q25 - 1.5 * iqr
@@ -607,7 +606,6 @@ class DatasetAdvisor:
                 imputed[~finite_mask] = mean_v
                 matrix_cols.append(imputed)
 
-        # Collinearity detection
         collinear_pairs: list[tuple[str, str, float]] = []
         if len(matrix_cols) > 1:
             data_mat = np.column_stack(matrix_cols)
@@ -658,7 +656,6 @@ class DatasetAdvisor:
         score = 100
         risks: list[RiskItem] = []
 
-        # 1. Invalid SMILES risk
         if chem.invalid_fraction > 0.05:
             score -= 25
             risks.append(
@@ -682,7 +679,6 @@ class DatasetAdvisor:
                 )
             )
 
-        # 2. Duplicate SMILES risk
         if chem.duplicate_count > (0.05 * chem.total_records):
             score -= 10
             risks.append(
@@ -695,7 +691,6 @@ class DatasetAdvisor:
                 )
             )
 
-        # 3. Small dataset risk
         if chem.total_records < 300:
             score -= 15
             risks.append(
@@ -719,7 +714,6 @@ class DatasetAdvisor:
                 )
             )
 
-        # 4. Tabular features profiling & risks
         feature_imputation = None
         feature_scaling = None
         has_tabular = tab is not None and tab.feature_count > 0
@@ -779,7 +773,6 @@ class DatasetAdvisor:
                     )
                 )
 
-        # 5. Target specifics
         primary_target_name = next(iter(targets))
         t_profile = targets[primary_target_name]
 
@@ -889,7 +882,6 @@ class DatasetAdvisor:
                 )
             )
 
-        # Assemble auto-generated configuration
         config_dict = {
             "name": f"{dataset_name}-recommended",
             "dataset": {
@@ -1190,7 +1182,6 @@ class DatasetAdvisor:
         ])
 
         return "\n".join(lines)
-
 
 __all__ = [
     "AdvisorRecommendation",

@@ -24,11 +24,11 @@ class MoleculeFeatureBlock:
 
     def transform(self, molecules_or_records: Iterable[Any], conditions: dict[str, tuple[float, ...]] | None = None) -> FeatureMatrix:
         rows: list[list[float]] = []
-        # Convert inputs to a list to iterate alongside conditions
+
         items = list(molecules_or_records)
         for row_index, item in enumerate(items):
             if isinstance(item, ChemicalRecord):
-                # We won't get a single mol right away because different features might need different sides
+
                 pass
             else:
                 mol = Chem.MolFromSmiles(item) if isinstance(item, str) else item
@@ -49,8 +49,7 @@ class MoleculeFeatureBlock:
                         if col not in conditions:
                             raise RuntimeError(f"condition column {col!r} not found in dataset")
                         val = conditions[col][row_index]
-                        
-                        # Apply transform if requested
+
                         transform_type = spec.metadata.get("transform", "identity")
                         if transform_type == "log":
                             val = float(np.log(val)) if val > 0 else 0.0
@@ -60,7 +59,7 @@ class MoleculeFeatureBlock:
                             val = float(1.0 / val) if val != 0 else 0.0
                         elif transform_type == "inverse_kilo":
                             val = float(1000.0 / val) if val != 0 else 0.0
-                            
+
                         value = val
                     else:
                         if isinstance(item, ChemicalRecord):

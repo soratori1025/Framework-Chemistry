@@ -14,7 +14,7 @@ class GaussianNLLHead(nn.Module):
 
     def forward(self, features: Tensor) -> dict[str, Tensor]:
         mean = self.mean_proj(features)
-        # Clamp logvar to prevent numerical explosion
+
         logvar = self.logvar_proj(features).clamp(-12.0, 12.0)
         var = torch.exp(logvar)
         std = torch.sqrt(var)
@@ -85,7 +85,6 @@ class MultiTaskHead(nn.Module):
         for name, proj in self.projections.items():
             outputs[name] = proj(features)
         return outputs
-
 
 class NodeLevelHead(nn.Module):
     def __init__(self, in_features: int, out_dim: int = 1) -> None:

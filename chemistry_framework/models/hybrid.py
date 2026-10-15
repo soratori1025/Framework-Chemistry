@@ -30,7 +30,7 @@ class HybridChemistryModel(nn.Module):
         if isinstance(structure_input, BatchMolGraph):
             return self.structure_encoder(structure_input)
         if isinstance(structure_input, dict):
-            # Reaction input: {"reactants": BatchMolGraph, "products": BatchMolGraph}
+
             if "reactants" in structure_input and "products" in structure_input:
                 h_react = self.structure_encoder(structure_input["reactants"])
                 h_prod = self.structure_encoder(structure_input["products"])
@@ -40,15 +40,15 @@ class HybridChemistryModel(nn.Module):
                 if self.reaction_mode == "concat":
                     return torch.cat([h_react, h_prod], dim=-1)
                 return torch.cat([diff, h_prod], dim=-1)
-            # Mixture input: list of (BatchMolGraph, fraction_tensor)
+
             if "mixture_graphs" in structure_input and "fractions" in structure_input:
                 graphs_list = structure_input["mixture_graphs"]
-                fractions = structure_input["fractions"]  # (num_graphs, num_components)
+                fractions = structure_input["fractions"]
                 h_components = [self.structure_encoder(bg) for bg in graphs_list]
-                stacked = torch.stack(h_components, dim=1)  # (B, N_comp, H)
+                stacked = torch.stack(h_components, dim=1)
                 weights = fractions.unsqueeze(-1).to(stacked.device, stacked.dtype)
                 return (stacked * weights).sum(dim=1)
-            # Complex input: {"ligand": BatchMolGraph, "protein_tokens": Tensor}
+
             if "ligand" in structure_input:
                 h_ligand = self.structure_encoder(structure_input["ligand"])
                 if self.protein_encoder is not None and "protein_tokens" in structure_input:
@@ -75,16 +75,16 @@ class HybridChemistryModel(nn.Module):
             if structure_input is None:
                 structure_input = inputs
         elif isinstance(inputs, Tensor):
-            # Input is purely descriptor features
+
             if desc_input is None:
                 desc_input = inputs
-        # 1. Structure representation
+
         h_struct = self.encode_structure(structure_input) if structure_input is not None else None
-        # 2. Descriptor representation
+
         h_desc = None
         if self.descriptor_encoder is not None and desc_input is not None:
             h_desc = self.descriptor_encoder(desc_input)
-        # 3. Fuse representations
+
         if h_struct is not None and h_desc is not None:
             if self.fusion_strategy == "concat":
                 h_fused = torch.cat([h_struct, h_desc], dim=-1)
@@ -98,9 +98,9 @@ class HybridChemistryModel(nn.Module):
             h_fused = h_desc
         else:
             raise RuntimeError("HybridChemistryModel requires at least one of structure or descriptors")
-        # 4. FFN readout
+
         latent = self.ffn(h_fused)
-        # 5. Output head prediction
+
         head_out = self.output_head(latent)
         if isinstance(head_out, Tensor):
             pred = head_out
@@ -110,14 +110,14 @@ class HybridChemistryModel(nn.Module):
             aux_dict = {k: v for k, v in head_out.items() if k != "prediction"}
         else:
             raise TypeError("output_head must return a Tensor or a mapping of Tensors")
-        # 6. Add physics prior if configured
+
         prior_out = None
         if self.prior is not None:
             if pri_input is None and desc_input is not None:
                 pri_input = desc_input
             if pri_input is not None:
                 prior_out = self.prior(pri_input)
-                # Reshape prior if necessary to match prediction
+
                 if prior_out.shape != pred.shape:
                     if prior_out.numel() == pred.numel():
                         prior_out = prior_out.reshape_as(pred)
@@ -134,7 +134,7 @@ class HybridChemistryModel(nn.Module):
 def build_hybrid_model(model_spec: Any, task_kind: str = "scalar", out_dim: int = 1, descriptor_dim: int = 0,prior: BaselineBlock | None = None,) -> HybridChemistryModel:
     if not isinstance(model_spec, ModelSpec):
         model_spec = ModelSpec.parse(model_spec)
-    # 1. Structure encoder
+
     struct_enc: nn.Module | None = None
     struct_out_dim = 0
     if model_spec.structure.enabled:
@@ -155,7 +155,7 @@ def build_hybrid_model(model_spec: Any, task_kind: str = "scalar", out_dim: int 
             struct_out_dim = h_dim
         else:
             raise ValueError(f"unknown structure encoder {enc_name!r}")
-    # 2. Descriptor encoder
+
     desc_enc: nn.Module | None = None
     desc_out_dim = 0
     desc_enabled = model_spec.descriptors.enabled
@@ -172,7 +172,7 @@ def build_hybrid_model(model_spec: Any, task_kind: str = "scalar", out_dim: int 
                 dropout=d_drop,
             )
             desc_out_dim = d_hdim
-    # 3. Protein encoder
+
     prot_enc: nn.Module | None = None
     prot_out_dim = 0
     if model_spec.protein.embedding_dim > 0:
@@ -183,7 +183,7 @@ def build_hybrid_model(model_spec: Any, task_kind: str = "scalar", out_dim: int 
             max_length=model_spec.protein.max_length,
         )
         prot_out_dim = model_spec.protein.channels
-    # Combined latent dim before FFN
+
     if struct_out_dim > 0 and desc_out_dim > 0:
         combined_dim = struct_out_dim + desc_out_dim if model_spec.fusion == "concat" else struct_out_dim
     elif struct_out_dim > 0:
@@ -191,10 +191,10 @@ def build_hybrid_model(model_spec: Any, task_kind: str = "scalar", out_dim: int 
     elif desc_out_dim > 0:
         combined_dim = desc_out_dim
     else:
-        # Fallback to pure MLP if neither was explicitly requested
+
         combined_dim = 128
         desc_enc = MLPEncoder(input_dim=max(1, descriptor_dim), representation_dim=combined_dim)
-    # 4. FFN readout
+
     ffn_dim = model_spec.ffn.hidden_dim
     ffn_depth = model_spec.ffn.depth
     ffn_drop = model_spec.ffn.dropout
@@ -206,7 +206,7 @@ def build_hybrid_model(model_spec: Any, task_kind: str = "scalar", out_dim: int 
     ffn_layers.append(nn.Linear(in_d, ffn_dim))
     ffn_layers.append(nn.ReLU())
     ffn = nn.Sequential(*ffn_layers)
-    # 5. Output Head
+
     head_type = model_spec.head
     if head_type == "auto":
         head_type = "classification" if "classification" in task_kind else "regression"

@@ -12,7 +12,7 @@ _AMINO_ACIDS = frozenset("ACDEFGHIKLMNOPQRSTUVWYXBZJ")
 def _rdkit() -> Any:
     try:
         from rdkit import Chem
-    except ImportError as exc:  # pragma: no cover - depends on optional extra
+    except ImportError as exc:
         raise ImportError("RDKit is required for chemical input adapters") from exc
     return Chem
 
@@ -145,7 +145,7 @@ class XYZAdapter(InputAdapter):
             raise ValueError(
                 f"could not perceive bonds from XYZ geometry{self._location(row)}"
             ) from exc
-        # RemoveHs keeps the heavy-atom conformer, so coordinates survive.
+
         output = Chem.RemoveHs(mol) if self.options.get("remove_hs", False) else mol
         return _molecule(output, self.name)
 
@@ -304,4 +304,3 @@ __all__ = [
     "get_input_adapter",
     "register_input_adapter",
 ]
-

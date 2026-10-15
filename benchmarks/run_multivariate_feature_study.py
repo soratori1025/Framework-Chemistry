@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import argparse
@@ -30,13 +29,11 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 K_LEVELS = [5, 10, 20, 50]
 
-
 def jaccard_similarity(set_a: set[str], set_b: set[str]) -> float:
     union = len(set_a | set_b)
     if union == 0:
         return 1.0
     return len(set_a & set_b) / union
-
 
 def compute_stability(feature_sets: list[list[str]]) -> float:
     if len(feature_sets) < 2:
@@ -46,11 +43,6 @@ def compute_stability(feature_sets: list[list[str]]) -> float:
         for a, b in itertools.combinations(feature_sets, 2)
     ]
     return float(np.mean(scores))
-
-
-# -------------------------------------------------------------
-# Selectors (Strictly fit on training fold)
-# -------------------------------------------------------------
 
 def select_spearman_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int) -> list[int]:
     scores = []
@@ -66,7 +58,6 @@ def select_spearman_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int) -> list[in
             scores.append(0.0)
     return np.argsort(scores)[::-1][:k].tolist()
 
-
 def select_mutual_info_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classification: bool, seed: int) -> list[int]:
     fn = mutual_info_classif if is_classification else mutual_info_regression
     try:
@@ -74,7 +65,6 @@ def select_mutual_info_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_clas
     except Exception:
         mi = np.zeros(X_tr.shape[1])
     return np.argsort(mi)[::-1][:k].tolist()
-
 
 def select_mrmr_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classification: bool, seed: int) -> list[int]:
     """Minimum Redundancy Maximum Relevance (Peng et al. 2005)."""
@@ -84,8 +74,7 @@ def select_mrmr_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classificat
         mi = fn(X_tr, y_tr, random_state=seed)
     except Exception:
         mi = np.zeros(n_features)
-    
-    # Precompute absolute Pearson correlation matrix on training set
+
     with np.errstate(divide="ignore", invalid="ignore"):
         corr_matrix = np.nan_to_num(np.abs(np.corrcoef(X_tr, rowvar=False)), nan=0.0)
 
@@ -96,9 +85,9 @@ def select_mrmr_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classificat
         best_cand = -1
         best_score = -float("inf")
         for cand in candidates:
-            # Relevance
+
             rel = mi[cand]
-            # Redundancy: average absolute correlation with already selected features
+
             red = np.mean([corr_matrix[cand, s] for s in selected])
             score = rel - red
             if score > best_score:
@@ -111,7 +100,6 @@ def select_mrmr_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classificat
 
     return selected[:k]
 
-
 def select_rf_importance_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classification: bool, seed: int) -> list[int]:
     """Random Forest Gini / impurity-based feature importance on training fold."""
     if is_classification:
@@ -121,7 +109,6 @@ def select_rf_importance_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_cl
     rf.fit(X_tr, y_tr)
     importances = rf.feature_importances_
     return np.argsort(importances)[::-1][:k].tolist()
-
 
 def select_l1_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classification: bool, seed: int) -> list[int]:
     """L1 Regularization selector:
@@ -140,7 +127,6 @@ def select_l1_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classificatio
         except Exception:
             pass
 
-    # Fallback or Classification: L1 Logistic / Lasso
     try:
         if is_classification:
             clf = LogisticRegression(penalty="l1", solver="liblinear", C=1.0, random_state=seed, max_iter=2000)
@@ -155,7 +141,6 @@ def select_l1_top_k(X_tr: np.ndarray, y_tr: np.ndarray, k: int, is_classificatio
     except Exception:
         return list(range(min(k, n_features)))
 
-
 def select_framework_top_k(X_tr: np.ndarray, y_tr: np.ndarray, feature_names: list[str], k: int) -> list[int]:
     return select_evidence_recommendation(
         X_train=X_tr,
@@ -164,11 +149,6 @@ def select_framework_top_k(X_tr: np.ndarray, y_tr: np.ndarray, feature_names: li
         k=k,
         redundancy_threshold=0.85,
     )
-
-
-# -------------------------------------------------------------
-# Evaluation Routine
-# -------------------------------------------------------------
 
 def evaluate_subset(
     X_tr: np.ndarray, y_tr: np.ndarray,
@@ -202,7 +182,6 @@ def evaluate_subset(
         r2 = float(r2_score(y_te, preds)) if len(y_te) > 1 else 0.0
         return {"rmse": rmse, "mae": mae, "r2": r2}
 
-
 def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"📊 Multivariate Feature Study: {dataset_name.upper()}")
@@ -219,7 +198,6 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     is_classification = "classification" in meta["task_type"]
     primary_metric = "roc_auc" if is_classification else "rmse"
 
-    # Filter out NaNs if any
     valid_target_mask = ~np.isnan(targets)
     if not np.all(valid_target_mask):
         print(f"Filtering {np.sum(~valid_target_mask)} missing targets...")
@@ -239,7 +217,6 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         "l1",
     ]
 
-    # Structure to hold metrics: method -> k -> list of seed metrics
     results: dict[str, dict[str, list[dict[str, float]]]] = {
         m: {str(k): [] for k in K_LEVELS} for m in selectors
     }
@@ -258,7 +235,6 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         train_idx = [orig_to_clean[i] for i in split_dict["train"] if i in orig_to_clean]
         test_idx = [orig_to_clean[i] for i in split_dict["test"] if i in orig_to_clean]
 
-        # Scale strictly on train
         scaler = StandardScaler()
         X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
         X_tr = scaler.fit_transform(X_clean[train_idx])
@@ -272,37 +248,32 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
 
         for k in K_LEVELS:
             print(f"  Evaluating K={k}...")
-            # 1. Framework
+
             idx_fw = select_framework_top_k(X_tr, y_tr, feature_names, k)
             m_fw = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_fw, is_classification, seed)
             results["framework"][str(k)].append(m_fw)
             selected_feature_sets["framework"][str(k)].append([feature_names[i] for i in idx_fw])
 
-            # 2. Spearman
             idx_sp = select_spearman_top_k(X_tr, y_tr, k)
             m_sp = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_sp, is_classification, seed)
             results["spearman"][str(k)].append(m_sp)
             selected_feature_sets["spearman"][str(k)].append([feature_names[i] for i in idx_sp])
 
-            # 3. MI
             idx_mi = select_mutual_info_top_k(X_tr, y_tr, k, is_classification, seed)
             m_mi = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_mi, is_classification, seed)
             results["mutual_info"][str(k)].append(m_mi)
             selected_feature_sets["mutual_info"][str(k)].append([feature_names[i] for i in idx_mi])
 
-            # 4. mRMR
             idx_mrmr = select_mrmr_top_k(X_tr, y_tr, k, is_classification, seed)
             m_mrmr = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_mrmr, is_classification, seed)
             results["mrmr"][str(k)].append(m_mrmr)
             selected_feature_sets["mrmr"][str(k)].append([feature_names[i] for i in idx_mrmr])
 
-            # 5. RF Importance
             idx_rf = select_rf_importance_top_k(X_tr, y_tr, k, is_classification, seed)
             m_rf = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_rf, is_classification, seed)
             results["rf_importance"][str(k)].append(m_rf)
             selected_feature_sets["rf_importance"][str(k)].append([feature_names[i] for i in idx_rf])
 
-            # 6. L1
             idx_l1 = select_l1_top_k(X_tr, y_tr, k, is_classification, seed)
             m_l1 = evaluate_subset(X_tr, y_tr, X_te, y_te, idx_l1, is_classification, seed)
             results["l1"][str(k)].append(m_l1)
@@ -310,7 +281,6 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
 
             print(f"    FW: {m_fw[primary_metric]:.4f} | Sp: {m_sp[primary_metric]:.4f} | MI: {m_mi[primary_metric]:.4f} | mRMR: {m_mrmr[primary_metric]:.4f} | RF: {m_rf[primary_metric]:.4f} | L1: {m_l1[primary_metric]:.4f}")
 
-    # Summary table
     summary: dict[str, dict[str, dict[str, float]]] = {}
     for m in selectors:
         summary[m] = {}
@@ -347,7 +317,6 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"Saved results to {output_path}")
     return summary
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="all", choices=["esol", "freesolv", "bbbp", "lipophilicity", "bace", "all"])
@@ -356,7 +325,6 @@ def main():
     datasets = ["esol", "freesolv", "bbbp", "lipophilicity", "bace"] if args.dataset == "all" else [args.dataset]
     for d in datasets:
         run_multivariate_study_on_dataset(d)
-
 
 if __name__ == "__main__":
     main()

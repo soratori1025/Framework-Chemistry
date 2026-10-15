@@ -11,7 +11,7 @@ class GatedFusion(nn.Module):
     def __init__(self, dim: int):
         super().__init__()
         self.gate = nn.Linear(dim * 2, dim)
-        
+
     def forward(self, prior: Tensor, residual: Tensor) -> Tensor:
         g = torch.sigmoid(self.gate(torch.cat([prior, residual], dim=-1)))
         return g * prior + (1 - g) * residual
@@ -20,7 +20,7 @@ class WeightedFusion(nn.Module):
     def __init__(self, dim: int):
         super().__init__()
         self.alpha = nn.Parameter(torch.ones(dim) * 0.5)
-        
+
     def forward(self, prior: Tensor, residual: Tensor) -> Tensor:
         a = torch.sigmoid(self.alpha)
         return a * prior + (1 - a) * residual
@@ -29,7 +29,7 @@ class ConcatFusion(nn.Module):
     def __init__(self, dim: int):
         super().__init__()
         self.proj = nn.Linear(dim * 2, dim)
-        
+
     def forward(self, prior: Tensor, residual: Tensor) -> Tensor:
         return self.proj(torch.cat([prior, residual], dim=-1))
 
@@ -44,7 +44,7 @@ class RolePredictor(nn.Module):
         self.residual = residual_module
         self.fusion = fusion_module
         self.output_head = output_head or IdentityOutputHead()
-        
+
     def forward(self, prior_features: Tensor | None = None, residual_features: Tensor | None = None) -> dict[str, Tensor]:
         if self.prior is not None and prior_features is None:
             raise ValueError("prior_features required")

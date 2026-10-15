@@ -20,13 +20,11 @@ def build_master_manifest():
         "benchmark_c_modularity_ablation": {},
     }
 
-    # Benchmark A
     for d in ["esol", "freesolv", "bbbp", "lipophilicity", "bace"]:
         data = load_json(f"baselines_{d}_aggregated.json")
         if data:
             manifest["benchmark_a_baselines"][d] = data["aggregated"]
 
-    # Benchmark B
     for d in ["esol", "freesolv", "bbbp"]:
         data = load_json(f"feature_study_{d}.json")
         if data:
@@ -43,13 +41,11 @@ def build_master_manifest():
                 "summary_table": data["summary_table"],
             }
 
-    # Benchmark C
     for d in ["esol", "freesolv", "bbbp", "lipophilicity", "bace"]:
         data = load_json(f"modularity_ablation_{d}.json")
         if data:
             manifest["benchmark_c_modularity_ablation"][d] = data["summary"]
 
-    # Chemprop v2
     manifest["chemprop_v2"] = {}
     for d in ["esol", "freesolv", "bbbp", "lipophilicity", "bace"]:
         data = load_json(f"chemprop_v2_{d}.json")

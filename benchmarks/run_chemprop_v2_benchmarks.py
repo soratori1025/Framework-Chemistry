@@ -36,7 +36,6 @@ SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Add repo root to import feature extractors
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
@@ -72,7 +71,6 @@ DATASET_CONFIGS = {
     },
 }
 
-
 def build_chemprop_mpnn(
     task_type: str,
     d_xd: int = 0,
@@ -106,7 +104,6 @@ def build_chemprop_mpnn(
     mpnn = models.MPNN(message_passing=mp, agg=agg, predictor=ffn, batch_norm=True)
     return mpnn
 
-
 def run_benchmark_for_dataset(
     dataset_name: str,
     seeds: list[int] = [1, 2, 3, 4, 5],
@@ -125,7 +122,6 @@ def run_benchmark_for_dataset(
     raw_targets = df[cfg["target_col"]].values.astype(np.float32)
     is_classification = cfg["task_type"] == "classification"
 
-    # Pre-extract RDKit 2D descriptors for Benchmark B
     print(f"📦 Extracting RDKit 2D descriptors for {len(smiles)} molecules...")
     desc_matrix, desc_names = extract_rdkit_2d_descriptors(smiles)
     desc_matrix = np.nan_to_num(desc_matrix, nan=0.0, posinf=3.0, neginf=-3.0)
@@ -147,7 +143,6 @@ def run_benchmark_for_dataset(
         val_idx = sp.get("val_indices") or sp["val"]
         test_idx = sp.get("test_indices") or sp["test"]
 
-        # Target scaling for regression
         if not is_classification:
             scaler_y = StandardScaler()
             y_train = scaler_y.fit_transform(raw_targets[train_idx, None]).ravel()
@@ -159,7 +154,6 @@ def run_benchmark_for_dataset(
             y_val = raw_targets[val_idx]
             y_test = raw_targets[test_idx]
 
-        # Descriptor scaling for hybrid
         scaler_x = StandardScaler()
         X_desc_tr = scaler_x.fit_transform(desc_matrix[train_idx])
         X_desc_va = scaler_x.transform(desc_matrix[val_idx])
@@ -169,15 +163,11 @@ def run_benchmark_for_dataset(
         X_desc_all[val_idx] = X_desc_va
         X_desc_all[test_idx] = X_desc_te
 
-        # Build target arrays
         target_all = np.zeros(len(smiles), dtype=np.float32)
         target_all[train_idx] = y_train
         target_all[val_idx] = y_val
         target_all[test_idx] = y_test
 
-        # ---------------------------------------------------------------------
-        # 1. Benchmark A: chemprop_graph (Graph-only D-MPNN)
-        # ---------------------------------------------------------------------
         print("  🔹 Training chemprop_graph...")
         pts_tr_g = [data.MoleculeDatapoint.from_smi(smiles[i], y=[float(target_all[i])]) for i in train_idx]
         pts_va_g = [data.MoleculeDatapoint.from_smi(smiles[i], y=[float(target_all[i])]) for i in val_idx]
@@ -206,13 +196,12 @@ def run_benchmark_for_dataset(
         )
         trainer_g.fit(mpnn_g, loader_tr_g, loader_va_g)
 
-        # Load best checkpoint
         best_g = models.MPNN.load_from_checkpoint(checkpoint_g.best_model_path)
         preds_te_raw = trainer_g.predict(best_g, loader_te_g)
         preds_te = torch.cat(preds_te_raw, dim=0).cpu().numpy().ravel()
 
         if not is_classification:
-            # Invert target scaling
+
             preds_te = scaler_y.inverse_transform(preds_te[:, None]).ravel()
             true_te = raw_targets[test_idx]
             m_rmse = float(math.sqrt(mean_squared_error(true_te, preds_te)))
@@ -220,7 +209,7 @@ def run_benchmark_for_dataset(
             m_r2 = float(r2_score(true_te, preds_te))
             metrics_g = {"rmse": m_rmse, "mae": m_mae, "r2": m_r2}
         else:
-            # Classification: convert logits to probabilities via sigmoid
+
             probs_te = 1.0 / (1.0 + np.exp(-preds_te))
             true_te = raw_targets[test_idx]
             m_roc = float(roc_auc_score(true_te, probs_te))
@@ -230,9 +219,6 @@ def run_benchmark_for_dataset(
         results["chemprop_graph"].append(metrics_g)
         print(f"    ✓ chemprop_graph metrics: {metrics_g}")
 
-        # ---------------------------------------------------------------------
-        # 2. Benchmark B: chemprop_hybrid (D-MPNN + 210 RDKit descriptors x_d)
-        # ---------------------------------------------------------------------
         print("  🔹 Training chemprop_hybrid (Graph + Descriptors)...")
         pts_tr_h = [
             data.MoleculeDatapoint.from_smi(smiles[i], y=[float(target_all[i])], x_d=X_desc_all[i].astype(np.float32))
@@ -292,7 +278,6 @@ def run_benchmark_for_dataset(
         results["chemprop_hybrid"].append(metrics_h)
         print(f"    ✓ chemprop_hybrid metrics: {metrics_h}")
 
-    # Summary
     primary_metric = "roc_auc" if is_classification else "rmse"
     summary = {}
     print("\n" + "=" * 60)
@@ -325,7 +310,6 @@ def run_benchmark_for_dataset(
         )
     print(f"✓ Saved results to {out_file}")
     return summary
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Chemprop v2 benchmarks")

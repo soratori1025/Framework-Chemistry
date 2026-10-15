@@ -25,7 +25,6 @@ from sklearn.metrics import mean_squared_error, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader, Dataset
 
-# Set deterministic flags before anything else
 os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 try:
     torch.use_deterministic_algorithms(True)
@@ -46,7 +45,6 @@ DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-
 class MoleculeGraphDataset(Dataset):
     def __init__(self, graphs: list[Any], descriptors: np.ndarray, targets: np.ndarray, prior_preds: np.ndarray | None = None):
         self.graphs = graphs
@@ -61,12 +59,10 @@ class MoleculeGraphDataset(Dataset):
         p = self.prior_preds[idx] if self.prior_preds is not None else torch.zeros(1)
         return self.graphs[idx], self.descriptors[idx], self.targets[idx], p
 
-
 def collate_graph_batch(batch: list[tuple[Any, torch.Tensor, torch.Tensor, torch.Tensor]]):
     graphs, descs, targets, priors = zip(*batch)
     batch_graph = BatchMolGraph(graphs)
     return batch_graph, torch.stack(descs), torch.stack(targets), torch.stack(priors)
-
 
 class DirectHybridGNN(nn.Module):
     def __init__(self, desc_dim: int, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
@@ -91,7 +87,6 @@ class DirectHybridGNN(nn.Module):
         fused = torch.cat([hg, hd], dim=-1)
         return self.head(fused)
 
-
 class ResidualOnlyGNN(nn.Module):
     def __init__(self, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
         super().__init__()
@@ -106,7 +101,6 @@ class ResidualOnlyGNN(nn.Module):
     def forward(self, batch_graph: BatchMolGraph, desc: torch.Tensor, prior_pred: torch.Tensor | None = None) -> torch.Tensor:
         h = self.graph_encoder(batch_graph)
         return self.head(h)
-
 
 class PriorResidualGNN(nn.Module):
     def __init__(self, hidden_dim: int = 128, depth: int = 3, out_dim: int = 1):
@@ -123,7 +117,6 @@ class PriorResidualGNN(nn.Module):
         h = self.graph_encoder(batch_graph)
         res = self.residual_head(h)
         return prior_pred + res
-
 
 def train_and_eval(
     model: nn.Module,
@@ -160,7 +153,6 @@ def train_and_eval(
             loss.backward()
             optimizer.step()
 
-        # Validation evaluation
         model.eval()
         vpreds, vtrues = [], []
         with torch.no_grad():
@@ -216,7 +208,6 @@ def train_and_eval(
     else:
         return float(math.sqrt(mean_squared_error(yt[tmask], yp[tmask])))
 
-
 def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, test_seeds: list[int] | None = None) -> dict[str, Any]:
     if test_seeds is None:
         test_seeds = [42, 123, 999]
@@ -258,7 +249,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
     val_idx = [orig_to_clean[i] for i in split_dict["val"] if i in orig_to_clean]
     test_idx = [orig_to_clean[i] for i in split_dict["test"] if i in orig_to_clean]
 
-    # Preprocessing strictly on train
     scaler = StandardScaler()
     X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
     X_tr = scaler.fit_transform(X_clean[train_idx])
@@ -270,7 +260,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
     y_val = targets[val_idx]
     y_te = targets[test_idx]
 
-    # Prior baseline fit
     prior_names = ["MolWt", "MolLogP", "TPSA", "NumHDonors", "NumHAcceptors", "NumRotatableBonds"]
     prior_features = [f"rdkit_2d.{name}" for name in prior_names]
     prior_indices = [i for i, name in enumerate(feature_names) if name in prior_features]
@@ -293,7 +282,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
         p_val = prior_reg.predict(X_p_val)[:, None]
         p_test = prior_reg.predict(X_p_te)[:, None]
 
-    # Recommended K* feature subset
     rec_indices = select_evidence_recommendation(X_tr, y_tr, feature_names, k=20, redundancy_threshold=0.85)
     X_rec_tr = X_tr[:, rec_indices]
     X_rec_val = X_val[:, rec_indices]
@@ -313,7 +301,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
         g = torch.Generator()
         g.manual_seed(t_seed)
 
-        # 1. residual_only (pure graph)
         ds_tr = MoleculeGraphDataset(graphs_tr, X_tr, y_tr)
         ds_val = MoleculeGraphDataset(graphs_val, X_val, y_val)
         ds_te = MoleculeGraphDataset(graphs_te, X_te, y_te)
@@ -326,13 +313,11 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
         seed_results["residual_only"].append(res_score)
         print(f"  residual_only: {res_score:.4f}")
 
-        # 2. direct_hybrid_210
         m_dir = DirectHybridGNN(desc_dim=X_tr.shape[1], hidden_dim=128, depth=3)
         dir_score = train_and_eval(m_dir, tr_loader, val_loader, te_loader, is_classification, seed=t_seed)
         seed_results["direct_hybrid_210"].append(dir_score)
         print(f"  direct_hybrid_210: {dir_score:.4f}")
 
-        # 3. hybrid_rec_20
         ds_rec_tr = MoleculeGraphDataset(graphs_tr, X_rec_tr, y_tr)
         ds_rec_val = MoleculeGraphDataset(graphs_val, X_rec_val, y_val)
         ds_rec_te = MoleculeGraphDataset(graphs_te, X_rec_te, y_te)
@@ -345,7 +330,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
         seed_results["hybrid_rec_20"].append(rec_score)
         print(f"  hybrid_rec_20: {rec_score:.4f}")
 
-        # 4. prior_residual
         ds_pr_tr = MoleculeGraphDataset(graphs_tr, X_tr, y_tr, prior_preds=p_train)
         ds_pr_val = MoleculeGraphDataset(graphs_val, X_val, y_val, prior_preds=p_val)
         ds_pr_te = MoleculeGraphDataset(graphs_te, X_te, y_te, prior_preds=p_test)
@@ -358,7 +342,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
         seed_results["prior_residual"].append(pr_score)
         print(f"  prior_residual: {pr_score:.4f}")
 
-    # Summary
     summary = {}
     print(f"\n==================================================================")
     print(f"🏆 SEED VARIANCE DECOMPOSITION ({dataset_name.upper()}, Split Seed {split_seed})")
@@ -381,7 +364,6 @@ def run_seed_variance_study(dataset_name: str = "bbbp", split_seed: int = 1, tes
     print(f"Saved to {out_file}")
     return summary
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="bbbp")
@@ -389,7 +371,6 @@ def main():
     args = parser.parse_args()
 
     run_seed_variance_study(args.dataset, split_seed=args.split_seed)
-
 
 if __name__ == "__main__":
     main()

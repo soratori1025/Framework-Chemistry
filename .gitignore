@@ -23,3 +23,6 @@ data/
 # Local documentation & artifacts (kept local, private)
 docs/
 framework_docs_backup/
+
+# Benchmark results (kept on private results branch)
+benchmarks/results/
