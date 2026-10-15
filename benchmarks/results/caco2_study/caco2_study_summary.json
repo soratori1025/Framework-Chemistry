@@ -1,0 +1,130 @@
+{
+  "task": "caco2_wang",
+  "results": [
+    {
+      "tag": "cfg1_baseline",
+      "name": "1. Baseline (Naive D-MPNN, MSE, No Scheduler)",
+      "best_epoch": 4,
+      "best_val_loss": 0.2986486459171379,
+      "test_metrics": {
+        "count": 91,
+        "mae": 0.41844139256320156,
+        "rmse": 0.5593538488951173,
+        "r2": 0.5709151661973204,
+        "spearman": 0.848162703070974
+      },
+      "elapsed_seconds": 88.77323722839355,
+      "overrides": {
+        "tag": "cfg1_baseline",
+        "label": "1. Baseline (Naive D-MPNN, MSE, No Scheduler)",
+        "loss": "mse",
+        "scheduler": "none",
+        "warmup_epochs": 0,
+        "descriptors_enabled": false,
+        "virtual_node": false,
+        "aggregation": "mean",
+        "epochs": 35,
+        "batch_size": 32,
+        "patience": 12
+      }
+    },
+    {
+      "tag": "cfg2_advisor_v1",
+      "name": "2. Advisor v1 (Hybrid Features + Huber Loss + Cosine Warmup)",
+      "best_epoch": 5,
+      "best_val_loss": 0.13254127856139297,
+      "test_metrics": {
+        "count": 91,
+        "mae": 0.4430503295018123,
+        "rmse": 0.5931286632298,
+        "r2": 0.5175328741053645,
+        "spearman": 0.8426362793595147
+      },
+      "elapsed_seconds": 91.57293009757996,
+      "overrides": {
+        "tag": "cfg2_advisor_v1",
+        "label": "2. Advisor v1 (Hybrid Features + Huber Loss + Cosine Warmup)",
+        "loss": "huber",
+        "scheduler": "cosine",
+        "warmup_epochs": 3,
+        "descriptors_enabled": true,
+        "virtual_node": false,
+        "aggregation": "mean",
+        "epochs": 35,
+        "batch_size": 32,
+        "patience": 12
+      }
+    },
+    {
+      "tag": "cfg3_breakthrough_virtual_node",
+      "name": "3. Breakthrough v2 (Global Virtual Node + Attention Readout)",
+      "best_epoch": 4,
+      "best_val_loss": 0.13521467722379243,
+      "test_metrics": {
+        "count": 91,
+        "mae": 0.4729402353475382,
+        "rmse": 0.6275320437789328,
+        "r2": 0.4599403666587537,
+        "spearman": 0.8276257480971211
+      },
+      "elapsed_seconds": 96.24459648132324,
+      "overrides": {
+        "tag": "cfg3_breakthrough_virtual_node",
+        "label": "3. Breakthrough v2 (Global Virtual Node + Attention Readout)",
+        "loss": "huber",
+        "scheduler": "cosine",
+        "warmup_epochs": 3,
+        "descriptors_enabled": true,
+        "virtual_node": true,
+        "aggregation": "attention",
+        "epochs": 35,
+        "batch_size": 32,
+        "patience": 12
+      }
+    },
+    {
+      "tag": "cfg4_breakthrough_pairwise_ranking",
+      "name": "4. Breakthrough v2 (Pairwise Ranking Loss + Virtual Node + Attention)",
+      "best_epoch": 4,
+      "best_val_loss": 0.15891132413685977,
+      "test_metrics": {
+        "count": 91,
+        "mae": 0.4682729178732568,
+        "rmse": 0.6335042698449523,
+        "r2": 0.4496119503557935,
+        "spearman": 0.8373885657775956
+      },
+      "elapsed_seconds": 106.54690313339233,
+      "overrides": {
+        "tag": "cfg4_breakthrough_pairwise_ranking",
+        "label": "4. Breakthrough v2 (Pairwise Ranking Loss + Virtual Node + Attention)",
+        "loss": "pairwise_ranking",
+        "scheduler": "cosine",
+        "warmup_epochs": 3,
+        "descriptors_enabled": true,
+        "virtual_node": true,
+        "aggregation": "attention",
+        "epochs": 35,
+        "batch_size": 32,
+        "patience": 12
+      }
+    }
+  ],
+  "published_references": {
+    "Chemprop (D-MPNN)": {
+      "mae": 0.38,
+      "rmse": 0.54,
+      "r2": 0.58
+    },
+    "AttentiveFP": {
+      "mae": 0.395,
+      "rmse": 0.552,
+      "r2": 0.56
+    },
+    "Random Forest (ECFP)": {
+      "mae": 0.442,
+      "rmse": 0.598,
+      "r2": 0.49
+    }
+  }
+}

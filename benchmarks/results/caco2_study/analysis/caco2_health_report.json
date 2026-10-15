@@ -1,0 +1,128 @@
+{
+  "dataset_name": "caco2_wang",
+  "source_path": "/home/nvsinh1/brats_segmentation/teb-net-model/framework/data/caco2_wang.tab",
+  "health_score": 95,
+  "health_status": "EXCELLENT",
+  "chemical_profile": {
+    "total_records": 910,
+    "valid_count": 910,
+    "invalid_count": 0,
+    "invalid_fraction": 0.0,
+    "unique_smiles": 906,
+    "unique_scaffolds": 449,
+    "scaffold_diversity": 0.4934,
+    "tanimoto_similarity": 0.1257,
+    "tanimoto_diversity": 0.8743,
+    "properties": {
+      "Molecular Weight (MW)": {
+        "mean": 414.68,
+        "std": 156.04,
+        "min": 32.04,
+        "q25": 307.43,
+        "median": 400.44,
+        "q75": 514.7,
+        "max": 967.02
+      },
+      "LogP": {
+        "mean": 2.13,
+        "std": 2.16,
+        "min": -7.57,
+        "q25": 1.0,
+        "median": 2.47,
+        "q75": 3.54,
+        "max": 8.69
+      },
+      "Heavy Atoms": {
+        "mean": 29.36,
+        "std": 11.06,
+        "min": 2.0,
+        "q25": 22.0,
+        "median": 28.0,
+        "q75": 36.0,
+        "max": 68.0
+      },
+      "H-Bond Donors": {
+        "mean": 2.44,
+        "std": 2.01,
+        "min": 0.0,
+        "q25": 1.0,
+        "median": 2.0,
+        "q75": 3.0,
+        "max": 14.0
+      },
+      "H-Bond Acceptors": {
+        "mean": 5.81,
+        "std": 2.93,
+        "min": 1.0,
+        "q25": 4.0,
+        "median": 6.0,
+        "q75": 7.0,
+        "max": 23.0
+      },
+      "TPSA (\u00c5\u00b2)": {
+        "mean": 102.49,
+        "std": 53.22,
+        "min": 3.24,
+        "q25": 64.78,
+        "median": 95.9,
+        "q75": 133.1,
+        "max": 374.13
+      },
+      "Rotatable Bonds": {
+        "mean": 5.75,
+        "std": 3.99,
+        "min": 0.0,
+        "q25": 3.0,
+        "median": 6.0,
+        "q75": 8.0,
+        "max": 23.0
+      }
+    }
+  },
+  "targets": {
+    "Y": {
+      "task_kind": "scalar_regression",
+      "valid_count": 910,
+      "missing_count": 0,
+      "class_counts": {},
+      "imbalance_ratio": 1.0,
+      "mean": -5.2395,
+      "std": 0.7768,
+      "skewness": -0.66,
+      "outliers_fraction": 0.0044
+    }
+  },
+  "risks": [
+    {
+      "severity": "LOW",
+      "category": "data_quality",
+      "title": "Moderate Sample Size (300 <= N < 1000)",
+      "message": "Sample size of 910 compounds is well-suited for D-MPNN or GIN with warm-up learning rate schedule.",
+      "recommendation": "Train with Cosine annealing and early stopping patience=15."
+    },
+    {
+      "severity": "LOW",
+      "category": "architecture",
+      "title": "High Chemical Diversity & Scaffold Hopping",
+      "message": "Mean pairwise Tanimoto similarity is 0.13 (Diversity: 0.87).",
+      "recommendation": "Global Virtual Supernode and Graph Attention readout enabled to prevent over-squashing across distant pharmacophores."
+    }
+  ],
+  "prescriptions": {
+    "split": "scaffold",
+    "encoder": "dmpnn",
+    "model_type": "hybrid",
+    "head": "standard",
+    "loss": "pairwise_ranking",
+    "metrics": [
+      "mae",
+      "rmse",
+      "r2",
+      "spearman"
+    ],
+    "scheduler": "cosine",
+    "ensemble_size": 1,
+    "feature_imputation": null,
+    "feature_scaling": null
+  }
+}
