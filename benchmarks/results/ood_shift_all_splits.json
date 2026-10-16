@@ -1,0 +1,98 @@
+{
+  "esol": [
+    {
+      "split": 1,
+      "n_ood_descriptors": 20,
+      "pct_ood_descriptors": 9.523809523809524,
+      "pct_mols_affected": 7.079646017699115
+    },
+    {
+      "split": 2,
+      "n_ood_descriptors": 37,
+      "pct_ood_descriptors": 17.61904761904762,
+      "pct_mols_affected": 6.1946902654867255
+    },
+    {
+      "split": 3,
+      "n_ood_descriptors": 44,
+      "pct_ood_descriptors": 20.952380952380953,
+      "pct_mols_affected": 11.504424778761061
+    },
+    {
+      "split": 4,
+      "n_ood_descriptors": 10,
+      "pct_ood_descriptors": 4.761904761904762,
+      "pct_mols_affected": 7.079646017699115
+    },
+    {
+      "split": 5,
+      "n_ood_descriptors": 13,
+      "pct_ood_descriptors": 6.190476190476191,
+      "pct_mols_affected": 5.3097345132743365
+    }
+  ],
+  "lipophilicity": [
+    {
+      "split": 1,
+      "n_ood_descriptors": 11,
+      "pct_ood_descriptors": 5.238095238095238,
+      "pct_mols_affected": 3.0952380952380953
+    },
+    {
+      "split": 2,
+      "n_ood_descriptors": 19,
+      "pct_ood_descriptors": 9.047619047619047,
+      "pct_mols_affected": 3.3333333333333335
+    },
+    {
+      "split": 3,
+      "n_ood_descriptors": 20,
+      "pct_ood_descriptors": 9.523809523809524,
+      "pct_mols_affected": 4.523809523809524
+    },
+    {
+      "split": 4,
+      "n_ood_descriptors": 13,
+      "pct_ood_descriptors": 6.190476190476191,
+      "pct_mols_affected": 3.0952380952380953
+    },
+    {
+      "split": 5,
+      "n_ood_descriptors": 5,
+      "pct_ood_descriptors": 2.380952380952381,
+      "pct_mols_affected": 2.857142857142857
+    }
+  ],
+  "bbbp": [
+    {
+      "split": 1,
+      "n_ood_descriptors": 34,
+      "pct_ood_descriptors": 16.19047619047619,
+      "pct_mols_affected": 4.901960784313726
+    },
+    {
+      "split": 2,
+      "n_ood_descriptors": 5,
+      "pct_ood_descriptors": 2.380952380952381,
+      "pct_mols_affected": 1.9607843137254901
+    },
+    {
+      "split": 3,
+      "n_ood_descriptors": 18,
+      "pct_ood_descriptors": 8.571428571428571,
+      "pct_mols_affected": 3.431372549019608
+    },
+    {
+      "split": 4,
+      "n_ood_descriptors": 8,
+      "pct_ood_descriptors": 3.8095238095238098,
+      "pct_mols_affected": 4.411764705882353
+    },
+    {
+      "split": 5,
+      "n_ood_descriptors": 12,
+      "pct_ood_descriptors": 5.714285714285714,
+      "pct_mols_affected": 2.450980392156863
+    }
+  ]
+}
