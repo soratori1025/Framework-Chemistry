@@ -1,25 +1,4 @@
-"""Experiment E1: Evidence-Guided Descriptor Routing (Journal of Cheminformatics).
-
-Evaluates whether replacing all 210 descriptors in DirectHybridGNN with evidence-recommended
-top-K features (K in {10, 20, 50}, K* chosen strictly by validation metric on each split):
-1. Fixes degradation on representation-sensitive tasks (Lipophilicity, BBBP Split 5)
-2. Retains performance on tasks where descriptors aid learning (ESOL, FreeSolv, BACE)
-
-Configurations evaluated across 5 datasets x 5 splits:
-- direct_hybrid: All 210 descriptors (from modularity ablation)
-- hybrid_rec: Top-K recommended by Evidence Scorecard (Spearman + greedy redundancy |r| < 0.85), K* chosen on val
-- hybrid_spearman: Univariate Spearman Top-K* (using the same K* selected for hybrid_rec on that split)
-- hybrid_mi: Mutual Information Top-K* (using the same K*)
-- hybrid_random: Random K* descriptors (3 random draws per split, averaged)
-- prior_rec: Explicit Prior + Residual, with prior fitted on Top-K* recommended features
-- residual_only: Graph-only D-MPNN reference (from modularity ablation)
-
-Strict validation policy:
-All selectors, scalers, and hyperparameter selections (K*) are fitted strictly on train
-and selected on validation. Test folds are evaluated only once for final reporting.
-"""
 from __future__ import annotations
-
 import argparse
 import json
 import math
@@ -27,14 +6,12 @@ import os
 import sys
 from pathlib import Path
 from typing import Any
-
 import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import average_precision_score, mean_absolute_error, mean_squared_error, r2_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
-
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
@@ -54,7 +31,7 @@ RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 K_CANDIDATES = [10, 20, 50]
-RANDOM_DRAWS = 3
+RANDOM_DRAWS = 10
 
 class MoleculeGraphDataset(Dataset):
     def __init__(self, graphs: list[Any], descriptors: np.ndarray, targets: np.ndarray, prior_preds: np.ndarray | None = None):
@@ -123,12 +100,7 @@ def train_and_eval_model(
     seed: int,
     epochs: int = 40,
     lr: float = 1e-3,
-) -> tuple[float, dict[str, float]]:
-    """Trains model with early checkpoint selection on validation metric.
-
-    Returns:
-        (best_val_metric, test_metrics_dict)
-    """
+) -> tuple[float, dict[str, float], int, float]:
     torch.manual_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -136,7 +108,9 @@ def train_and_eval_model(
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     loss_fn = nn.BCEWithLogitsLoss() if is_classification else nn.HuberLoss()
 
-    best_val_score = -float("inf") if is_classification else float("inf")
+    best_val_loss = float("inf")
+    best_val_score = float("inf") if not is_classification else -float("inf")
+    best_epoch = 1
     best_state = None
 
     for epoch in range(epochs):
@@ -155,32 +129,41 @@ def train_and_eval_model(
 
         model.eval()
         vpreds, vtrues = [], []
+        total_val_loss = 0.0
+        n_val_elements = 0
         with torch.no_grad():
             for vgraph, vdesc, vy, vprior in val_loader:
                 vgraph = vgraph.to(device)
                 vdesc, vprior = vdesc.to(device), vprior.to(device)
+                vy_dev = vy.to(device)
+                if vy_dev.ndim == 1:
+                    vy_dev = vy_dev.unsqueeze(1)
                 vout = model(vgraph, vdesc, vprior)
+                vmask = ~torch.isnan(vy_dev)
+                if vmask.any():
+                    vloss = loss_fn(vout[vmask], vy_dev[vmask]).item()
+                    total_val_loss += vloss * int(vmask.sum().item())
+                    n_val_elements += int(vmask.sum().item())
                 vpreds.append(vout.cpu().numpy())
                 vtrues.append(vy.numpy())
 
-        vp = np.concatenate(vpreds, axis=0).ravel()
-        vt = np.concatenate(vtrues, axis=0).ravel()
-        vmask = ~np.isnan(vt)
+        cur_val_loss = total_val_loss / max(n_val_elements, 1)
 
-        if is_classification:
-            probs = 1.0 / (1.0 + np.exp(-np.clip(vp, -20, 20)))
-            try:
-                cur_val_score = float(roc_auc_score(vt[vmask], probs[vmask]))
-            except Exception:
-                cur_val_score = 0.5
-            is_better = cur_val_score > best_val_score
-        else:
-            cur_val_score = float(math.sqrt(mean_squared_error(vt[vmask], vp[vmask])))
-            is_better = cur_val_score < best_val_score
-
-        if is_better:
-            best_val_score = cur_val_score
+        if cur_val_loss < best_val_loss:
+            best_val_loss = cur_val_loss
+            best_epoch = epoch + 1
             best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+            vp = np.concatenate(vpreds, axis=0).ravel()
+            vt = np.concatenate(vtrues, axis=0).ravel()
+            vmask_eval = ~np.isnan(vt)
+            if is_classification:
+                probs = 1.0 / (1.0 + np.exp(-np.clip(vp, -20, 20)))
+                try:
+                    best_val_score = float(roc_auc_score(vt[vmask_eval], probs[vmask_eval]))
+                except Exception:
+                    best_val_score = 0.5
+            else:
+                best_val_score = float(math.sqrt(mean_squared_error(vt[vmask_eval], vp[vmask_eval])))
 
     if best_state is not None:
         model.load_state_dict(best_state)
@@ -216,7 +199,7 @@ def train_and_eval_model(
         r2 = float(r2_score(yt[tmask], yp[tmask])) if len(yt[tmask]) > 1 else 0.0
         test_metrics = {"rmse": rmse, "mae": mae, "r2": r2}
 
-    return best_val_score, test_metrics
+    return best_val_score, test_metrics, best_epoch, best_val_loss
 
 def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"\n==================================================================")
@@ -262,6 +245,14 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
 
     seeds = [1, 2, 3, 4, 5]
     per_split_results: list[dict[str, Any]] = []
+    partial_file = RESULTS_DIR / f"evidence_routing_{dataset_name}_partial.json"
+    if partial_file.exists():
+        try:
+            with open(partial_file, "r") as f:
+                per_split_results = json.load(f)
+            print(f"Loaded {len(per_split_results)} previously completed splits from {partial_file}")
+        except Exception:
+            per_split_results = []
 
     ablation_file = RESULTS_DIR / f"modularity_ablation_{dataset_name}.json"
     cached_ablation = {}
@@ -272,6 +263,9 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     batch_size = 64
 
     for split_idx, seed in enumerate(seeds):
+        if any(r.get("split") == split_idx + 1 for r in per_split_results):
+            print(f"\n--- Split {split_idx + 1}/5 (Seed {seed}) already completed, skipping ---")
+            continue
         print(f"\n--- Split {split_idx + 1}/5 (Seed {seed}) ---")
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
         with open(split_file, "r") as f:
@@ -304,8 +298,10 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         best_k_rec = K_CANDIDATES[0]
         best_rec_test_metrics = None
         best_rec_indices = None
+        best_rec_ep = 1
+        best_rec_vl = 0.0
 
-        print(f"  Selecting K* in {K_CANDIDATES} on validation set...")
+        print(f"  Selecting K* in {K_CANDIDATES} on validation set (models checkpointed on val loss)...")
         for k_cand in K_CANDIDATES:
             indices_cand = select_evidence_recommendation(
                 X_train=X_tr,
@@ -323,11 +319,11 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
             te_loader = DataLoader(te_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
 
             model_cand = DirectHybridGNN(desc_dim=k_cand, hidden_dim=128, depth=3)
-            val_s, te_m = train_and_eval_model(
+            val_s, te_m, ep, vl = train_and_eval_model(
                 model_cand, tr_loader, val_loader, te_loader,
                 is_classification=is_classification, seed=seed, epochs=40, lr=1e-3,
             )
-            print(f"    - K={k_cand:<2}: val {primary_metric}={val_s:.4f}, test {primary_metric}={te_m[primary_metric]:.4f}")
+            print(f"    - K={k_cand:<2}: val_loss={vl:.4f}, val {primary_metric}={val_s:.4f} (ep {ep}), test {primary_metric}={te_m[primary_metric]:.4f}")
 
             is_better = (val_s > best_val_score_rec) if is_classification else (val_s < best_val_score_rec)
             if is_better:
@@ -335,6 +331,8 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
                 best_k_rec = k_cand
                 best_rec_test_metrics = te_m
                 best_rec_indices = indices_cand
+                best_rec_ep = ep
+                best_rec_vl = vl
 
         print(f"  ★ Selected K*={best_k_rec} (val {primary_metric}={best_val_score_rec:.4f}, test {primary_metric}={best_rec_test_metrics[primary_metric]:.4f})")
 
@@ -347,11 +345,11 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         te_loader_sp = DataLoader(te_ds_sp, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
 
         m_sp = DirectHybridGNN(desc_dim=best_k_rec, hidden_dim=128, depth=3)
-        _, sp_test_metrics = train_and_eval_model(
+        sp_vs, sp_test_metrics, sp_ep, sp_vl = train_and_eval_model(
             m_sp, tr_loader_sp, val_loader_sp, te_loader_sp,
             is_classification=is_classification, seed=seed, epochs=40, lr=1e-3,
         )
-        print(f"  ✓ hybrid_spearman (K*={best_k_rec}): test {primary_metric}={sp_test_metrics[primary_metric]:.4f}")
+        print(f"  ✓ hybrid_spearman (K*={best_k_rec}): val_loss={sp_vl:.4f}, val={sp_vs:.4f}, test {primary_metric}={sp_test_metrics[primary_metric]:.4f}")
 
         indices_mi = select_mutual_info_top_k(X_tr, y_tr, best_k_rec, is_classification=is_classification, seed=seed)
         tr_ds_mi = MoleculeGraphDataset(graphs_tr, X_tr[:, indices_mi], y_tr)
@@ -362,13 +360,16 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         te_loader_mi = DataLoader(te_ds_mi, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
 
         m_mi = DirectHybridGNN(desc_dim=best_k_rec, hidden_dim=128, depth=3)
-        _, mi_test_metrics = train_and_eval_model(
+        mi_vs, mi_test_metrics, mi_ep, mi_vl = train_and_eval_model(
             m_mi, tr_loader_mi, val_loader_mi, te_loader_mi,
             is_classification=is_classification, seed=seed, epochs=40, lr=1e-3,
         )
-        print(f"  ✓ hybrid_mi (K*={best_k_rec}): test {primary_metric}={mi_test_metrics[primary_metric]:.4f}")
+        print(f"  ✓ hybrid_mi (K*={best_k_rec}): val_loss={mi_vl:.4f}, val={mi_vs:.4f}, test {primary_metric}={mi_test_metrics[primary_metric]:.4f}")
 
         rnd_metrics_list = []
+        rnd_vls = []
+        rnd_vss = []
+        rnd_eps = []
         rng = np.random.RandomState(seed * 1000 + 7)
         for draw in range(RANDOM_DRAWS):
             rnd_indices = rng.choice(X_tr.shape[1], size=best_k_rec, replace=False).tolist()
@@ -380,17 +381,23 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
             te_loader_rnd = DataLoader(te_ds_rnd, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
 
             m_rnd = DirectHybridGNN(desc_dim=best_k_rec, hidden_dim=128, depth=3)
-            _, rnd_te = train_and_eval_model(
+            r_vs, rnd_te, r_ep, r_vl = train_and_eval_model(
                 m_rnd, tr_loader_rnd, val_loader_rnd, te_loader_rnd,
                 is_classification=is_classification, seed=seed + draw * 100, epochs=40, lr=1e-3,
             )
             rnd_metrics_list.append(rnd_te)
+            rnd_vls.append(r_vl)
+            rnd_vss.append(r_vs)
+            rnd_eps.append(r_ep)
 
         avg_rnd_metrics = {
             m: float(np.mean([d[m] for d in rnd_metrics_list]))
             for m in rnd_metrics_list[0]
         }
-        print(f"  ✓ hybrid_random (K*={best_k_rec}, 3 draws): test {primary_metric}={avg_rnd_metrics[primary_metric]:.4f}")
+        avg_rnd_vl = float(np.mean(rnd_vls))
+        avg_rnd_vs = float(np.mean(rnd_vss))
+        avg_rnd_ep = int(round(np.mean(rnd_eps)))
+        print(f"  ✓ hybrid_random (K*={best_k_rec}, {RANDOM_DRAWS} draws): test {primary_metric}={avg_rnd_metrics[primary_metric]:.4f}")
 
         X_rec_tr = X_tr[:, best_rec_indices]
         X_rec_val = X_val[:, best_rec_indices]
@@ -418,11 +425,11 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
         te_loader_pr = DataLoader(te_ds_pr, batch_size=batch_size, shuffle=False, collate_fn=collate_graph_batch)
 
         m_pr = PriorResidualGNN(hidden_dim=128, depth=3)
-        _, pr_test_metrics = train_and_eval_model(
+        pr_vs, pr_test_metrics, pr_ep, pr_vl = train_and_eval_model(
             m_pr, tr_loader_pr, val_loader_pr, te_loader_pr,
             is_classification=is_classification, seed=seed, epochs=40, lr=1e-3,
         )
-        print(f"  ✓ prior_rec (K*={best_k_rec}): test {primary_metric}={pr_test_metrics[primary_metric]:.4f}")
+        print(f"  ✓ prior_rec (K*={best_k_rec}): val_loss={pr_vl:.4f}, val={pr_vs:.4f}, test {primary_metric}={pr_test_metrics[primary_metric]:.4f}")
 
         dir_hyb_metric = cached_ablation.get("direct_hybrid", [{}])[split_idx].get(primary_metric, float("nan"))
         res_only_metric = cached_ablation.get("residual_only", [{}])[split_idx].get(primary_metric, float("nan"))
@@ -438,8 +445,17 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
             "prior_rec": pr_test_metrics,
             "direct_hybrid": {primary_metric: dir_hyb_metric},
             "residual_only": {primary_metric: res_only_metric},
+            "audit_details": {
+                "hybrid_rec": {"K": best_k_rec, "val_loss": best_rec_vl, "val_metric": best_val_score_rec, "epoch": best_rec_ep, "test_metric": best_rec_test_metrics[primary_metric]},
+                "hybrid_spearman": {"K": best_k_rec, "val_loss": sp_vl, "val_metric": sp_vs, "epoch": sp_ep, "test_metric": sp_test_metrics[primary_metric]},
+                "hybrid_mi": {"K": best_k_rec, "val_loss": mi_vl, "val_metric": mi_vs, "epoch": mi_ep, "test_metric": mi_test_metrics[primary_metric]},
+                "hybrid_random": {"K": best_k_rec, "val_loss": avg_rnd_vl, "val_metric": avg_rnd_vs, "epoch": avg_rnd_ep, "test_metric": avg_rnd_metrics[primary_metric]},
+                "prior_rec": {"K": best_k_rec, "val_loss": pr_vl, "val_metric": pr_vs, "epoch": pr_ep, "test_metric": pr_test_metrics[primary_metric]},
+            }
         }
         per_split_results.append(split_record)
+        with open(partial_file, "w") as f:
+            json.dump(per_split_results, f, indent=2)
 
     models_to_summarize = ["direct_hybrid", "residual_only", "hybrid_rec", "hybrid_spearman", "hybrid_mi", "hybrid_random", "prior_rec"]
     summary: dict[str, Any] = {}
@@ -494,6 +510,35 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     with open(out_file, "w") as f:
         json.dump(out_payload, f, indent=2)
 
+    if partial_file.exists():
+        try:
+            partial_file.unlink()
+        except Exception:
+            pass
+
+    csv_rows = []
+    for r in per_split_results:
+        s_idx = r["split"]
+        ad = r.get("audit_details", {})
+        for model_k, info in ad.items():
+            csv_rows.append({
+                "dataset": dataset_name,
+                "split": s_idx,
+                "model": model_k,
+                "route": model_k.replace("hybrid_", ""),
+                "K": info["K"],
+                "validation_loss": round(info["val_loss"], 5),
+                "validation_metric": round(info["val_metric"], 5),
+                "checkpoint_epoch": info["epoch"],
+                "test_metric": round(info["test_metric"], 5),
+            })
+    audit_csv = RESULTS_DIR / "routing_checkpoint_audit.csv"
+    audit_df = pd.DataFrame(csv_rows)
+    if audit_csv.exists():
+        audit_df.to_csv(audit_csv, mode="a", header=False, index=False)
+    else:
+        audit_df.to_csv(audit_csv, index=False)
+
     print(f"\n==================================================================")
     print(f"📊 Summary for {dataset_name.upper()} ({primary_metric.upper()}):")
     print(f"  - direct_hybrid (210 desc): {summary['direct_hybrid']['mean']:.4f} ± {summary['direct_hybrid']['std']:.4f}")
@@ -505,7 +550,7 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     print(f"  - prior_rec:                {summary['prior_rec']['mean']:.4f} ± {summary['prior_rec']['std']:.4f}")
     print(f"  ★ Paired Δ vs direct_hybrid: {paired_vs_direct_hybrid['delta_mean']:+.4f} (95% CI: [{paired_vs_direct_hybrid['ci_95'][0]:.4f}, {paired_vs_direct_hybrid['ci_95'][1]:.4f}], wins: {paired_vs_direct_hybrid['wins']})")
     print(f"  ★ Paired Δ vs residual_only: {paired_vs_residual_only['delta_mean']:+.4f} (95% CI: [{paired_vs_residual_only['ci_95'][0]:.4f}, {paired_vs_residual_only['ci_95'][1]:.4f}], wins: {paired_vs_residual_only['wins']})")
-    print(f"Saved results to: {out_file}")
+    print(f"Saved results to: {out_file} and appended to {audit_csv}")
 
     return out_payload
 
