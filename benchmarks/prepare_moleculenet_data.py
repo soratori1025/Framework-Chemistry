@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits"
 
-SEEDS = [1, 2, 3, 4, 5]
+SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 FRACTIONS = (0.8, 0.1, 0.1)
 
 DATASET_CONFIGS = {
@@ -141,8 +141,24 @@ def prepare_dataset(name: str, cfg: dict[str, Any]) -> dict[str, Any]:
     smiles_col = cfg["smiles_col"]
     if smiles_col not in df.columns:
         possible = [c for c in df.columns if "smiles" in c.lower() or c.lower() == "mol"]
-        if possible:
-            smiles_col = possible[0]
+        if not possible:
+            raise ValueError(
+                f"{name}: no SMILES column found. Expected {smiles_col!r}; "
+                f"available columns are {sorted(df.columns)}. "
+                "Refusing to emit a descriptor dataset without structures, "
+                "because the resulting CSV would be silently unusable."
+            )
+        smiles_col = possible[0]
+
+    # The target columns must survive into the cleaned frame; a typo in
+    # DATASET_CONFIGS would otherwise only surface much later as a KeyError in
+    # the loader, or worse, as a silently wrong target.
+    missing_targets = [c for c in cfg["target_cols"] if c not in df.columns]
+    if missing_targets:
+        raise ValueError(
+            f"{name}: target column(s) {missing_targets} absent from {csv_path.name}; "
+            f"available columns are {sorted(df.columns)}"
+        )
 
     valid_mask = []
     clean_smiles = []
@@ -220,7 +236,7 @@ def main():
     summary_path = DATA_DIR / "dataset_manifest.json"
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
-    print(f"\n✅ All datasets and 5-seed split indices generated successfully!")
+    print(f"\n✅ All datasets and {len(SEEDS)}-seed split indices generated successfully!")
     print(f"Manifest saved to: {summary_path}")
 
 if __name__ == "__main__":

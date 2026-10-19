@@ -43,7 +43,9 @@ Hầu hết các công cụ học máy hóa học hiện nay (như Chemprop, Dee
 ├───────────────────────┴─────────────────────────┴───────────────────────────┤
 │ 4. Trí tuệ Phân tích Dữ liệu (Automated Advisory & Evidence Tracking)      │
 │ Tự động profiling dữ liệu, chấm điểm sức khỏe và kiểm chứng bằng chứng     │
-│ thực nghiệm của từng đặc trưng qua scorecard trực quan.                    │
+│ thực nghiệm của từng đặc trưng qua scorecard trực quan. Đề xuất đặc trưng   │
+│ dùng SIREN: mục tiêu đa biến có điều kiện (relevance + synergy + stability  │
+│ − redundancy) cùng protocol nested CV không rò rỉ và paired bootstrap.     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -73,6 +75,13 @@ chemistry_framework/
 │   └── graph_features.py   # Lớp nhúng đặc trưng nguyên tử và liên kết
 ├── evaluation/             # Đo lường hiệu năng và metrics đánh giá
 │   └── metrics.py          # AUROC, AUPRC, Accuracy, F1, MAE, RMSE, R2, Spearman
+├── feature_analysis/       # Phân tích và đề xuất đặc trưng dựa trên bằng chứng
+│   ├── report.py           # FeatureEvidenceReport: support, association, OOD range
+│   ├── model_evidence.py   # Permutation / leave-group-out importance, prior coefficients
+│   ├── selection.py        # Legacy scorecard: Spearman |r| + cắt tỉa |r| cứng
+│   ├── synergy.py          # Conditional dependence (suppressor) & interaction information
+│   ├── recommend.py        # SIREN: mục tiêu relevance+synergy+stability−redundancy
+│   └── protocol.py         # Nested CV không rò rỉ, paired bootstrap, selection audit
 ├── features/               # Đăng ký và tính toán đặc trưng hóa học
 │   ├── registry.py         # FeatureRegistry quản lý tên và nguồn gốc đặc trưng
 │   ├── blocks.py           # Khối đếm nguyên tố, cặp liên kết hóa học
@@ -216,6 +225,66 @@ $$L_\delta(y, \hat{y}) = \begin{cases} \frac{1}{2}(y - \hat{y})^2 & \text{với 
 với ngưỡng mặc định $\delta = 1.0$.
 
 ---
+
+## 4b. SIREN: Đề xuất Đặc trưng Nhận biết Bất định & Cộng hưởng
+
+Đây là **đóng góp thuật toán** của framework cho bài toán *feature selection*, nằm trong
+[`chemistry_framework/feature_analysis/`](chemistry_framework/feature_analysis/).
+
+### Vấn đề của scorecard đơn biến
+
+Legacy recommender (`selection.select_evidence_recommendation`) xếp hạng theo `|Spearman r|`
+rồi cắt tỉa greedy theo ngưỡng `|r|` cứng. Mục tiêu này là **cộng tính và biên (marginal)**,
+nên về mặt lý thuyết nó *không thể* biểu diễn được ba hiện tượng:
+
+| Hiện tượng | Mô tả | Hệ quả của scorecard |
+| :--- | :--- | :--- |
+| **Suppressor** | $I(X_j; y) \approx 0$ nhưng $I(X_j; y \mid X_k) \gg 0$ | Bị loại dù hữu ích có điều kiện |
+| **Synergy** | $I(X_i; y) \approx I(X_j; y) \approx 0$ nhưng $I(\{X_i,X_j\}; y) \gg 0$ | Cả hai đều bị loại |
+| **Bất định ước lượng** | Tín hiệu "ảo" do phương sai mẫu nhỏ | Được chọn dù không bền |
+
+### Mục tiêu SIREN
+
+Chọn tiến (forward selection) tham lam, mỗi bước đánh giá mọi ứng viên **có điều kiện trên ngữ cảnh $S$** đã chọn:
+
+$$J(j \mid S) = \alpha \cdot \underbrace{I(X_j; y \mid X_S)}_{\text{relevance}} + \beta \cdot \underbrace{\Delta_{\text{syn}}(j, S)}_{\text{synergy}} + \gamma \cdot \underbrace{\sigma(j)}_{\text{stability}} - \delta \cdot \underbrace{R(j, S)}_{\text{redundancy}}$$
+
+**1. Relevance có điều kiện** (suppressor-safe): hồi quy cả $X_j$ và $y$ theo $X_S$, rồi đo MI trên phần dư:
+$$I(X_j; y \mid X_S) \approx I(\hat{e}_{j}, \hat{e}_{y}), \quad \hat{e}_j = X_j - \Pi_{X_S} X_j$$
+Nhờ đó `suppression_gain = conditional_mi − marginal_mi > 0` phát hiện đặc trưng bị che khuất.
+
+**2. Synergy (interaction information, dạng gia tăng):**
+$$\Delta_{\text{syn}}(j, S) = \max_{k \in S} \frac{I(\{X_j, X_k\}; y) + I(\Xi_{jk}; y \mid X_j, X_k) - I(X_j; y) - I(X_k; y)}{\max\left(I(X_j;y),\ I(X_k;y),\ \bar{I},\ 10^{-6}\right)}$$
+Điểm mấu chốt là **cơ sở tương tác trực giao hoá** $\Xi_{jk} = \tilde{X}_j \odot \tilde{X}_k$ sau khi khử phần tuyến tính theo $(X_j, X_k)$.
+Phép phân hoạch rời rạc hai chiều thông thường **không** biểu diễn được cấu trúc XOR; còn tích thô `x·x` của hai cột gần trùng sẽ bị đọc nhầm thành synergy, nên có **collinearity gate** (`|corr| ≥ 0.999` → bỏ số hạng tương tác, báo về giá trị dư thừa thuần $-I(X;y)$).
+
+**3. Stability:** tỉ lệ subsample giữ nguyên **dấu** của tương quan Spearman so với toàn mẫu. Được **centering tại 0.5** (tức $2(\sigma - 0.5)$) để đóng vai trò *bonus/penalty* thực sự thay vì hằng số cộng dồn cho mọi ứng viên:
+$$\sigma(j) = \frac{1}{B} \sum_{b=1}^{B} \mathbb{1}\left[\operatorname{sign} r_b(j) = \operatorname{sign} r_{\text{full}}(j)\right]$$
+
+**4. Redundancy** (thay ngưỡng `|r|` cứng):
+$$R(j, S) = \max\left(0,\ I(X_j;y) - I(X_j;y \mid X_S)\right) + \max_{k \in S} \left| \rho_{\text{partial}}(X_j, X_k \mid X_S) \right|$$
+
+### Protocol đánh giá không rò rỉ (`protocol.py`)
+
+Ba lỗi thường gặp khi so sánh phương pháp chọn đặc trưng được xử lý tường minh:
+
+1. **Selection leakage** → `nested_selection_evaluation` tái chạy **toàn bộ** quá trình chọn lọc bên trong *mỗi* fold huấn luyện; selector không bao giờ thấy hàng held-out.
+2. **Thiếu định lượng bất định** → `paired_bootstrap_test` bootstrap **theo cặp** trên chênh lệch từng fold (ghép cặp loại bỏ độ khó giữa các fold), trả về CI và p-value hai phía.
+3. **Thiếu vết kiểm toán** → `SelectionAuditRecord` ghi lại lựa chọn từng fold, tần suất chọn mỗi đặc trưng, `mean_test_score` và `mean_generalisation_gap`.
+
+### Thí nghiệm E-REC
+
+```bash
+python benchmarks/run_recommendation_ablation.py --datasets synthetic esol --seeds 1 2 3 --k 5
+```
+
+Ablation so sánh `siren_full` với từng số hạng bị vô hiệu hoá (`siren_no_synergy`, `siren_no_stability`, `siren_no_redundancy`, `siren_relevance_only`) và baseline `scorecard`, tất cả trên **cùng fold**, kèm paired bootstrap. Bộ dữ liệu `synthetic` được **gieo cấu trúc có kiểm soát** (driver, duplicate, suppressor, cặp interaction XOR, 5 cột nhiễu) để đảm bảo ground truth biết trước — đây là phép thử falsification sạch nhất cho các tuyên bố của SIREN.
+
+> [!IMPORTANT]
+> Kết quả SIREN được báo cáo **trung thực**: module ghi lại mọi seed, trọng số và phân fold để tái lập, và sẵn sàng công bố kết quả null. Trên các tập chỉ có tín hiệu biên mạnh (như ESOL/Lipophilicity), SIREN và scorecard có thể **tương đương thống kê** — điều này là dự đoán đúng của lý thuyết (khi không có suppressor/synergy, mục tiêu có điều kiện suy biến về marginal). Lợi thế của SIREN tập trung ở nơi xuất hiện suppression/interaction.
+
+---
+
 
 ## 5. Hệ thống Benchmark ADMET
 

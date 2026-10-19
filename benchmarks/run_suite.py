@@ -4,6 +4,9 @@ Runs all 3 Benchmarks across canonical MoleculeNet datasets:
 - Benchmark A: Cross-task baselines on BBBP, ESOL, FreeSolv, Lipophilicity
 - Benchmark B: Feature Intelligence & Recommendation Study on BBBP, ESOL, FreeSolv
 - Benchmark C: Prior / Residual Modularity Ablation on BBBP and ESOL
+
+Plus Experiment E-REC: leakage-free SIREN recommendation ablation
+(see ``benchmarks/run_recommendation_ablation.py``).
 """
 from __future__ import annotations
 
@@ -22,6 +25,11 @@ from benchmarks.run_canonical_baselines import evaluate_dataset_baselines
 from benchmarks.run_feature_evidence_study import run_feature_study_on_dataset
 from benchmarks.run_modularity_ablation import run_modularity_ablation_on_dataset
 
+try:  # Optional: only present once Experiment E-REC has been added.
+    from benchmarks.run_recommendation_ablation import run_recommendation_ablation
+except Exception:  # pragma: no cover - defensive against partial checkouts
+    run_recommendation_ablation = None
+
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -30,6 +38,8 @@ def main():
     parser.add_argument("--skip-a", action="store_true", help="Skip Benchmark A")
     parser.add_argument("--skip-b", action="store_true", help="Skip Benchmark B")
     parser.add_argument("--skip-c", action="store_true", help="Skip Benchmark C")
+    parser.add_argument("--skip-recommend", action="store_true",
+                        help="Skip Experiment E-REC (SIREN recommendation ablation)")
     args = parser.parse_args()
 
     t_start = time.time()
@@ -42,6 +52,7 @@ def main():
         "benchmark_a": {},
         "benchmark_b": {},
         "benchmark_c": {},
+        "experiment_e_rec": {},
     }
 
     if not args.skip_c:
@@ -75,11 +86,26 @@ def main():
                 ds_runs.extend(runs)
             suite_manifest["benchmark_a"][ds] = ds_runs
 
+    if not args.skip_recommend and run_recommendation_ablation is not None:
+        print("\n" + "#" * 75)
+        print("📌 EXPERIMENT E-REC: SIREN RECOMMENDATION ABLATION (leakage-free)")
+        print("#" * 75)
+        rec = run_recommendation_ablation(
+            datasets=["synthetic", "esol"],
+            seeds=[1, 2, 3],
+            k=5,
+            n_splits=5,
+            write=False,
+        )
+        suite_manifest["experiment_e_rec"] = {
+            "per_dataset": rec["per_dataset"],
+            "overall": rec["overall"],
+        }
+
     total_time = (time.time() - t_start) / 60.0
     print("\n" + "=" * 75)
-    print(f"🎉 ALL 3 BENCHMARKS COMPLETED IN {total_time:.2f} MINUTES!")
+    print(f"🎉 SUITE COMPLETED IN {total_time:.2f} MINUTES!")
     print("=" * 75)
-
     suite_summary_file = RESULTS_DIR / "three_benchmarks_summary.json"
     with open(suite_summary_file, "w") as f:
         json.dump(suite_manifest, f, indent=2)

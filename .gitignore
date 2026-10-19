@@ -26,3 +26,4 @@ framework_docs_backup/
 
 # Benchmark results (kept on private results branch)
 benchmarks/results/
+.adal/
