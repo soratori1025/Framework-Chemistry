@@ -25,6 +25,7 @@ from chemistry_framework.encoders.gnn import DMPNNEncoder
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
 from chemistry_framework.feature_analysis import select_evidence_recommendation
 from benchmarks.run_feature_evidence_study import select_spearman_top_k, select_mutual_info_top_k
+from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
@@ -201,7 +202,7 @@ def train_and_eval_model(
 
     return best_val_score, test_metrics, best_epoch, best_val_loss
 
-def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
+def run_evidence_routing_dataset(dataset_name: str, seeds: list[int] | None = None) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"🚀 Experiment E1: Evidence-Guided Routing on {dataset_name.upper()}")
     print(f"==================================================================")
@@ -243,7 +244,7 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
     print("Extracting 2D RDKit descriptors...")
     X_raw, feature_names = extract_rdkit_2d_descriptors(smiles)
 
-    seeds = [1, 2, 3, 4, 5]
+    seed_list = resolve_seeds(seeds)
     per_split_results: list[dict[str, Any]] = []
     partial_file = RESULTS_DIR / f"evidence_routing_{dataset_name}_partial.json"
     if partial_file.exists():
@@ -262,11 +263,11 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
 
     batch_size = 64
 
-    for split_idx, seed in enumerate(seeds):
+    for split_idx, seed in enumerate(seed_list):
         if any(r.get("split") == split_idx + 1 for r in per_split_results):
-            print(f"\n--- Split {split_idx + 1}/5 (Seed {seed}) already completed, skipping ---")
+            print(f"\n--- Split {split_idx + 1}/{len(seed_list)} (Seed {seed}) already completed, skipping ---")
             continue
-        print(f"\n--- Split {split_idx + 1}/5 (Seed {seed}) ---")
+        print(f"\n--- Split {split_idx + 1}/{len(seed_list)} (Seed {seed}) ---")
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
         with open(split_file, "r") as f:
             split_dict = json.load(f)
@@ -557,11 +558,12 @@ def run_evidence_routing_dataset(dataset_name: str) -> dict[str, Any]:
 def main():
     parser = argparse.ArgumentParser(description="Run Experiment E1: Evidence-Guided Descriptor Routing.")
     parser.add_argument("--dataset", type=str, default="all", choices=["all", "esol", "freesolv", "bbbp", "lipophilicity", "bace"])
+    add_seed_argument(parser)
     args = parser.parse_args()
 
     datasets = ["esol", "freesolv", "bbbp", "lipophilicity", "bace"] if args.dataset == "all" else [args.dataset]
     for d in datasets:
-        run_evidence_routing_dataset(d)
+        run_evidence_routing_dataset(d, seeds=args.seeds)
 
 if __name__ == "__main__":
     main()

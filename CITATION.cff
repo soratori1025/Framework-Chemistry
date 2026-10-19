@@ -1,0 +1,32 @@
+# Citation metadata for the chemistry-framework software release.
+#
+# The DOI field is filled in automatically by the GitHub-Zenodo integration
+# when the release is created; add it to this file (and to the manuscript)
+# after the deposit, then re-upload the citation metadata if needed.
+cff-version: 1.2.0
+message: "If you use this software, please cite the manuscript and the archived release."
+title: "chemistry-framework: configuration-driven, evidence-guided molecular property prediction"
+abstract: >-
+  Analysis code for the manuscript "Evidence-Guided Molecular Property Modelling
+  with a Configuration-Driven Modular Framework": training-partition feature
+  evidence scorecard, evidence-guided descriptor recommender, modular
+  prior/residual predictor, benchmark runners, archived per-split results, and
+  the statistics scripts that regenerate every paired comparison reported in the
+  manuscript.
+type: software
+version: "1.0.0"
+date-released: "2026-10-19"
+license: MIT
+repository-code: "https://github.com/soratori1025/Framework-Chemistry"
+url: "https://github.com/soratori1025/Framework-Chemistry"
+keywords:
+  - cheminformatics
+  - molecular property prediction
+  - D-MPNN
+  - feature selection
+  - reproducible benchmark
+authors:
+  # TODO: replace with the final author list of the manuscript before release.
+  - family-names: "Nguyen"
+    given-names: "D. K. N."
+    affiliation: "TO-BE-FILLED before the release"

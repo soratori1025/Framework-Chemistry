@@ -1,0 +1,33 @@
+{
+  "title": "chemistry-framework: configuration-driven, evidence-guided molecular property prediction",
+  "upload_type": "software",
+  "description": "<p><strong>chemistry-framework</strong> is the analysis code accompanying the manuscript <em>Evidence-Guided Molecular Property Modelling with a Configuration-Driven Modular Framework</em>. It implements (i) a training-partition feature-evidence scorecard for RDKit 2D descriptors, (ii) a rule-based recommender that maps scorecard evidence to a descriptor budget and a feature subset, (iii) a modular predictor that separates the physicochemical prior, the graph residual and their fusion, and (iv) the benchmark runners that produced every number, table and figure in the manuscript.</p><p>The archive contains the archived per-split results (<code>benchmarks/results/</code>) and the 20 Bemis-Murcko scaffold manifests per endpoint (<code>benchmarks/splits/</code>), so the reported statistics can be recomputed without retraining any model. <code>benchmarks/paper_statistics.py</code> regenerates all paired comparisons (Nadeau-Bengio corrected resampled t intervals with Holm-Bonferroni multiplicity control), and <code>benchmarks/validate_paper_statistics.py</code> checks the archived numbers against the values printed in the manuscript.</p><p>Scope: the release covers the manuscript benchmark only. The follow-up feature-space work (SIREN routing) is not part of this version.</p>",
+  "access_right": "open",
+  "license": "MIT",
+  "version": "v1.0.0",
+  "language": "eng",
+  "keywords": [
+    "cheminformatics",
+    "molecular property prediction",
+    "D-MPNN",
+    "RDKit descriptors",
+    "feature selection",
+    "evidence scorecard",
+    "reproducible benchmark",
+    "MoleculeNet"
+  ],
+  "creators": [
+    {
+      "name": "Nguyen, D. K. N.",
+      "affiliation": "TO-BE-FILLED before the release (see RELEASE_NOTES.md)"
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/soratori1025/Framework-Chemistry",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "notes": "Replace the placeholder creator name and affiliation with the final author list of the manuscript before creating the Zenodo release. See RELEASE_NOTES.md for the release checklist."
+}

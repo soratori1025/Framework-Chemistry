@@ -39,6 +39,7 @@ if str(REPO_ROOT) not in sys.path:
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
 from chemistry_framework.data.graph import mol_to_graph, BatchMolGraph
 from chemistry_framework.encoders.gnn import DMPNNEncoder
+from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits"
@@ -245,7 +246,7 @@ def train_and_eval_torch_model(
         r2 = float(r2_score(yt[mask], yp[mask])) if len(yt[mask]) > 1 else 0.0
         return {"rmse": rmse, "mae": mae, "r2": r2}
 
-def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
+def run_modularity_ablation_on_dataset(dataset_name: str, seeds: list[int] | None = None) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"🔬 Prior/Residual Modularity Ablation: {dataset_name.upper()}")
     print(f"==================================================================")
@@ -273,11 +274,11 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
     ]
     print(f"Physicochemical prior features ({len(phys_indices)}): {[feature_names[i] for i in phys_indices]}")
 
-    seeds = [1, 2, 3, 4, 5]
+    seed_list = resolve_seeds(seeds)
     configs = ["direct_only", "prior_only", "residual_only", "direct_hybrid", "prior_residual"]
     results: dict[str, list[dict[str, float]]] = {c: [] for c in configs}
 
-    for seed in seeds:
+    for seed in seed_list:
         print(f"\n--- Running Seed {seed} ---")
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
         with open(split_file, "r") as f:
@@ -370,7 +371,7 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         print(f"  ✓ Prior + Residual: {pr_metrics}")
 
     primary_metric = "roc_auc" if is_classification else "rmse"
-    print(f"\n📈 Final Modularity Summary Across 5 Seeds ({primary_metric.upper()}):")
+    print(f"\n📈 Final Modularity Summary Across {len(seed_list)} Splits ({primary_metric.upper()}):")
     summary = {}
     for c in configs:
         vals = [r[primary_metric] for r in results[c]]
@@ -383,6 +384,7 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
         "dataset": dataset_name,
         "is_classification": is_classification,
         "primary_metric": primary_metric,
+        "seeds": seed_list,
         "raw_results": results,
         "summary": summary,
     }
@@ -395,8 +397,9 @@ def run_modularity_ablation_on_dataset(dataset_name: str) -> dict[str, Any]:
 def main():
     parser = argparse.ArgumentParser(description="Run Prior/Residual Modularity Ablation")
     parser.add_argument("--dataset", type=str, default="esol", help="Dataset name: bbbp or esol")
+    add_seed_argument(parser)
     args = parser.parse_args()
-    run_modularity_ablation_on_dataset(args.dataset)
+    run_modularity_ablation_on_dataset(args.dataset, seeds=args.seeds)
 
 if __name__ == "__main__":
     main()

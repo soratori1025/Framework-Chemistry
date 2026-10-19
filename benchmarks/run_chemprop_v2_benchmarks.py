@@ -39,6 +39,7 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
+from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 torch.set_float32_matmul_precision("medium")
 
@@ -318,12 +319,15 @@ if __name__ == "__main__":
     parser.add_argument("--depth", type=int, default=3, help="Message passing depth (default: 3)")
     parser.add_argument("--epochs", type=int, default=50, help="Max epochs (default: 50)")
     parser.add_argument("--patience", type=int, default=10, help="Early stopping patience (default: 10)")
+    add_seed_argument(parser)
     args = parser.parse_args()
 
+    seeds = resolve_seeds(args.seeds)
     target_datasets = ["esol", "freesolv", "bbbp", "lipophilicity", "bace"] if args.dataset == "all" else [args.dataset]
     for d in target_datasets:
         run_benchmark_for_dataset(
             dataset_name=d,
+            seeds=seeds,
             d_h=args.d_h,
             depth=args.depth,
             max_epochs=args.epochs,

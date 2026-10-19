@@ -22,6 +22,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
 from chemistry_framework.feature_analysis import select_evidence_recommendation
+from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
@@ -182,7 +183,7 @@ def evaluate_subset(
         r2 = float(r2_score(y_te, preds)) if len(y_te) > 1 else 0.0
         return {"rmse": rmse, "mae": mae, "r2": r2}
 
-def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
+def run_multivariate_study_on_dataset(dataset_name: str, seeds: list[int] | None = None) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"📊 Multivariate Feature Study: {dataset_name.upper()}")
     print(f"==================================================================")
@@ -207,7 +208,7 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     print("Extracting 200+ RDKit 2D descriptors...")
     X_raw, feature_names = extract_rdkit_2d_descriptors(smiles)
 
-    seeds = [1, 2, 3, 4, 5]
+    seed_list = resolve_seeds(seeds)
     selectors = [
         "framework",
         "spearman",
@@ -224,7 +225,7 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         m: {str(k): [] for k in K_LEVELS} for m in selectors
     }
 
-    for seed in seeds:
+    for seed in seed_list:
         print(f"\n--- Running Split / Seed {seed} ---")
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
         with open(split_file, "r") as f:
@@ -311,6 +312,7 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         json.dump({
             "dataset": dataset_name,
             "primary_metric": primary_metric,
+            "seeds": seed_list,
             "summary": summary,
             "per_seed_results": results,
         }, f, indent=2)
@@ -320,11 +322,12 @@ def run_multivariate_study_on_dataset(dataset_name: str) -> dict[str, Any]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="all", choices=["esol", "freesolv", "bbbp", "lipophilicity", "bace", "all"])
+    add_seed_argument(parser)
     args = parser.parse_args()
 
     datasets = ["esol", "freesolv", "bbbp", "lipophilicity", "bace"] if args.dataset == "all" else [args.dataset]
     for d in datasets:
-        run_multivariate_study_on_dataset(d)
+        run_multivariate_study_on_dataset(d, seeds=args.seeds)
 
 if __name__ == "__main__":
     main()

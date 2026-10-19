@@ -34,6 +34,7 @@ if str(REPO_ROOT) not in sys.path:
 from chemistry_framework.features.pharmacophore import extract_morgan_fingerprints, extract_rdkit_2d_descriptors
 from chemistry_framework.data.graph import mol_to_graph, BatchMolGraph
 from chemistry_framework.encoders.gnn import DMPNNEncoder
+from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits"

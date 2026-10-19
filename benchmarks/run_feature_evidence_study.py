@@ -36,6 +36,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
 from chemistry_framework.feature_analysis import select_evidence_recommendation
+from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits"
@@ -164,7 +165,7 @@ def evaluate_subset(
         r2 = float(r2_score(y_te, preds)) if len(y_te) > 1 else 0.0
         return {"rmse": rmse, "mae": mae, "r2": r2}
 
-def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
+def run_feature_study_on_dataset(dataset_name: str, seeds: list[int] | None = None) -> dict[str, Any]:
     print(f"\n==================================================================")
     print(f"📊 Feature Intelligence & Recommendation Study: {dataset_name.upper()}")
     print(f"==================================================================")
@@ -190,7 +191,7 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
     n_features_total = X_raw.shape[1]
     print(f"Total candidate features: {n_features_total}")
 
-    seeds = [1, 2, 3, 4, 5]
+    seed_list = resolve_seeds(seeds)
     method_names = [
         "framework_recommendation",
         "spearman_top_k",
@@ -207,7 +208,7 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         m: {str(k): [] for k in K_LEVELS} for m in method_names
     }
 
-    for seed in seeds:
+    for seed in seed_list:
         print(f"\n--- Running Seed {seed} ---")
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
         with open(split_file, "r") as f:
@@ -272,7 +273,7 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
             results["random_subsets"][str(k)].append(avg_rand)
 
     primary_metric = "roc_auc" if is_classification else "rmse"
-    print(f"\n📈 Final Summary Across 5 Seeds ({primary_metric.upper()}):")
+    print(f"\n📈 Final Summary Across {len(seed_list)} Splits ({primary_metric.upper()}):")
 
     summary_table = []
 
@@ -297,6 +298,7 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
         "dataset": dataset_name,
         "is_classification": is_classification,
         "primary_metric": primary_metric,
+        "seeds": seed_list,
         "k_levels": K_LEVELS,
         "raw_results": results,
         "summary_table": summary_table,
@@ -311,8 +313,9 @@ def run_feature_study_on_dataset(dataset_name: str) -> dict[str, Any]:
 def main():
     parser = argparse.ArgumentParser(description="Run Feature Intelligence Study")
     parser.add_argument("--dataset", type=str, default="esol", help="Dataset name: bbbp, esol, freesolv, etc.")
+    add_seed_argument(parser)
     args = parser.parse_args()
-    run_feature_study_on_dataset(args.dataset)
+    run_feature_study_on_dataset(args.dataset, seeds=args.seeds)
 
 if __name__ == "__main__":
     main()

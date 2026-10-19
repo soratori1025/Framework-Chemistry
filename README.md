@@ -10,6 +10,18 @@ Designed as an extensible platform for molecular property prediction, ADMET prof
 
 ---
 
+## 📄 Bài báo & tái lập kết quả (Publication & reproducibility)
+
+Kho mã này là bản phát hành đi kèm bài báo **"Evidence-Guided Molecular Property Modelling with a Configuration-Driven Modular Framework"** (gửi *Journal of Cheminformatics*):
+
+- 📦 **Kết quả bài báo**: kết quả thô theo từng split nằm trong [`benchmarks/results/`](benchmarks/results/); split manifests (20 seed/tập) ở [`benchmarks/splits/`](benchmarks/splits/).
+- 🔬 **Cách tái lập từng bảng/hình**: [`REPRODUCING.md`](REPRODUCING.md) — mỗi artifact đều có lệnh tương ứng, kèm cảnh báo về phiên bản RDKit cần pin.
+- 📈 **Thống kê so sánh cặp**: `python benchmarks/paper_statistics.py` (hiệu chỉnh Nadeau–Bengio + Holm–Bonferroni) và `python benchmarks/generate_si_tables.py`.
+- ✅ **Kiểm chứng**: `python benchmarks/validate_paper_statistics.py` đối chiếu kết quả lưu trữ với 30 giá trị đã công bố.
+- 📚 **Trích dẫn / DOI**: [`CITATION.cff`](CITATION.cff); các bước tạo DOI Zenodo: [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
+
+---
+
 ## 📑 Tài liệu liên quan
 - 📊 [**Hướng dẫn Phân tích Đặc trưng & Đọc Báo cáo (Analysis Guide)**](ANALYSIS_GUIDE.md): Chi tiết cách khảo sát dữ liệu, phân tích đặc trưng, tính điểm sức khỏe dữ liệu (Health Score), và đọc báo cáo.
 - 🏗️ [**Kiến trúc Chuyên sâu của Hệ thống (Architecture & Deep Dive)**](ARCHITECTURE.md): Chi tiết kiến trúc từng module, thuật toán truyền tin đồ thị, hàm mất mát bất định, và kết quả benchmark ADMET.
@@ -50,7 +62,7 @@ pip install -e ".[chemistry,test]"
 ### Yêu cầu môi trường:
 - **Python**: $\ge 3.10$ (khuyến nghị 3.11 hoặc 3.12)
 - **PyTorch**: $\ge 2.0$ (CPU hoặc CUDA GPU)
-- **RDKit**: $\ge 2023.03$ (xử lý hóa tin học, SMARTS, Scaffold split)
+- **RDKit**: pin **2023.09.6** để tái lập đúng kết quả bài báo. Khối 210 descriptor được sinh từ `rdkit.Chem.Descriptors.descList`, mà số lượng descriptor thay đổi theo phiên bản RDKit (RDKit 2026.09.1 có 217 descriptor) — xem [REPRODUCING.md](REPRODUCING.md).
 - **PyTDC**: (tùy chọn, dùng để tải tập dữ liệu chuẩn Therapeutics Data Commons)
 
 Kiểm tra cài đặt:
@@ -419,24 +431,31 @@ print("Kết quả kiểm thử:", metrics)
 
 ---
 
-## 📊 Kết quả Benchmark ADMET (Therapeutics Data Commons)
+## 📊 Kết quả Benchmark của bài báo
 
-Framework đã được đối sánh và kiểm chứng thực tế trên 4 tập chuẩn ADMET của Therapeutics Data Commons (TDC) sử dụng phân chia nghiêm ngặt **Bemis-Murcko Scaffold Split (80/10/10)**:
+Kết quả chính được báo cáo trong bài báo, tính trên **5 split Bemis–Murcko scaffold** (FreeSolv dùng split ngẫu nhiên như trong bài). Giá trị là mean ± độ lệch chuẩn (population SD) trên test set, tổng hợp từ [`benchmarks/results/`](benchmarks/results/):
 
-| Tập dữ liệu | Nhiệm vụ | Số mẫu | Kiến trúc Tối ưu | Metric Chính (Test Set) |
-| :--- | :--- | :---: | :---: | :---: |
-| **BBB Martins** | Hàng rào máu não (Phân loại) | 2,030 | D-MPNN Hybrid | **AUROC: 0.884** \| AUPRC: 0.957 |
-| **Caco-2 Wang** | Tính thấm tế bào ruột (Hồi quy) | 910 | D-MPNN Hybrid + Huber | **MAE: 0.354** \| RMSE: 0.528 |
-| **Lipophilicity** | Ái lực dầu/nước logD (Hồi quy) | 4,200 | D-MPNN + Evidential | **MAE: 0.551** \| RMSE: 0.749 |
-| **hERG Blockers**| Độc tính tim mạch (Phân loại) | 648 | GIN Ensemble ($K=3$) | **AUROC: 0.841** \| AUPRC: 0.730 |
+| Tập dữ liệu | Nhiệm vụ | $N$ | Metric | Graph only | Graph + 210 descriptors | RDKit 2D + RF |
+| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
+| **ESOL** | Độ tan $\log S$ (hồi quy) | 1,128 | RMSE ↓ | $0.687\pm0.066$ | $\mathbf{0.629\pm0.042}$ | $0.682\pm0.039$ |
+| **FreeSolv** | Năng lượng hydrate hoá (hồi quy) | 642 | RMSE ↓ | $1.177\pm0.110$ | $\mathbf{1.042\pm0.210}$ | $1.111\pm0.156$ |
+| **Lipophilicity** | $\log D$ (hồi quy) | 4,200 | RMSE ↓ | $\mathbf{0.585\pm0.035}$ | $0.603\pm0.020$ | $0.750\pm0.011$ |
+| **BBBP** | Thấm qua hàng rào máu–não (phân loại) | 2,039 | AUROC ↑ | $\mathbf{0.917\pm0.010}$ | $0.909\pm0.024$ | $0.911\pm0.022$ |
+| **BACE** | Ức chế BACE-1 (phân loại) | 1,513 | AUROC ↑ | $0.788\pm0.027$ | $0.799\pm0.021$ | $\mathbf{0.828\pm0.019}$ |
 
-Chi tiết thực nghiệm và biểu đồ đối sánh xem tại [ARCHITECTURE.md](ARCHITECTURE.md).
+Kết luận chính: **không có biểu diễn hay cấu hình nào thắng tuyệt đối** trên cả 5 tập; việc thêm 210 descriptor RDKit đổi điểm theo *cùng một hướng* ở cả framework lẫn Chemprop v2.3.1. Sau hiệu chỉnh Nadeau–Bengio + Holm, chỉ so sánh Hybrid vs RDKit 2D+RF trên Lipophilicity còn kết luận được ("conclusive"); các khác biệt còn lại là **inconclusive** (xem `benchmarks/results/paper_statistics.json`).
+
+Phân tích độ nhạy BBBP sau khi loại 11 nhóm nhãn xung đột và gộp 53 nhóm trùng lặp (1,960 cấu trúc) nằm trong `benchmarks/run_bbbp_sensitivity_study.py` + `benchmarks/results/bbbp_sensitivity_study.json`.
+
+> Kết quả ADMET giai đoạn phát triển ban đầu (BBB Martins, Caco-2, hERG) trong [ARCHITECTURE.md](ARCHITECTURE.md) là từ phiên bản trước của framework (một seed, cấu hình khác) và **không** thuộc bài báo; số liệu chính thức là bảng ở trên.
+
+Chi tiết trực quan hoá xem tại [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
 ## 🧪 Chạy Kiểm thử (Unit Tests)
 
-Bộ kiểm thử bao gồm 61 bài test tự động bao phủ toàn bộ các module:
+Bộ kiểm thử bao gồm 60 bài test tự động bao phủ toàn bộ các module:
 ```bash
 pytest tests/ -v
 ```

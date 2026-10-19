@@ -1,0 +1,21 @@
+\begin{table}[H]
+\caption{Framework minus Chemprop v2.3.1 on matched splits, for the graph only model and for the graph model with the 210 descriptors. Conventions follow Table~\ref{tab:int}; $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=10$). No comparison approaches the corrected threshold, so these data do not separate the two implementations, and the agreement in the direction of the descriptor effect is descriptive.}\label{tab:ext}
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+Dataset (metric) & Model pair & $\bar\Delta\pm\mathrm{SD}$ & Nominal 95\% interval & Corrected 95\% interval & $p$ & $p_{\mathrm{H}}$ & Wins of framework \\
+\midrule
+ESOL (RMSE) & graph only & $-0.119\pm0.0996$ & $[-0.257,0.019]$ & $[-0.296,0.057]$ & $0.134$ & $0.268$ & 4/5 \\
+ESOL (RMSE) & graph + 210 descriptors & $-0.031\pm0.0994$ & $[-0.169,0.107]$ & $[-0.207,0.145]$ & $0.646$ & $0.646$ & 3/5 \\
+FreeSolv (RMSE) & graph only & $+0.042\pm0.1274$ & $[-0.135,0.219]$ & $[-0.184,0.268]$ & $0.634$ & $1.000$ & 2/5 \\
+FreeSolv (RMSE) & graph + 210 descriptors & $-0.041\pm0.1338$ & $[-0.226,0.145]$ & $[-0.278,0.197]$ & $0.658$ & $1.000$ & 3/5 \\
+Lipophilicity (RMSE) & graph only & $-0.018\pm0.0269$ & $[-0.056,0.019]$ & $[-0.066,0.029]$ & $0.347$ & $0.693$ & 3/5 \\
+Lipophilicity (RMSE) & graph + 210 descriptors & $-0.035\pm0.0557$ & $[-0.112,0.042]$ & $[-0.134,0.063]$ & $0.378$ & $0.693$ & 3/5 \\
+BBBP (AUROC) & graph only & $-0.001\pm0.0170$ & $[-0.024,0.023]$ & $[-0.031,0.029]$ & $0.957$ & $1.000$ & 3/5 \\
+BBBP (AUROC) & graph + 210 descriptors & $-0.003\pm0.0208$ & $[-0.032,0.026]$ & $[-0.040,0.034]$ & $0.840$ & $1.000$ & 2/5 \\
+BACE (AUROC) & graph only & $-0.001\pm0.0407$ & $[-0.058,0.056]$ & $[-0.073,0.071]$ & $0.970$ & $1.000$ & 1/5 \\
+BACE (AUROC) & graph + 210 descriptors & $-0.004\pm0.0153$ & $[-0.025,0.017]$ & $[-0.031,0.023]$ & $0.718$ & $1.000$ & 2/5 \\
+\bottomrule
+\end{tabular}
+\end{table}
