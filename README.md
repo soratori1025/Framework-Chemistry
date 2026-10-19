@@ -35,16 +35,6 @@ Designed as an extensible platform for molecular property prediction, ADMET prof
    - Khai báo các khối đặc trưng qua YAML: đếm nguyên tố, cặp liên kết, mẫu SMARTS, nhóm Benson, hoặc hàm Python tùy biến.
 8. **Đánh giá Bằng chứng Đặc trưng (Feature Evidence Scorecard):**
    - Sinh báo cáo phân tích trực quan về độ hỗ trợ (support), tương quan (Spearman association), độ dư thừa (redundancy) và khoảng giá trị train/test của từng đặc trưng.
-9. **SIREN — Thuật toán Đề xuất Đặc trưng Nhận biết Bất định & Cộng hưởng (Stability-Informed Redundancy- and Synergy-aware Evidence Nomination):**
-   - Thay thế scorecard đơn biến (`Spearman |r|` + cắt tỉa `|r|` cứng) bằng mục tiêu **đa biến, có điều kiện**:
-     $J(j \mid S) = \alpha \cdot \text{relevance}(j \mid S) + \beta \cdot \text{synergy}(j, S) + \gamma \cdot \text{stability}(j) - \delta \cdot \text{redundancy}(j, S)$
-   - **Relevance có điều kiện:** mutual information của ứng viên với target *sau khi* khử phần đã giải thích bởi ngữ cảnh $S$ → cứu được các đặc trưng **suppressor** mà scorecard đơn biến bỏ sót.
-   - **Synergy (interaction information):** phần lợi thông tin *gia tăng* khi ghép cặp, dùng cơ sở tương tác trực giao hoá → phát hiện các cặp **chỉ có ích khi đi cùng nhau** (XOR-like), vốn có mutual information biên bằng 0.
-   - **Stability:** độ bền dấu của tương quan qua subsampling → phạt các đặc trưng có tín hiệu "ảo" do phương sai ước lượng.
-   - **Redundancy:** khối lượng dư thừa có điều kiện (mức giảm conditional MI + khối lượng tương quan riêng phần) → thay cho ngưỡng `|r|` cứng.
-   - **Protocol không rò rỉ dữ liệu (`protocol.py`):** nested cross-validation tái chạy *toàn bộ* quá trình chọn lọc bên trong mỗi fold huấn luyện, kèm **paired bootstrap** cho CI và p-value của chênh lệch giữa hai phương pháp trên *cùng fold*, và `SelectionAuditRecord` lưu vết tần suất chọn của từng đặc trưng.
-   - Chạy: `python benchmarks/run_recommendation_ablation.py --datasets synthetic esol --seeds 1 2 3`
-   - Legacy `select_evidence_recommendation` vẫn được giữ nguyên và tái biểu diễn qua `scorecard_ranking(...)` với `method="scorecard"` để đảm bảo so sánh tương thích ngược.
 
 ---
 
