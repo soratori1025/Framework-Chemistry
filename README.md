@@ -437,7 +437,7 @@ Kết quả chính được báo cáo trong bài báo, tính trên **10 split Be
 
 | Tập dữ liệu | Nhiệm vụ | $N$ | Metric | Graph only | Graph + 210 descriptors | RDKit 2D + RF |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **ESOL** | Độ tan $\log S$ (hồi quy) | 1,128 | RMSE ↓ | $0.637\pm0.092$ | $\mathbf{0.623\pm0.054}$ | $0.637\pm0.061$ |
+| **ESOL** | Độ tan $\log S$ (hồi quy) | 1,128 | RMSE ↓ | $0.623\pm0.092$ | $\mathbf{0.623\pm0.054}$ | $0.637\pm0.061$ |
 | **FreeSolv** | Năng lượng hydrate hoá (hồi quy) | 642 | RMSE ↓ | $1.251\pm0.153$ | $1.099\pm0.249$ | $1.089\pm0.175$ |
 | **Lipophilicity** | $\log D$ (hồi quy) | 4,200 | RMSE ↓ | $0.607\pm0.031$ | $\mathbf{0.606\pm0.019}$ | $0.748\pm0.025$ |
 | **BBBP** | Thấm qua hàng rào máu–não (phân loại) | 2,039 | AUROC ↑ | $0.914\pm0.034$ | $\mathbf{0.916\pm0.029}$ | $0.912\pm0.019$ |
