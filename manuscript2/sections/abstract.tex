@@ -1,0 +1,24 @@
+% Abstract — numbers to be filled after E-REC / E-LEAK / E-DOWNSTREAM land.
+\begin{abstract}
+Descriptor reduction in QSAR is usually a marginal scorecard: rank columns by
+their univariate correlation with the endpoint, keep the strongest, prune
+correlated pairs. That procedure cannot promote a descriptor whose association
+is masked by a correlated partner, cannot see a feature that is informative only
+in combination, and never estimates the variability of its own ranking. We
+present SIREN, a greedy forward selector whose objective is evaluated
+conditional on the columns already chosen: a conditional
+mutual-information relevance term, an interaction-information term built from an
+orthogonalised product basis, a resampling stability term, and an optional
+redundancy penalty. Two mechanisms make the objective usable on real descriptor
+matrices: a near-duplicate screen that stops a copied column from consuming a
+slot, and a permutation-calibrated synergy seed that makes pure interaction pairs
+reachable. We evaluate the selector on planted-structure benchmarks with a known
+answer, on five molecular endpoints under nested selection over ten splits, with
+linear and random-forest readouts, and under a leakage protocol that quantifies
+the optimism of selecting before splitting. SIREN recovers suppressed proxies
+and pure interaction pairs that the scorecard misses, matches it where no
+conditional structure exists, and we quantify how reproducible each selector's
+chosen set is across folds. We report the failure modes, including the
+incomplete recovery of interaction-only designs, and release the code and
+selection traces.
+\end{abstract}

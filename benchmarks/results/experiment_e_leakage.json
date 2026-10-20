@@ -1,0 +1,958 @@
+{
+  "experiment": "E-LEAK",
+  "description": "Optimism induced by selecting features before the evaluation split",
+  "k": 5,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "datasets": [
+    "esol",
+    "freesolv",
+    "lipophilicity",
+    "bbbp",
+    "bace"
+  ],
+  "protocols": [
+    "nested",
+    "leaky",
+    "circular"
+  ],
+  "cells": [
+    {
+      "dataset": "esol",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8859241823605523,
+      "leaky": 0.8859241823605523,
+      "circular": 0.8850804689825976,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": -0.0008437133779546357,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "esol",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.8637706714632304,
+      "leaky": 0.8704953245739812,
+      "circular": 0.876627367963962,
+      "leaky_minus_nested": 0.006724653110750767,
+      "circular_minus_nested": 0.012856696500731624,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "esol",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8557449383534593,
+      "leaky": 0.8557449383534593,
+      "circular": 0.8871874555658639,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.03144251721240454,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "esol",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.8357873155517261,
+      "leaky": 0.8423081641770892,
+      "circular": 0.8818246012511008,
+      "leaky_minus_nested": 0.006520848625363063,
+      "circular_minus_nested": 0.04603728569937471,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "esol",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8612772293544745,
+      "leaky": 0.8612772293544745,
+      "circular": 0.8820086522589932,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.02073142290451868,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "esol",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.8890959163226907,
+      "leaky": 0.8737700555454675,
+      "circular": 0.8724892519253752,
+      "leaky_minus_nested": -0.0153258607772232,
+      "circular_minus_nested": -0.016606664397315507,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "esol",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8582223470010928,
+      "leaky": 0.8582223470010928,
+      "circular": 0.8861286196278038,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.02790627262671097,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "esol",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.8481129292527065,
+      "leaky": 0.8248471044583536,
+      "circular": 0.8795199609322041,
+      "leaky_minus_nested": -0.023265824794352907,
+      "circular_minus_nested": 0.031407031679497543,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "esol",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.9110099621785521,
+      "leaky": 0.9097748269478766,
+      "circular": 0.8801451695225438,
+      "leaky_minus_nested": -0.0012351352306755325,
+      "circular_minus_nested": -0.030864792656008277,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "esol",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.902357168411433,
+      "leaky": 0.8779495795599465,
+      "circular": 0.8736832613554049,
+      "leaky_minus_nested": -0.024407588851486528,
+      "circular_minus_nested": -0.028673907056028125,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8602242181865862,
+      "leaky": 0.8602242181865862,
+      "circular": 0.8162073271776017,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": -0.04401689100898454,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.9110381135080757,
+      "leaky": 0.8633867296451971,
+      "circular": 0.8655813290934994,
+      "leaky_minus_nested": -0.047651383862878594,
+      "circular_minus_nested": -0.045456784414576346,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.7372613727451637,
+      "leaky": 0.7372613727451637,
+      "circular": 0.8299640832486082,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.09270271050344447,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.8583965976540092,
+      "leaky": 0.8604579989454897,
+      "circular": 0.9004330090609829,
+      "leaky_minus_nested": 0.002061401291480469,
+      "circular_minus_nested": 0.04203641140697367,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8594593413317599,
+      "leaky": 0.8594593413317599,
+      "circular": 0.8130344138802853,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": -0.04642492745147464,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.9001153253848689,
+      "leaky": 0.8788245878598822,
+      "circular": 0.8639460821966716,
+      "leaky_minus_nested": -0.02129073752498678,
+      "circular_minus_nested": -0.036169243188197364,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8103548134128249,
+      "leaky": 0.8050440925287851,
+      "circular": 0.8269608168877789,
+      "leaky_minus_nested": -0.005310720884039832,
+      "circular_minus_nested": 0.016606003474954,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.8829765301137107,
+      "leaky": 0.8949904802533734,
+      "circular": 0.8253908187666587,
+      "leaky_minus_nested": 0.012013950139662666,
+      "circular_minus_nested": -0.05758571134705204,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.8247063323444883,
+      "leaky": 0.8247063323444883,
+      "circular": 0.8233019675721416,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": -0.0014043647723467334,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "freesolv",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.902281495582516,
+      "leaky": 0.9253493438065642,
+      "circular": 0.8759275487301685,
+      "leaky_minus_nested": 0.02306784822404817,
+      "circular_minus_nested": -0.026353946852347487,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.5250867049899354,
+      "leaky": 0.5225882776804509,
+      "circular": 0.591700774786996,
+      "leaky_minus_nested": -0.0024984273094844633,
+      "circular_minus_nested": 0.06661406979706064,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.45529383553843333,
+      "leaky": 0.4161012004428416,
+      "circular": 0.4556514719269513,
+      "leaky_minus_nested": -0.03919263509559173,
+      "circular_minus_nested": 0.00035763638851799007,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.4726328919716129,
+      "leaky": 0.4662071629618659,
+      "circular": 0.5960444568533501,
+      "leaky_minus_nested": -0.006425729009747028,
+      "circular_minus_nested": 0.12341156488173716,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.44042948760114425,
+      "leaky": 0.4122461315044444,
+      "circular": 0.46420377868692814,
+      "leaky_minus_nested": -0.028183356096699863,
+      "circular_minus_nested": 0.023774291085783883,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.526982525348211,
+      "leaky": 0.526982525348211,
+      "circular": 0.588923123067198,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.06194059771898697,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.4497622261920315,
+      "leaky": 0.47338809135404014,
+      "circular": 0.44593290018150084,
+      "leaky_minus_nested": 0.023625865162008652,
+      "circular_minus_nested": -0.0038293260105306537,
+      "overlap_nested_vs_leaky": 1,
+      "jaccard_nested_vs_leaky": 0.1111111111111111
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.5450250847301635,
+      "leaky": 0.5385788343632284,
+      "circular": 0.5916410843464851,
+      "leaky_minus_nested": -0.006446250366935136,
+      "circular_minus_nested": 0.04661599961632157,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.4667568201138134,
+      "leaky": 0.5312725997614268,
+      "circular": 0.4102137249220941,
+      "leaky_minus_nested": 0.0645157796476134,
+      "circular_minus_nested": -0.056543095191719295,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.5674679227293645,
+      "leaky": 0.5592609291139241,
+      "circular": 0.5880998785308789,
+      "leaky_minus_nested": -0.008206993615440417,
+      "circular_minus_nested": 0.020631955801514335,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "lipophilicity",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.5738381310281667,
+      "leaky": 0.5447174206374452,
+      "circular": 0.4372073095938248,
+      "leaky_minus_nested": -0.029120710390721505,
+      "circular_minus_nested": -0.1366308214343419,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.5245469014750647,
+      "leaky": 0.5425105537645744,
+      "circular": 0.5273351027354548,
+      "leaky_minus_nested": 0.01796365228950969,
+      "circular_minus_nested": 0.002788201260390144,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.4851540065131735,
+      "leaky": 0.49361743451627216,
+      "circular": 0.5165551029725477,
+      "leaky_minus_nested": 0.008463428003098683,
+      "circular_minus_nested": 0.03140109645937422,
+      "overlap_nested_vs_leaky": 3,
+      "jaccard_nested_vs_leaky": 0.42857142857142855
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.43375819646834823,
+      "leaky": 0.43375819646834823,
+      "circular": 0.5298829948320967,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.09612479836374843,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.3974181333377366,
+      "leaky": 0.3974181333377366,
+      "circular": 0.5153643256542656,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.11794619231652897,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.5012738441596294,
+      "leaky": 0.4913696824926489,
+      "circular": 0.5297738493667145,
+      "leaky_minus_nested": -0.009904161666980493,
+      "circular_minus_nested": 0.028500005207085066,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.4598405597000531,
+      "leaky": 0.46341656621145383,
+      "circular": 0.5039628543509992,
+      "leaky_minus_nested": 0.00357600651140072,
+      "circular_minus_nested": 0.04412229465094608,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.5177315583600244,
+      "leaky": 0.5091907790979459,
+      "circular": 0.5231575041699684,
+      "leaky_minus_nested": -0.008540779262078524,
+      "circular_minus_nested": 0.005425945809944044,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.46922758715578533,
+      "leaky": 0.46922758715578533,
+      "circular": 0.5086240222581784,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.039396435102393046,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.3697800416212856,
+      "leaky": 0.43514513107824965,
+      "circular": 0.5380037315636925,
+      "leaky_minus_nested": 0.06536508945696407,
+      "circular_minus_nested": 0.16822368994240694,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bbbp",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.442625710421827,
+      "leaky": 0.442625710421827,
+      "circular": 0.5093370984436313,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.06671138802180426,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bace",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.3887039959056882,
+      "leaky": 0.3887039959056882,
+      "circular": 0.38705379013842184,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": -0.0016502057672663772,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bace",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.34227072898179955,
+      "leaky": 0.25099874901552316,
+      "circular": 0.24631849702060823,
+      "leaky_minus_nested": -0.0912719799662764,
+      "circular_minus_nested": -0.09595223196119132,
+      "overlap_nested_vs_leaky": 0,
+      "jaccard_nested_vs_leaky": 0.0
+    },
+    {
+      "dataset": "bace",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.2583119096037196,
+      "leaky": 0.2674362036092103,
+      "circular": 0.3915435475049992,
+      "leaky_minus_nested": 0.009124294005490696,
+      "circular_minus_nested": 0.13323163790127962,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bace",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.08384925886702396,
+      "leaky": 0.08384925886702396,
+      "circular": 0.24882421439870345,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": 0.16497495553167948,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bace",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.2857694818600606,
+      "leaky": 0.3613875487922127,
+      "circular": 0.3865878921560886,
+      "leaky_minus_nested": 0.07561806693215206,
+      "circular_minus_nested": 0.10081841029602795,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bace",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.049197338587679176,
+      "leaky": 0.14364408118501393,
+      "circular": 0.21409309307862506,
+      "leaky_minus_nested": 0.09444674259733475,
+      "circular_minus_nested": 0.1648957544909459,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bace",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.43052113715751716,
+      "leaky": 0.43052113715751716,
+      "circular": 0.3844556953562245,
+      "leaky_minus_nested": 0.0,
+      "circular_minus_nested": -0.046065441801292684,
+      "overlap_nested_vs_leaky": 5,
+      "jaccard_nested_vs_leaky": 1.0
+    },
+    {
+      "dataset": "bace",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.34911006131335187,
+      "leaky": 0.2751477043975154,
+      "circular": 0.2814898448188603,
+      "leaky_minus_nested": -0.07396235691583647,
+      "circular_minus_nested": -0.06762021649449157,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    },
+    {
+      "dataset": "bace",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 5,
+      "nested": 0.28065367039902805,
+      "leaky": 0.28623718402896775,
+      "circular": 0.38588006467141367,
+      "leaky_minus_nested": 0.005583513629939696,
+      "circular_minus_nested": 0.10522639427238561,
+      "overlap_nested_vs_leaky": 4,
+      "jaccard_nested_vs_leaky": 0.6666666666666666
+    },
+    {
+      "dataset": "bace",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 5,
+      "nested": 0.2689969676392291,
+      "leaky": 0.030216661997320746,
+      "circular": 0.270986452051101,
+      "leaky_minus_nested": -0.23878030564190833,
+      "circular_minus_nested": 0.0019894844118719113,
+      "overlap_nested_vs_leaky": 2,
+      "jaccard_nested_vs_leaky": 0.25
+    }
+  ],
+  "summary": {
+    "bace": {
+      "scorecard": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.3287920389852027,
+          "std": 0.06793223621573137
+        },
+        "leaky": {
+          "mean": 0.3468572138987192,
+          "std": 0.061553912545549434
+        },
+        "circular": {
+          "mean": 0.38710419796542955,
+          "std": 0.002387048611350191
+        },
+        "leaky_minus_nested": {
+          "mean": 0.01806517491351649,
+          "std": 0.028985402149461572
+        },
+        "circular_minus_nested": {
+          "mean": 0.058312158980226826,
+          "std": 0.06944180862677733
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.7999999999999999,
+          "std": 0.16329931618554525
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.21868487107781673,
+          "std": 0.12784534999138494
+        },
+        "leaky": {
+          "mean": 0.15677129109247945,
+          "std": 0.09423142747816345
+        },
+        "circular": {
+          "mean": 0.2523424202735796,
+          "std": 0.02327594781462809
+        },
+        "leaky_minus_nested": {
+          "mean": -0.06191357998533729,
+          "std": 0.1100643168190277
+        },
+        "circular_minus_nested": {
+          "mean": 0.03365754919576288,
+          "std": 0.11182707655824074
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.4333333333333333,
+          "std": 0.35512126254437526
+        }
+      }
+    },
+    "bbbp": {
+      "scorecard": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.4694181084168704,
+          "std": 0.05930857415941328
+        },
+        "leaky": {
+          "mean": 0.48239486858035335,
+          "std": 0.04245121265298302
+        },
+        "circular": {
+          "mean": 0.5296306365335853,
+          "std": 0.004844870132931745
+        },
+        "leaky_minus_nested": {
+          "mean": 0.012976760163482948,
+          "std": 0.0280155083135101
+        },
+        "circular_minus_nested": {
+          "mean": 0.060212528116714924,
+          "std": 0.06365675024423442
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.7333333333333332,
+          "std": 0.13333333333333336
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.45085319942571517,
+          "std": 0.030059720554730596
+        },
+        "leaky": {
+          "mean": 0.453261086328615,
+          "std": 0.03230555487459806
+        },
+        "circular": {
+          "mean": 0.5107686807359245,
+          "std": 0.004638337959732626
+        },
+        "leaky_minus_nested": {
+          "mean": 0.0024078869028998804,
+          "std": 0.0033294996455152663
+        },
+        "circular_minus_nested": {
+          "mean": 0.059915481310209316,
+          "std": 0.03129624230953631
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.7357142857142858,
+          "std": 0.32857142857142857
+        }
+      }
+    },
+    "esol": {
+      "scorecard": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.8744357318496261,
+          "std": 0.021236876498078726
+        },
+        "leaky": {
+          "mean": 0.8741887048034911,
+          "std": 0.020812961458550255
+        },
+        "circular": {
+          "mean": 0.8841100731915604,
+          "std": 0.0026314600899356184
+        },
+        "leaky_minus_nested": {
+          "mean": -0.0002470270461351065,
+          "std": 0.000494054092270213
+        },
+        "circular_minus_nested": {
+          "mean": 0.009674341341934256,
+          "std": 0.023162757660416457
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.9333333333333333,
+          "std": 0.13333333333333336
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.8678248002003572,
+          "std": 0.0248045926152413
+        },
+        "leaky": {
+          "mean": 0.8578740456629677,
+          "std": 0.020727191727526992
+        },
+        "circular": {
+          "mean": 0.8768288886856095,
+          "std": 0.0034919061552670747
+        },
+        "leaky_minus_nested": {
+          "mean": -0.00995075453738976,
+          "std": 0.013889318575117205
+        },
+        "circular_minus_nested": {
+          "mean": 0.009004088485252049,
+          "std": 0.028155760190079406
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.3928571428571429,
+          "std": 0.07142857142857141
+        }
+      }
+    },
+    "freesolv": {
+      "scorecard": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.8184012156041647,
+          "std": 0.04499579184277023
+        },
+        "leaky": {
+          "mean": 0.8173390714273566,
+          "std": 0.045235238067581666
+        },
+        "circular": {
+          "mean": 0.8218937217532831,
+          "std": 0.006381406793372262
+        },
+        "leaky_minus_nested": {
+          "mean": -0.0010621441768079664,
+          "std": 0.0021242883536159328
+        },
+        "circular_minus_nested": {
+          "mean": 0.003492506149118513,
+          "std": 0.05080019038049519
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.9333333333333332,
+          "std": 0.13333333333333336
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.890961612448636,
+          "std": 0.018650672041206136
+        },
+        "leaky": {
+          "mean": 0.8846018281021013,
+          "std": 0.023810357088047556
+        },
+        "circular": {
+          "mean": 0.8662557575695962,
+          "std": 0.024237824742433942
+        },
+        "leaky_minus_nested": {
+          "mean": -0.006359784346534813,
+          "std": 0.02530780748568979
+        },
+        "circular_minus_nested": {
+          "mean": -0.024705854879039913,
+          "std": 0.034929476450751534
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.369047619047619,
+          "std": 0.16409581847726454
+        }
+      }
+    },
+    "lipophilicity": {
+      "scorecard": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.5274390259538575,
+          "std": 0.03137207729541637
+        },
+        "leaky": {
+          "mean": 0.522723545893536,
+          "std": 0.030979442500518466
+        },
+        "circular": {
+          "mean": 0.5912818635169816,
+          "std": 0.0027812050088170154
+        },
+        "leaky_minus_nested": {
+          "mean": -0.004715480060321409,
+          "std": 0.0030087292775565384
+        },
+        "circular_minus_nested": {
+          "mean": 0.06384283756312413,
+          "std": 0.03383393493857764
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.619047619047619,
+          "std": 0.09523809523809523
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "nested": {
+          "mean": 0.4772161000947179,
+          "std": 0.049056638967047005
+        },
+        "leaky": {
+          "mean": 0.47554508874003965,
+          "std": 0.05556141370679897
+        },
+        "circular": {
+          "mean": 0.44264183706225985,
+          "std": 0.018580180667438977
+        },
+        "leaky_minus_nested": {
+          "mean": -0.0016710113546782091,
+          "std": 0.03971117201424651
+        },
+        "circular_minus_nested": {
+          "mean": -0.034574263032457996,
+          "std": 0.05739026610255052
+        },
+        "jaccard_nested_vs_leaky": {
+          "mean": 0.32936507936507936,
+          "std": 0.12919698885793418
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,131 @@
+% Methods — SIREN
+\section{Methods}
+
+\subsection{Problem setting}
+
+Let $X \in \mathbb{R}^{n \times p}$ be a descriptor matrix and
+$y \in \mathbb{R}^{n}$ (regression) or $y \in \{0,1\}^{n}$ (classification) the
+endpoint. A selector is a map
+$\mathcal{S}(X, y, k) \mapsto \{j_1, \dots, j_k\}$ that returns $k$ column
+indices. We consider only selectors that are \emph{refitted} on the development
+rows of every evaluation split: for a split with training rows $D$ and held-out
+rows $T$, the selection is $\mathcal{S}(X_D, y_D, k)$ and the score is computed
+on $T$ using only the selected columns. No row of $T$ influences the selection.
+
+\subsection{The marginal scorecard}
+
+The reference procedure, which we call the scorecard, ranks every descriptor by
+its absolute Spearman correlation with the endpoint,
+$s_j = |\rho_s(X_{\cdot j}, y)|$, keeps the top candidates, and then greedily
+removes any descriptor whose absolute Pearson correlation with an already kept
+descriptor exceeds a threshold $\tau$ (0.8 in our runs). It has four structural
+properties that motivate this work: it cannot promote a descriptor whose
+univariate association is masked by a correlated partner (a \emph{suppressor});
+it cannot promote an interaction partner that carries no marginal signal; it
+does not account for the resampling variability of the ranking; and the number
+of retained descriptors is controlled only by $\tau$ and by the user's budget.
+
+\subsection{The SIREN objective}
+
+SIREN replaces the marginal score with a greedy forward selection that scores
+each remaining candidate $j$ \emph{conditional} on the set $S$ already selected:
+\begin{equation}
+J(j \mid S) = \alpha\, R(j \mid S) + \beta\, Y(j \mid S)
+            + \gamma\, T(j) - \delta\, D(j \mid S),
+\end{equation}
+where $R$ is a conditional relevance term, $Y$ an interaction term, $T$ a
+stability term and $D$ a redundancy penalty. The default weights are
+$\alpha = 1$, $\beta = 0.5$, $\gamma = 0.5$ and $\delta = 0$; the redundancy
+penalty is disabled because the near-duplicate screen below already enforces the
+hard constraint, and a soft penalty was found to trade suppressor retention for
+duplicates that the screen had already removed.
+
+\paragraph{Conditional relevance.}
+For regression, both the candidate and the endpoint are residualised against the
+selected columns, $r_j = X_{\cdot j} - P_S X_{\cdot j}$ and
+$r_y = y - P_S y$, and $R(j \mid S) = \hat{I}(r_j; r_y)$. For classification the
+endpoint is not continuous, so only the descriptor is residualised and the label
+is kept discrete, $R(j \mid S) = \hat{I}(r_j; y)$. This distinction matters: a
+continuous residual of a binary label silently switches the estimator to a
+regression variant whose output is not bounded by the label entropy $H(y)$, and
+the resulting value cannot be compared with the marginal term or with the
+nats-scale interaction term. With the label kept discrete, $R \in [0, H(y)]$ and
+the suppression gain $R(j\mid S) - \hat{I}(X_{\cdot j}; y)$ has a direct reading
+in bits or nats.
+
+\paragraph{Interaction term.}
+For a candidate $j$ and each selected partner $l$, we form the standardised
+product $u = \tilde{X}_{\cdot j} \odot \tilde{X}_{\cdot l}$, residualise it
+against the two raw columns, and measure
+$Y(j \mid S) = \max_{l \in S} \hat{I}(\tilde{u}; y)$. Residualising the product
+removes the squared marginal component that makes a duplicate look synergistic.
+Near-duplicate pairs ($|\rho| \ge 0.999$) have no beyond-marginal signal and are
+assigned $Y = 0$. The term is the absolute interaction information in nats, on the
+same scale as $R$. An earlier normalised variant, which divided the lift by the
+pair's marginal information, is unbounded when both marginals are near zero ---
+the interaction-only regime the term exists to detect --- and on real descriptor
+matrices it produced objective values in the thousands while selecting noise.
+
+\paragraph{Stability.}
+$T(j)$ is the fraction of random subsamples (80\% of rows, 16 draws by default)
+in which the sign of $\hat{\rho}_s(X_{\cdot j}, y)$ matches the full-sample sign.
+A descriptor whose association flips sign under resampling receives no bonus.
+
+\paragraph{Redundancy.}
+$D(j \mid S) = \max\big(0, \hat{I}(X_{\cdot j}; y) - R(j \mid S)\big)
+ + \max_{l \in S} |\rho_{\text{partial}}(X_{\cdot j}, X_{\cdot l} \mid S)|$,
+both terms bounded in $[0, 1]$. It is reported but not applied by default.
+
+\subsection{Screening}
+
+Two constraints are applied before selection and are not part of the objective.
+A \emph{support} mask removes descriptors that are constant or almost constant
+on the development rows (default: fewer than five distinct values). A
+\emph{near-duplicate} mask removes a column whose absolute Pearson correlation
+with an already available column exceeds $0.999$; the first occurrence in column
+order is kept, so the result is deterministic. Because the mask is applied before
+the greedy loop, a duplicated descriptor cannot consume one of the $k$ slots.
+
+\subsection{Synergy seeding}
+
+Greedy forward selection can only reward an interaction against a partner that
+has \emph{already} been selected, so a design whose only signal is a pure
+interaction is unreachable: the first step has no partner and the marginal
+scores are at chance. SIREN therefore checks, before the loop, whether any
+eligible candidate carries marginal information. The check is calibrated by
+permutation: the endpoint is shuffled and the maximum marginal estimate over all
+eligible columns defines a noise floor, and the screen fires only when
+$\max_j \hat{I}(X_{\cdot j}; y) < \max(0.15, 1.5 \times \text{floor})$.
+When it fires, candidate pairs are scored by their interaction information and
+the strongest pair is admitted first, subject to two guards: the interaction must
+reach 0.15 nats, and it must exceed the median of the screened pairs by three
+median absolute deviations. On the molecular benchmarks the weakest endpoint
+already carries 0.21 nats of marginal information, so the screen is skipped and
+the additional cost is not paid.
+
+\subsection{Estimators and reproducibility}
+
+All mutual-information values are estimated with the $k$-nearest-neighbour
+estimators of \textsc{scikit-learn}, with a fixed random seed. Continuous
+variables are quantile-binned into 12 bins before estimation; the label is left
+discrete for classification. Spearman correlations are computed with mid-ranks.
+Every random operation (stability subsamples, permutation floor, pair screening)
+derives its generator from the user-supplied seed, so a run is reproducible. The
+selector is $O(k \cdot p)$ batched estimator calls: all candidates are scored
+against the current context in one linear solve and one or two estimator calls,
+which is what makes the nested protocol of the next section affordable.
+
+\subsection{Evaluation protocol}
+
+All selectors are compared under identical splits. For the molecular benchmarks
+we use the scaffold split of each dataset (80/10/10), repeated over ten seeds; the
+descriptor set is the 210 RDKit 2D descriptors after the release-time contract.
+The headline metric is the held-out Spearman correlation of an ordinary
+least-squares readout fitted on the selected columns, deliberately simple so that
+differences reflect selection rather than model capacity. For classification the
+readout is logistic regression and the metric is AUROC. Differences against the
+scorecard are reported as paired bootstrap intervals over identical splits, and
+family-wise error is controlled with Holm--Bonferroni within each table. A
+separate experiment replaces the linear readout with a random forest on
+scaffold-held-out rows to test whether the selected subspace helps a nonlinear
+model.

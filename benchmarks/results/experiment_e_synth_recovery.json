@@ -1,0 +1,4554 @@
+{
+  "experiment": "E-SYNTH",
+  "description": "Ground-truth recovery of informative, redundant and synergistic features on synthetic and real-descriptor planted-signal designs",
+  "k": 3,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "scenarios": [
+    "marginal",
+    "duplicate",
+    "suppression",
+    "xor",
+    "masked_synergy",
+    "noise",
+    "real_synergy",
+    "real_suppression"
+  ],
+  "arms": [
+    "scorecard",
+    "siren_full",
+    "siren_relevance_only",
+    "siren_no_synergy",
+    "siren_no_stability"
+  ],
+  "cells": [
+    {
+      "scenario": "marginal",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n3",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n3",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n3",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n2",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n3",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "marginal",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "duplicate",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "signal",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "proxy_c",
+        "n0"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.3333333333333333,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_c",
+        "proxy_a"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_c",
+        "proxy_a"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_c",
+        "proxy_a"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_c",
+        "proxy_a"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "proxy_a",
+        "n0"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.3333333333333333,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "proxy_c",
+        "proxy_a",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "proxy_c",
+        "proxy_a",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "proxy_c",
+        "proxy_a",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "proxy_c",
+        "proxy_a",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "n0"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.3333333333333333,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_c",
+        "proxy_a"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_a",
+        "proxy_c"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_a",
+        "proxy_c"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_c",
+        "proxy_a"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "proxy_c",
+        "n0"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.3333333333333333,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "proxy_a",
+        "proxy_c",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "proxy_a",
+        "proxy_c",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "proxy_a",
+        "proxy_c",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "proxy_a",
+        "proxy_c",
+        "proxy_b"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "proxy_a",
+        "n0"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.3333333333333333,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_a",
+        "proxy_c"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_a",
+        "proxy_c"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_a",
+        "proxy_c"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "suppression",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "proxy_b",
+        "proxy_a",
+        "proxy_c"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 3.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 3.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "n1",
+        "n7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "n9",
+        "n4"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "xor_b",
+        "n8"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "n0",
+        "n5"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "n3",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "n3",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "n3",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "n3",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "n0",
+        "n4"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "n1",
+        "n8"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "n1",
+        "n4"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "n9",
+        "n5"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "n1",
+        "xor_a"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "n5",
+        "n7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "n7",
+        "xor_a"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "n8",
+        "n2"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "n7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "xor",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "xor_a",
+        "xor_b"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "driver",
+        "n0",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner",
+        "partner_source"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "masked_synergy",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "driver",
+        "partner_source",
+        "partner"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "n3",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "n3",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "n3",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n0",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "n1",
+        "n3",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "n1",
+        "n2",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "n1",
+        "c0",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "n1",
+        "n2",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "n1",
+        "c0",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "n1",
+        "n0",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "n1",
+        "n2",
+        "c0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "n3",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "n1",
+        "n2",
+        "c0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "n3",
+        "n0",
+        "n1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "n2",
+        "n0",
+        "c0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "n2",
+        "n0",
+        "c0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n2",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "n2",
+        "n0",
+        "c0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n0",
+        "n3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n1",
+        "n0"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "noise",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "c0",
+        "n1",
+        "n2"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": NaN,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.fr_ketone_Topliss",
+        "rdkit_2d.fr_ArN"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.PEOE_VSA3",
+        "rdkit_2d.PEOE_VSA10"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.SMR_VSA10",
+        "rdkit_2d.fr_allylic_oxid"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.PEOE_VSA3",
+        "rdkit_2d.TPSA"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.SMR_VSA10",
+        "rdkit_2d.NumAliphaticRings"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.NumRotatableBonds",
+        "rdkit_2d.NumHAcceptors"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.NumHAcceptors",
+        "rdkit_2d.VSA_EState7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.NumHAcceptors",
+        "rdkit_2d.VSA_EState7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.NumHAcceptors",
+        "rdkit_2d.VSA_EState7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.NumHAcceptors",
+        "rdkit_2d.VSA_EState7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.PEOE_VSA14",
+        "rdkit_2d.PEOE_VSA3"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.MinEStateIndex",
+        "rdkit_2d.fr_unbrch_alkane"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.MinEStateIndex",
+        "rdkit_2d.fr_unbrch_alkane"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.MinEStateIndex",
+        "rdkit_2d.fr_unbrch_alkane"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.MinEStateIndex",
+        "rdkit_2d.fr_unbrch_alkane"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.FractionCSP3",
+        "rdkit_2d.PEOE_VSA7"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.FpDensityMorgan3",
+        "rdkit_2d.SlogP_VSA6"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.FpDensityMorgan3",
+        "rdkit_2d.SlogP_VSA6"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.FpDensityMorgan3",
+        "rdkit_2d.SlogP_VSA6"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.FpDensityMorgan3",
+        "rdkit_2d.SlogP_VSA6"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.EState_VSA1",
+        "rdkit_2d.NumHeteroatoms"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.VSA_EState4",
+        "rdkit_2d.BCUT2D_LOGPHI"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.VSA_EState4",
+        "rdkit_2d.fr_unbrch_alkane"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.VSA_EState4",
+        "rdkit_2d.fr_unbrch_alkane"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 1.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_synergy",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 2,
+      "selected": [
+        "rdkit_2d.VSA_EState4",
+        "rdkit_2d.BCUT2D_LOGPHI"
+      ],
+      "n_selected": 2.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 2.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 1,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.SlogP_VSA12",
+        "rdkit_2d.BCUT2D_MWHI",
+        "rdkit_2d.SlogP_VSA7"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 1,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.SlogP_VSA12",
+        "rdkit_2d.fr_halogen",
+        "rdkit_2d.fr_aryl_methyl"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 1,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.SlogP_VSA12",
+        "rdkit_2d.fr_halogen",
+        "rdkit_2d.EState_VSA3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 1,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.SlogP_VSA12",
+        "rdkit_2d.fr_halogen",
+        "rdkit_2d.EState_VSA3"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 1,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.SlogP_VSA12",
+        "rdkit_2d.fr_halogen",
+        "rdkit_2d.fr_aryl_methyl"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 2,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolMR",
+        "rdkit_2d.Ipc",
+        "rdkit_2d.Chi4n"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 2,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolMR",
+        "rdkit_2d.NumAliphaticRings",
+        "rdkit_2d.Chi3n"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 2,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolMR",
+        "rdkit_2d.Chi3n",
+        "rdkit_2d.Chi1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 2,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolMR",
+        "rdkit_2d.Chi3n",
+        "rdkit_2d.Chi1"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 2,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolMR",
+        "rdkit_2d.NumAliphaticRings",
+        "rdkit_2d.Chi3n"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 2.0,
+      "recall_informative": 1.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 2.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 3,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.NumValenceElectrons",
+        "rdkit_2d.Ipc",
+        "rdkit_2d.BCUT2D_CHGLO"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 3,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.NumValenceElectrons",
+        "rdkit_2d.Kappa1",
+        "rdkit_2d.Ipc"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 3,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.NumValenceElectrons",
+        "rdkit_2d.Kappa1",
+        "rdkit_2d.SlogP_VSA6"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 3,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.NumValenceElectrons",
+        "rdkit_2d.Kappa1",
+        "rdkit_2d.SlogP_VSA6"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 3,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.NumValenceElectrons",
+        "rdkit_2d.Kappa1",
+        "rdkit_2d.Ipc"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 4,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.LabuteASA",
+        "rdkit_2d.Ipc",
+        "rdkit_2d.Chi4v"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 4,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.LabuteASA",
+        "rdkit_2d.Ipc",
+        "rdkit_2d.NumValenceElectrons"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 4,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.LabuteASA",
+        "rdkit_2d.VSA_EState6",
+        "rdkit_2d.VSA_EState10"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 4,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.LabuteASA",
+        "rdkit_2d.VSA_EState6",
+        "rdkit_2d.VSA_EState10"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 0.0,
+      "recall_informative": 0.0,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 0.0,
+      "first_position_informative": 0.0,
+      "any_informative": 0.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 4,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.LabuteASA",
+        "rdkit_2d.Ipc",
+        "rdkit_2d.NumValenceElectrons"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 5,
+      "arm": "scorecard",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.ExactMolWt",
+        "rdkit_2d.Chi4v",
+        "rdkit_2d.Ipc"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 1.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 5,
+      "arm": "siren_full",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolWt",
+        "rdkit_2d.Chi3v",
+        "rdkit_2d.Ipc"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 5,
+      "arm": "siren_relevance_only",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolWt",
+        "rdkit_2d.Chi3v",
+        "rdkit_2d.MaxAbsPartialCharge"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 5,
+      "arm": "siren_no_synergy",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolWt",
+        "rdkit_2d.Chi3v",
+        "rdkit_2d.MaxAbsPartialCharge"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    },
+    {
+      "scenario": "real_suppression",
+      "seed": 5,
+      "arm": "siren_no_stability",
+      "k": 3,
+      "selected": [
+        "rdkit_2d.MolWt",
+        "rdkit_2d.Chi3v",
+        "rdkit_2d.Ipc"
+      ],
+      "n_selected": 3.0,
+      "recovered_informative": 1.0,
+      "recall_informative": 0.5,
+      "recovered_synergy": 0.0,
+      "selected_redundant": 0.0,
+      "distinct_informative": 1.0,
+      "first_position_informative": 0.0,
+      "any_informative": 1.0
+    }
+  ],
+  "summary": {
+    "marginal": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      }
+    },
+    "duplicate": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      }
+    },
+    "suppression": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.3333333333333333,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      }
+    },
+    "xor": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.1,
+          "std": 0.2
+        },
+        "recovered_synergy": {
+          "mean": 0.2,
+          "std": 0.4
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.9,
+          "std": 0.20000000000000004
+        },
+        "recovered_synergy": {
+          "mean": 1.8,
+          "std": 0.4000000000000001
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.8,
+          "std": 0.4000000000000001
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.2,
+          "std": 0.24494897427831783
+        },
+        "recovered_synergy": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.3,
+          "std": 0.24494897427831783
+        },
+        "recovered_synergy": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.9,
+          "std": 0.20000000000000004
+        },
+        "recovered_synergy": {
+          "mean": 1.8,
+          "std": 0.4000000000000001
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.8,
+          "std": 0.4000000000000001
+        }
+      }
+    },
+    "masked_synergy": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.8,
+          "std": 0.2449489742783178
+        },
+        "recovered_synergy": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.9,
+          "std": 0.2
+        },
+        "recovered_synergy": {
+          "mean": 0.8,
+          "std": 0.4
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "recovered_synergy": {
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.8,
+          "std": 0.2449489742783178
+        },
+        "recovered_synergy": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.9,
+          "std": 0.20000000000000004
+        },
+        "recovered_synergy": {
+          "mean": 0.8,
+          "std": 0.4000000000000001
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 1.0,
+          "std": 0.0
+        }
+      }
+    },
+    "noise": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.0,
+          "std": 0.0
+        }
+      }
+    },
+    "real_synergy": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.4,
+          "std": 0.37416573867739417
+        },
+        "recovered_synergy": {
+          "mean": 0.8,
+          "std": 0.7483314773547883
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        },
+        "recovered_synergy": {
+          "mean": 1.2,
+          "std": 0.9797958971132713
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.5,
+          "std": 0.4472135954999579
+        },
+        "recovered_synergy": {
+          "mean": 1.0,
+          "std": 0.8944271909999159
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.5,
+          "std": 0.4472135954999579
+        },
+        "recovered_synergy": {
+          "mean": 1.0,
+          "std": 0.8944271909999159
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        },
+        "recovered_synergy": {
+          "mean": 1.2,
+          "std": 0.9797958971132713
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        }
+      }
+    },
+    "real_suppression": {
+      "scorecard": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.3,
+          "std": 0.24494897427831783
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.6,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_full": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.7,
+          "std": 0.2449489742783178
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_relevance_only": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.6,
+          "std": 0.37416573867739417
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_no_synergy": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.6,
+          "std": 0.37416573867739417
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        }
+      },
+      "siren_no_stability": {
+        "n_seeds": 5,
+        "recall_informative": {
+          "mean": 0.7,
+          "std": 0.2449489742783178
+        },
+        "recovered_synergy": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "selected_redundant": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "first_position_informative": {
+          "mean": 0.4,
+          "std": 0.48989794855663565
+        }
+      }
+    }
+  }
+}
