@@ -5,14 +5,14 @@
 # after the deposit, then re-upload the citation metadata if needed.
 cff-version: 1.2.0
 message: "If you use this software, please cite the manuscript and the archived release."
-title: "chemistry-framework: configuration-driven, evidence-guided molecular property prediction"
+title: "chemistry-framework: a configuration-driven framework for testing how molecular descriptors shape property models"
 abstract: >-
-  Analysis code for the manuscript "Evidence-Guided Molecular Property Modelling
-  with a Configuration-Driven Modular Framework": training-partition feature
-  evidence scorecard, evidence-guided descriptor recommender, modular
-  prior/residual predictor, benchmark runners, archived per-split results, and
-  the statistics scripts that regenerate every paired comparison reported in the
-  manuscript.
+  Analysis code for the manuscript "Evidence before prediction: a
+  configuration-driven framework for testing how molecular descriptors shape
+  property models": training-partition feature evidence scorecard,
+  evidence-guided descriptor recommender, modular prior/residual predictor,
+  benchmark runners, archived per-split results, and the statistics scripts that
+  regenerate every paired comparison reported in the manuscript.
 type: software
 version: "1.0.0"
 date-released: "2026-10-19"

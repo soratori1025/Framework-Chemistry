@@ -7,8 +7,8 @@
 \usepackage[font=small,labelfont=bf,skip=4pt]{caption}
 \usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
-\renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
 \newcommand{\cfg}[1]{\texttt{#1}}
 \setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
 
@@ -21,15 +21,15 @@ Evidence before prediction: a configuration-driven framework for testing how mol
 
 \textbf{Abbreviations.} AP, average precision; AUROC, area under the receiver operating characteristic curve; BBBP, blood-brain barrier penetration; BACE-1, beta-site amyloid precursor protein cleaving enzyme 1; BCE, binary cross-entropy; CI, confidence interval; D-MPNN, directed message-passing neural network; ECFP4, extended-connectivity fingerprint with radius 2; ESOL, the aqueous-solubility benchmark; FFN, feed-forward network; GIN, graph isomorphism network; InChIKey, International Chemical Identifier key; L1, absolute-value regularisation; LARS, least angle regression; MAE, mean absolute error; MI, mutual information; MI--Pearson, mutual-information relevance with Pearson-correlation redundancy; MLP, multilayer perceptron; OOD, out of distribution, used here as a range-based descriptor diagnostic; RF, Random Forest; RMSE, root mean squared error; SD, standard deviation; SMILES, simplified molecular input line entry system; TDC, Therapeutics Data Commons.
 
-\textbf{Contents.} Dataset overview, source-level target statistics, and provenance (Table~\ref{tab:dataset-summary}); fixed hyperparameters (Table~\ref{tab:hp}); scorecard diagnostics (Table~\ref{tab:shift}); recommended versus random subsets and the full pool (Table~\ref{tab:rec-random}); six-selector results and stability (Table~\ref{tab:sel-full}, Fig.~\ref{fig:selectors}) and the selector comparisons that survive multiplicity correction (Table~\ref{tab:selector-stats}); internal and external paired comparisons (Tables~\ref{tab:int}--\ref{tab:ext}); harmonised descriptor-routing results and their paired comparisons (Tables~\ref{tab:routing-si} and \ref{tab:routing-stats}); training-seed variance (Table~\ref{tab:seed}); secondary metrics (Table~\ref{tab:secondary}); per-split primary scores (Table~\ref{tab:splits}); Caco-2 advisor case study (Table~\ref{tab:caco2}); duplicate-controlled BBBP sensitivity analysis and its paired comparisons (Tables~\ref{tab:bbbp-sensitivity} and \ref{tab:bbbp-sensitivity-stats}); checkpoint protocol and result-file inventory (Table~\ref{tab:routing-audit}).
+\textbf{Contents.} Dataset overview, source-level target statistics, and provenance (Table~\ref{tab:dataset-summary}); fixed hyperparameters (Table~\ref{tab:hp}); scorecard diagnostics (Table~\ref{tab:shift}); recommended versus random subsets and the full pool (Table~\ref{tab:rec-random}), followed by the high-repetition random control over all five datasets (Table~\ref{tab:random-control}); six-selector results and stability (Table~\ref{tab:sel-full}, Fig.~\ref{fig:selectors}) and the selector comparisons that survive multiplicity correction (Table~\ref{tab:selector-stats}); distribution-free checks of every paired comparison, including the Friedman/Nemenyi block test over the selectors (Table~\ref{tab:robustness}); internal and external paired comparisons (Tables~\ref{tab:int}--\ref{tab:ext}); harmonised descriptor-routing results and their paired comparisons (Tables~\ref{tab:routing-si} and \ref{tab:routing-stats}); training-seed variance (Table~\ref{tab:seed}); secondary metrics (Table~\ref{tab:secondary}); per-split primary scores (Table~\ref{tab:splits}); Caco-2 advisor case study (Table~\ref{tab:caco2}); duplicate-controlled BBBP sensitivity analysis and its paired comparisons (Tables~\ref{tab:bbbp-sensitivity} and \ref{tab:bbbp-sensitivity-stats}); checkpoint protocol and result-file inventory (Table~\ref{tab:routing-audit}).
 
 \textbf{Conventions.} Unless stated otherwise, scores are measured on the test partition of the ten saved split manifests, with split $s=1,\dots,10$ corresponding to seed $s$. The duplicate controlled BBBP sensitivity analysis uses new manifests described in Table~\ref{tab:bbbp-sensitivity}. Means are reported with population standard deviation (SD). Root mean squared error (RMSE) is better when lower; area under the receiver operating characteristic curve (AUROC) is better when higher. Paired differences are $\Delta_s=m_A(s)-m_B(s)$, and wins count the splits on which $A$ is better. The descriptive 95\% confidence interval uses $\bar\Delta\pm t_{0.975,9}\,s_\Delta/\sqrt{10}$, where $s_\Delta$ is the sample standard deviation of the paired differences; because training sets overlap, the corrected Nadeau--Bengio intervals in Tables~\ref{tab:int}--\ref{tab:ext} and \ref{tab:routing-stats} inflate the variance by $1/k+n_{\mathrm{test}}/n_{\mathrm{train}}$ and are the intervals used for inference. Tables were generated from result files written by scripts in \texttt{benchmarks/} of the repository.
 
 % ---------------------------------------------------------------------------
 \section*{Dataset overview and provenance}
 
-\renewcommand{\thetable}{S1a}
 \begin{table}[H]
+\renewcommand{\thetable}{S1}
 \caption{Dataset overview, target definitions, source-level target distributions, and provenance. $N$ is the number of records retained for this study after the stated preprocessing. Published target summaries are shown for the original dataset release and are not recomputed from the individual train, validation, or test partitions.}\label{tab:dataset-summary}
 \centering\footnotesize
 \setlength{\tabcolsep}{2pt}
@@ -51,9 +51,9 @@ The target summaries above are included to contextualise the prediction problems
 % ---------------------------------------------------------------------------
 \section*{Hyperparameters}
 
-\renewcommand{\thetable}{S1b}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S2}
 \caption{Fixed hyperparameters. No hyperparameter was tuned on test data; $K^*$ in the routing experiment was the only quantity selected, on validation.}\label{tab:hp}
 \centering\footnotesize
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.68\textwidth}@{}}
@@ -72,14 +72,13 @@ Selector comparison & MI: $k=3$ neighbours; MI--Pearson: MI relevance minus mean
 \bottomrule
 \end{tabular}
 \end{table}
-\setcounter{table}{1}
-\renewcommand{\thetable}{S\arabic{table}}
 
 % ---------------------------------------------------------------------------
 \section*{Scorecard diagnostics}
 
 \begin{table}[H]
-\caption{Range-based covariate shift. (a) Illustrative scaffold split 1 versus a random 80/10/10 split of the same data. OOD descriptors: descriptors with any test value outside the training range. Evidence classes in this case study follow a simplified rule of the audit script: out-of-range or zero training support $\rightarrow$ OOD/unsupported; $|r|>0.85$ with an earlier feature $\rightarrow$ redundant; training $|\rho_{\mathrm{Spearman}}|\geq0.15$ $\rightarrow$ supported; otherwise weak. (b) The ten BBBP scaffold splits with the number of out-of-range descriptors, the number of test molecules affected, and the test AUROC of four role-ablation models.}\label{tab:shift}
+\renewcommand{\thetable}{S3}
+\caption{Range-based covariate shift. (a) Illustrative scaffold split 1 versus a random 80/10/10 split of the same data. OOD descriptors: descriptors with any test value outside the training range. Evidence classes in this case study follow a simplified rule of the audit script: out-of-range or zero training support $\rightarrow$ OOD/unsupported; $|r|>0.85$ with an earlier feature $\rightarrow$ redundant; training $|\rho_{\mathrm{Spearman}}|\geq0.15$ $\rightarrow$ supported; otherwise weak. (b) The ten BBBP scaffold splits with the number of out-of-range descriptors, the number of test molecules affected, the largest absolute standardised test value (Max $|z|$, standardisation fitted on the training partition), and the test AUROC of four role-ablation models.}\label{tab:shift}
 \centering\footnotesize
 \textbf{(a)}\par\smallskip
 \begin{tabular}{@{}llrrrrrr@{}}
@@ -94,30 +93,36 @@ Lipophilicity & Scaffold & 11 (5.2\%) & 3.1\% & 21 & 43 & 25 & 121 \\
 \end{tabular}
 
 \medskip\textbf{(b)}\par\smallskip
-\begin{tabular}{@{}lrrcccc@{}}
+\begingroup\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrcccc@{}}
 \toprule
-Split & OOD descriptors & Test molecules affected & \cfg{direct\_only} & \cfg{direct\_hybrid} & \cfg{residual\_only} & \cfg{prior\_residual} \\
+Split & OOD descriptors & Test molecules affected & Max $|z|$ & \cfg{direct\_only} & \cfg{direct\_hybrid} & \cfg{residual\_only} & \cfg{prior\_residual} \\
 \midrule
-1 & 34 (16.2\%) & 10 (4.9\%) & 0.9320 & 0.9367 & 0.9162 & 0.9375 \\
-2 & 5 (2.4\%) & 4 (2.0\%) & 0.8721 & 0.9118 & 0.8265 & 0.8277 \\
-3 & 18 (8.6\%) & 7 (3.4\%) & 0.9429 & 0.9507 & 0.9270 & 0.9291 \\
-4 & 8 (3.8\%) & 9 (4.4\%) & 0.9214 & 0.9110 & 0.9243 & 0.9108 \\
-5 & 12 (5.7\%) & 5 (2.5\%) & 0.8819 & 0.8958 & 0.9386 & 0.9331 \\
-6 & 16 (7.6\%) & 11 (5.4\%) & 0.8174 & 0.8833 & 0.8850 & 0.9109 \\
-7 & 4 (1.9\%) & 5 (2.5\%) & 0.9496 & 0.9659 & 0.9496 & 0.9455 \\
-8 & 19 (9.0\%) & 18 (8.8\%) & 0.8578 & 0.8671 & 0.9413 & 0.9302 \\
-9 & 6 (2.9\%) & 4 (2.0\%) & 0.9319 & 0.9280 & 0.9258 & 0.8854 \\
-10 & 28 (13.3\%) & 3 (1.5\%) & 0.9240 & 0.9115 & 0.9097 & 0.8872 \\
+1 & 34 (16.2\%) & 10 (4.9\%) & 16.3 & 0.9320 & 0.9367 & 0.9162 & 0.9375 \\
+2 & 5 (2.4\%) & 4 (2.0\%) & 28.5 & 0.8721 & 0.9118 & 0.8265 & 0.8277 \\
+3 & 18 (8.6\%) & 7 (3.4\%) & 23.3 & 0.9429 & 0.9507 & 0.9270 & 0.9291 \\
+4 & 8 (3.8\%) & 9 (4.4\%) & 23.3 & 0.9214 & 0.9110 & 0.9243 & 0.9108 \\
+5 & 12 (5.7\%) & 5 (2.5\%) & 33.0 & 0.8819 & 0.8958 & 0.9386 & 0.9331 \\
+6 & 16 (7.6\%) & 11 (5.4\%) & 430.4 & 0.8174 & 0.8833 & 0.8850 & 0.9109 \\
+7 & 4 (1.9\%) & 5 (2.5\%) & 18.0 & 0.9496 & 0.9659 & 0.9496 & 0.9455 \\
+8 & 19 (9.0\%) & 18 (8.8\%) & 477.9 & 0.8578 & 0.8671 & 0.9413 & 0.9302 \\
+9 & 6 (2.9\%) & 4 (2.0\%) & 20.2 & 0.9319 & 0.9280 & 0.9258 & 0.8854 \\
+10 & 28 (13.3\%) & 3 (1.5\%) & 23.3 & 0.9240 & 0.9115 & 0.9097 & 0.8872 \\
 \bottomrule
 \end{tabular}
+\endgroup
 \end{table}
 
 Across all ten scaffold splits, the mean number of out-of-range descriptors was $19.4\pm12.8$ for ESOL ($9.2\pm6.1\%$ of the 210 descriptors), $20.8\pm14.8$ for Lipophilicity ($9.9\pm7.1\%$), and $15.1\pm9.5$ for BBBP ($7.2\pm4.5\%$). The mean fraction of test molecules affected was $6.3\pm2.5\%$, $3.7\pm0.7\%$, and $3.8\pm2.1\%$, respectively. The scaffold-versus-random values in Table~\ref{tab:shift}(a) are a split-1 illustration, not averages across split manifests.
+
+The last column of panel (b) is the maximum absolute standardised test value, which the audit now reports alongside the range count (\cfg{max\_abs\_standardised\_test\_value}). The two BBBP splits that exceed 400 training standard deviations on \cfg{Kappa3} (splits 6 and 8) have two of the three lowest \cfg{direct\_only} AUROCs in the panel, but no model diverged on them. The largest value anywhere in the audit is on ESOL split 3, where \cfg{Ipc} reaches $3114$ training standard deviations and the framework's prior/residual route and Chemprop's descriptor hybrid both diverged (main text); the other nine ESOL splits stay at or below $30.0$. The maximum magnitude is therefore the more informative of the two shift summaries, but neither is a validated predictor of model failure and both are reported as warnings.
+
 
 % ---------------------------------------------------------------------------
 \section*{Recommended subsets versus random subsets and the full pool}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S4}
 \caption{Framework-recommended top-$K$ subsets versus random $K$-subsets (ten draws per split, averaged) and versus the full 210-descriptor pool, with a Random Forest downstream. All entries are paired on the same 10 splits. $\bar\Delta$ is the mean paired difference, recommended minus the comparator, so a negative value in panel (a) and a positive value in panel (b) mean that the recommended subset scores worse than the comparator (RMSE for ESOL and FreeSolv; AUROC for BBBP). $p_{\mathrm{H}}$ is Holm-adjusted within each dataset across the eight comparisons of the two panels ($m=8$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. Against random subsets of the same size, the recommended subsets score significantly better at ESOL $K=5$, ESOL $K=10$, ESOL $K=20$, ESOL $K=50$, FreeSolv $K=5$, FreeSolv $K=10$, FreeSolv $K=20$, and BBBP $K=5$ and nowhere worse; the remaining 4 of the 12 dataset-budget cells do not separate. Against the full 210-descriptor pool, the recommended subsets are significantly worse at ESOL $K=5$ and ESOL $K=10$, and no other cell separates (10 of 12 cells inconclusive). Random subsets average ten draws per split, so differences against them carry the draw noise of the comparator. Contrast this table with the corresponding rows of Table~\ref{tab:routing-si}, where the same recommendation is routed into a graph hybrid rather than used directly; the two experiments ask different questions and are not expected to agree.}\label{tab:rec-random}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -167,9 +172,17 @@ BBBP & 5 & $-0.048$ & $[-0.084,-0.012]$ & $0.097$ & 1/10 \\
 \end{table}
 
 % ---------------------------------------------------------------------------
+\section*{High-repetition random control}
+
+The ten-draw control above compares the recommendation with the \emph{mean} of ten random subsets, so the control carries its own draw noise and the comparison cannot say where the recommendation sits inside the distribution of random subsets. It also covers only the three datasets on which the Random Forest study was run. Table~\ref{tab:random-control} repeats the comparison in all five datasets with 50 independent draws per split and budget, keeps every draw, converts the recommendation's position among the draws into a per-split $p$-value (resolution $1/51$), and combines the ten per-split values with Fisher's method. The first ten draws of each cell reproduce Table~\ref{tab:rec-random} exactly, which checks that the protocol, not only the conclusion, is the same. The recommendation had the better mean in all 20 cells, and 16 cells reached Fisher $p<0.05$: all twelve regression cells, plus BBBP at $K=5,10,20$ and BACE at $K=5$. The four that did not separate are the larger classification budgets, where the control itself is already close to the full-pool AUROC, so there is little room for a subset to improve on a random one.
+
+\input{fragments/tab_random_control}
+
+% ---------------------------------------------------------------------------
 \section*{Six feature selectors}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S6}
 \caption{Six feature selectors with a Random Forest downstream, on the ten saved splits. (a) Mean test score per selector and budget (RMSE for ESOL, FreeSolv and Lipophilicity, AUROC for BBBP and BACE); bold marks the best mean within each dataset and budget. (b) Mean pairwise Jaccard index of the selected sets across splits, averaged over $K\in\{5,10,20,50\}$. The selector previously labelled mRMR is named MI--Pearson here because its redundancy term is mean absolute Pearson correlation rather than mutual information. The table reports selectors as the learner's only input; Table~\ref{tab:routing-si} instead routes the recommended subset into a graph hybrid.}\label{tab:sel-full}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -231,8 +244,8 @@ Spearman top-$K$ & 0.96 & 0.92 & 0.82 & 0.85 & 0.86 \\
 \end{tabular}
 \end{table}
 
-\renewcommand{\thetable}{S4b}
 \begin{table}[H]
+\renewcommand{\thetable}{S7}
 \caption{Selector comparisons that survive Holm correction within a dataset (family $m=20$: the five other selectors against the framework selector at four budgets, on the same ten splits as Table~\ref{tab:sel-full}). Of the 100 selector comparisons, 2 survive: \texttt{rf\_importance} $K=10$ vs framework $K=10$ on ESOL and mutual\_information $K=5$ vs framework $K=5$ on Lipophilicity. On the other endpoints no selector separates from the framework selector once multiplicity is controlled, which is consistent with the mean-rank table rather than in tension with it.}\label{tab:selector-stats}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -249,7 +262,6 @@ BACE & \multicolumn{6}{l}{no comparison survives the correction} \\
 \end{tabular}
 \end{table}
 \addtocounter{table}{-1}
-\renewcommand{\thetable}{S\arabic{table}}
 
 \begin{figure}[H]
 \centering
@@ -261,6 +273,7 @@ BACE & \multicolumn{6}{l}{no comparison survives the correction} \\
 \section*{Paired comparisons}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S8}
 \caption{Internal paired comparisons on the main models. Hybrid: \cfg{direct\_hybrid}; graph only: \cfg{residual\_only}; prior/residual: \cfg{prior\_residual}. All entries are paired on the same 10 saved splits, and win counts are out of 10. $\bar\Delta$ is the mean paired difference $m_A-m_B$ with the population SD of the differences; wins count the splits on which $A$ was better. Both intervals are two-sided $t$ intervals with 9 degrees of freedom: the nominal interval uses the paired standard error, and the corrected interval inflates the variance by $1/k+n_{\mathrm{test}}/n_{\mathrm{train}}$ to reflect the overlap of the training partitions (Nadeau--Bengio). $p$ is the corrected two-sided $p$-value and $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=20$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. The comparisons that survive Holm correction are Hybrid vs RDKit 2D + RF on Lipophilicity and Hybrid vs RDKit 2D + RF on BACE; every other entry is reported as inconclusive. }\label{tab:int}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -299,6 +312,7 @@ BACE (AUROC) & Hybrid vs RDKit 2D + RF & $-0.037\pm0.0182$ & $[-0.051,-0.023]$ &
 \end{table}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S9}
 \caption{Framework minus Chemprop v2.3.1 on matched splits, for the graph only model and for the graph model with the 210 descriptors. Conventions follow Table~\ref{tab:int}; all entries are paired on the same 10 splits and $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=10$). No comparison in this table survives Holm correction, so every entry is reported as inconclusive. Adding the 210 descriptors raises the mean score in both implementations on FreeSolv, Lipophilicity, and BBBP, lowers it in both on BACE, and disagrees between implementations on ESOL. Because a comparison between the two implementations at this sample size is underpowered, the agreement is descriptive.}\label{tab:ext}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -328,7 +342,8 @@ BACE (AUROC) & graph + 210 descriptors & $-0.007\pm0.0208$ & $[-0.023,0.009]$ & 
 All compact-route checkpoints were selected using minimum validation loss. For each split, the recommended route's budget $K^*\in\{10,20,50\}$ was selected by the primary validation metric evaluated at the selected checkpoint. Spearman and mutual-information controls reused that split-specific budget, while the random route was averaged over ten draws per split. The graph-only and all-210-descriptor references used validation-loss-selected checkpoints. All five endpoints have now been rerun under this common rule. Table~\ref{tab:routing-si} summarizes the test results; the full checkpoint-level log contains 250 model runs and is archived at \url{benchmarks/results/routing_checkpoint_audit.csv}. Individual dataset outputs are listed in Table~\ref{tab:routing-audit}.
 
 \begin{table}[t]
-\caption{Harmonised evidence-guided descriptor routing. Entries are test RMSE for ESOL, FreeSolv, and Lipophilicity, and test AUROC for BBBP and BACE; values are mean $\pm$ population SD over ten saved splits. All route checkpoints are selected by minimum validation loss, and the recommended route's $K^*$ is selected using the primary validation metric at that checkpoint. Spearman and MI use the same split-specific $K^*$; the random route averages ten random-subset draws per split. Bold text marks the best mean in each row. The full checkpoint-level audit covers 250 model runs; see Additional file 1, Table S13.}
+\renewcommand{\thetable}{S10}
+\caption{Harmonised evidence-guided descriptor routing. Entries are test RMSE for ESOL, FreeSolv, and Lipophilicity, and test AUROC for BBBP and BACE; values are mean $\pm$ population SD over ten saved splits. All route checkpoints are selected by minimum validation loss, and the recommended route's $K^*$ is selected using the primary validation metric at that checkpoint. Spearman and MI use the same split-specific $K^*$; the random route averages ten random-subset draws per split. Bold text marks the best mean in each row. The full checkpoint-level audit covers 250 model runs; see Table~\ref{tab:routing-audit}.}
 \label{tab:routing-si}
 \centering
 \footnotesize
@@ -345,8 +360,8 @@ BACE & AUROC $\uparrow$ & $\mathbf{0.798\pm0.038}$ & $0.786\pm0.033$ & $0.797\pm
 \end{tabular}
 \end{table}
 
-\renewcommand{\thetable}{S7b}
 \begin{table}[H]
+\renewcommand{\thetable}{S11}
 \caption{Paired comparisons for the harmonised descriptor routing: the recommender route minus each reference route, on the 10 splits of Table~\ref{tab:routing-si}. Negative values on the regression tasks and positive values on the classification tasks mean that the recommender route is better. $p_{\mathrm{H}}$ is Holm-adjusted within each dataset ($m=5$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. No comparison in this table survives Holm correction, so every entry is reported as inconclusive. The smallest corrected $p$-value in this table belongs to Recommender route vs Graph only on Lipophilicity ($p=0.121$, $p_{\mathrm{H}}=0.605$).}\label{tab:routing-stats}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -387,12 +402,12 @@ BACE & Random subsets & $+0.005\pm0.017$ & $[-0.015,0.024]$ & $0.610$ & $1.000$ 
 \end{tabular}
 \end{table}
 \addtocounter{table}{-1}
-\renewcommand{\thetable}{S\arabic{table}}
 
 % ---------------------------------------------------------------------------
 \section*{Training-seed variance}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S12}
 \caption{Test AUROC on BBBP split 1 with three training seeds. SD: population SD over seeds. Between-split SDs over the ten benchmark splits for comparison: graph only 0.034, all 210 descriptors 0.029, prior/residual 0.034.}\label{tab:seed}
 \centering\footnotesize
 \begin{tabular}{@{}lccccc@{}}
@@ -411,6 +426,7 @@ Prior + graph residual & 0.9472 & 0.9353 & 0.9150 & 0.9325 & 0.0133 \\
 \section*{Secondary metrics and per-split scores}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S13}
 \caption{Primary and secondary metrics for the four reference models (mean $\pm$ SD over ten saved splits). For the regression endpoints the primary metric is RMSE and the secondary metrics are MAE and $R^2$; for the classification endpoints the primary metric is AUROC and the secondary metric is AUPRC (area under the precision-recall curve).}\label{tab:secondary}
 \centering\footnotesize
 \begin{tabular}{@{}llccc@{}}
@@ -447,6 +463,7 @@ BACE & Descriptor MLP & $0.787\pm0.034$ & $0.718\pm0.042$ & -- \\
 
 % ---------------------------------------------------------------------------
 \begin{table}[H]
+\renewcommand{\thetable}{S14}
 \caption{Per-split primary test scores of the main models across the ten saved splits (RMSE for ESOL, FreeSolv and Lipophilicity; AUROC for BBBP and BACE).}\label{tab:splits}
 \centering\scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -492,6 +509,7 @@ BACE & RDKit 2D + RF & 0.8316 & 0.7946 & 0.8540 & 0.8259 & 0.8349 & 0.8604 & 0.8
 The dataset advisor (\cfg{inspect}) was applied to the TDC Caco-2 permeability set (910 molecules; health score 95/100) and its recommendations were trained on one scaffold split. Every advisor configuration had a higher test RMSE than the plain D-MPNN baseline (Table~\ref{tab:caco2}). The advisor's rules are heuristics derived from dataset statistics, not from validation performance; its output is a starting configuration to be tested, which is why the main study evaluates design choices on matched splits rather than through the advisor.
 
 \begin{table}[H]
+\renewcommand{\thetable}{S15}
 \caption{Caco-2 advisor case study (single scaffold split, 91 test molecules; 35 epochs, batch 32, patience 12).}\label{tab:caco2}
 \centering\footnotesize
 \begin{tabular}{@{}lccccc@{}}
@@ -510,6 +528,7 @@ Advisor v2 + pairwise ranking loss & 0.634 & 0.468 & 0.450 & 0.837 & 4 \\
 \section*{Duplicate-controlled BBBP sensitivity analysis}
 
 \begin{table}[H]
+\renewcommand{\thetable}{S16}
 \caption{BBBP sensitivity analysis after excluding the 11 InChIKey groups with conflicting labels and retaining one record for each of the remaining 53 duplicated groups. The cleaned dataset contains 1,960 unique structures (1,497 positive and 463 negative). The same ten new scaffold manifests were used for all models. Scores are test AUROC. Because the dataset composition and split manifests differ from the primary benchmark, score changes should not be attributed solely to duplicate leakage.}\label{tab:bbbp-sensitivity}
 \centering\footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -534,8 +553,8 @@ Chemprop hybrid minus graph only ($\Delta$ AUROC) & +0.0045 & +0.0134 & -0.0240 
 For the framework, the hybrid minus graph paired difference favoured the hybrid on 5/10 splits, with a descriptive paired 95\% $t$ interval of $[-0.0464,+0.0426]$. For Chemprop, it favoured the hybrid on 9/10 splits, with a corresponding interval of $[-0.0068,+0.0183]$. Both intervals include zero. The model ranking was not identical to the primary benchmark, and the score changes cannot be assigned to duplicate leakage alone because the dataset composition and split manifests changed.
 \end{table}
 
-\renewcommand{\thetable}{S12b}
 \begin{table}[H]
+\renewcommand{\thetable}{S17}
 \caption{Paired statistics for the duplicate-controlled BBBP sensitivity analysis (10 new scaffold manifests; the same manifests are used for every model). $\bar\Delta$ is $A$ minus $B$ in AUROC; $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=5$). No comparison in this table survives Holm correction, so every entry is reported as inconclusive. Because the cleaned dataset and its split manifests differ from the primary benchmark, the ranking seen here cannot be attributed to duplicate leakage alone.}\label{tab:bbbp-sensitivity-stats}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -552,13 +571,13 @@ Chemprop hybrid $-$ RDKit 2D + RF & $-0.0196\pm0.0307$ & $[-0.0543,0.0150]$ & $0
 \end{tabular}
 \end{table}
 \addtocounter{table}{-1}
-\renewcommand{\thetable}{S\arabic{table}}
 
 \section*{Checkpoint protocol and result-file inventory}
 
 The completed harmonised routing experiment supersedes the earlier ESOL-only checkpoint-rule sensitivity analysis. Every reported compact-route checkpoint is selected by minimum validation loss, and $K^*$ is selected by the primary validation metric evaluated at that checkpoint. The file \url{benchmarks/results/routing_checkpoint_audit.csv} records the checkpoint-level audit across 250 model runs. The five dataset-specific JSON outputs preserve the split-level metrics and route selections. The files should be consulted for per-split paired analyses; Table~\ref{tab:routing-si} reports the cross-split mean and population standard deviation.
 
 \begin{table}[H]
+\renewcommand{\thetable}{S18}
 \caption{Harmonised routing audit inventory. The checkpoint rule is minimum validation loss for all routes; the $K^*$ selection metric is validation RMSE or validation AUROC, as appropriate. The filenames identify the dataset-specific split-level result records.}\label{tab:routing-audit}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -574,5 +593,25 @@ BACE & AUROC & Highest validation AUROC at the minimum-validation-loss checkpoin
 \bottomrule
 \end{tabular}
 \end{table}
+
+% ---------------------------------------------------------------------------
+\section*{Distribution-free checks of the paired comparisons}
+
+Every paired comparison in the paper is reported with a Nadeau--Bengio corrected interval, which is the conservative primary analysis because it inflates the variance for overlapping training sets. Table~\ref{tab:robustness} adds three distribution-free checks: the same comparisons under an exact sign-flip permutation test, the six selectors as a randomised block design, and the routing routes against their matched random control.
+
+\input{fragments/tab_robustness}
+
+% ---------------------------------------------------------------------------
+\section*{Sensitivity analyses}
+
+Two settings are conventions rather than quantities estimated from the data: the redundancy threshold of the greedy pruning step ($0.85$) and the encoder width of the routing experiments ($128$). Each was varied one factor at a time with everything else fixed, including the default seed list (Methods).
+
+Table~\ref{tab:redundancy} varies the threshold over $0.70$--$0.90$ at $K=20$. The selected sets change substantially---the mean Jaccard overlap with the default set falls to $0.51$ at $0.70$---but the downstream score moves by at most $0.024$ RMSE on ESOL, $0.015$ on FreeSolv and $0.005$ AUROC on BBBP, and no threshold is systematically better than another. The recommender's output is therefore not unique, but the performance of the recommendation is insensitive to the choice that produces it, which is the property that matters when the set is used as a candidate list rather than as a claim about mechanism.
+
+\input{fragments/tab_redundancy}
+
+Table~\ref{tab:hp-sensitivity} varies the encoder width on FreeSolv. The descriptor effect is positive at all three widths ($+18.6\%$ at $64$, $+7.4\%$ at $128$, $+9.8\%$ at $256$), with the hybrid the more accurate arm in $3/3$, $2/3$ and $2/3$ splits. The sign of the effect is stable and its magnitude varies between roughly $7\%$ and $19\%$, so the qualitative conclusion does not depend on the width chosen for the main experiments.
+
+\input{fragments/tab_hp_sensitivity}
 
 \end{document}

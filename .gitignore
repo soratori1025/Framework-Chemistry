@@ -20,14 +20,18 @@ checkpoints/
 # Raw dataset files
 /data/
 
-# Local documentation & artifacts (kept local, private)
-docs/
+# Local documentation & artifacts (kept local, private); the two user-facing
+# guides are part of the reproducibility package cited by the manuscript.
+docs/*
+!docs/quickstart.md
+!docs/configuration.md
 framework_docs_backup/
 
 # Benchmark results are tracked: they accompany the manuscript and are
 # archived with the release DOI (see REPRODUCING.md).
 # Resume files from interrupted routing runs are never released.
 benchmarks/results/*_partial.json
+benchmarks/results/*.log
 
 # Manuscript build artifacts (the manuscript sources themselves are tracked)
 manuscript/_build/

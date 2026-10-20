@@ -82,18 +82,18 @@ def fig_pipeline():
     for x, (num, title, desc) in zip(xs, steps):
         ax.scatter([x], [y], s=95, facecolor="white", edgecolor="0.15",
                    linewidth=0.7, zorder=3)
-        ax.text(x, y, num, ha="center", va="center", fontsize=6.5,
+        ax.text(x, y, num, ha="center", va="center", fontsize=6.9,
                 fontweight="bold", zorder=4)
-        ax.text(x, y + 0.20, title, ha="center", va="bottom", fontsize=7.5,
+        ax.text(x, y + 0.20, title, ha="center", va="bottom", fontsize=7.8,
                 fontweight="bold")
-        ax.text(x, y - 0.13, desc, ha="center", va="top", fontsize=6.2,
+        ax.text(x, y - 0.13, desc, ha="center", va="top", fontsize=6.6,
                 linespacing=1.25)
     for x0, x1 in zip(xs[:-1], xs[1:]):
         ax.annotate("", xy=(x1 - 0.021, y), xytext=(x0 + 0.021, y),
                     arrowprops=dict(arrowstyle="-|>", lw=0.6, color="0.35",
                                     shrinkA=0, shrinkB=0, mutation_scale=6))
     ax.text(0.5, 0.13, "Every stage writes a file that a reader can inspect and re-run.",
-            ha="center", va="center", fontsize=6.4, style="italic", color="0.25")
+            ha="center", va="center", fontsize=6.6, style="italic", color="0.25")
     save(fig, "fig1_pipeline")
 
 
@@ -127,7 +127,7 @@ def fig_worked_example():
     axa.axis("off")
     axa.text(0.5, -0.03, "phenacetin, measured $\\log_{10}S$ = $-2.35$\n"
                          "$N$ = 1,128; split 1, training partition",
-             transform=axa.transAxes, ha="center", va="top", fontsize=6.2)
+             transform=axa.transAxes, ha="center", va="top", fontsize=6.8)
 
     # (b) descriptor evidence
     axb = fig.add_subplot(gs[1])
@@ -139,12 +139,12 @@ def fig_worked_example():
     bars = axb.barh(range(len(names)), vals, color=colors, height=0.62,
                     edgecolor="none")
     axb.set_yticks(range(len(names)))
-    axb.set_yticklabels(names, fontsize=5.8)
+    axb.set_yticklabels(names, fontsize=6.4)
     axb.set_xlim(0, 1.0)
     axb.set_xlabel("absolute Spearman correlation with the target")
     for b, v in zip(bars, vals):
         axb.text(v + 0.02, b.get_y() + b.get_height() / 2, f"{v:.2f}",
-                 va="center", fontsize=6)
+                 va="center", fontsize=6.4)
     axb.spines[["top", "right"]].set_visible(False)
     axb.legend(handles=[Patch(color="#1f6f43", label="kept in the route"),
                         Patch(color="0.72", label="flagged redundant")],
@@ -163,7 +163,7 @@ def fig_worked_example():
         yy = 0.80 - i * 0.34
         axc.text(0.00, yy, big, fontsize=11, fontweight="bold", va="center",
                  transform=axc.transAxes)
-        axc.text(0.42, yy, small, fontsize=6.2, va="center", linespacing=1.3,
+        axc.text(0.42, yy, small, fontsize=6.8, va="center", linespacing=1.3,
                  transform=axc.transAxes)
         if i < len(rows) - 1:
             axc.plot([0.0, 1.0], [yy - 0.17, yy - 0.17], color="0.85", lw=0.6,
@@ -172,40 +172,76 @@ def fig_worked_example():
     for ax, lab in zip((axa, axb, axc),
                        ("a  One molecule", "b  Descriptor evidence, training set",
                         "c  Audit of the same split")):
-        fig.text(ax.get_position().x0, 0.945, lab, fontsize=7.5,
+        fig.text(ax.get_position().x0, 0.945, lab, fontsize=7.8,
                  fontweight="bold", va="center")
     save(fig, "fig2_worked_example")
 
 
 # --------------------------------------------------------------------------
-# Fig 3: descriptor effect in the two implementations
+# Fig 3: descriptor effect in the two implementations, split by metric family
 # --------------------------------------------------------------------------
 def fig_descriptor_effect():
-    rows = ["ESOL", "FreeSolv", "Lipophilicity", "BBBP", "BACE"]
-    framework = [0.12, 12.12, 0.14, 0.19, -2.11]
-    chemprop = [-6.77, 19.69, 0.19, 1.33, -1.92]
+    """Percentage change in the primary metric after adding the 210 descriptors.
 
-    fig, ax = plt.subplots(figsize=(125 * MM, 55 * MM))
-    y = np.arange(len(rows))[::-1]
+    Read from the saved result files so that the figure cannot drift from the
+    tables: framework rows come from the modularity ablation, Chemprop rows from
+    the external comparator file.
+    """
+    framework_rel, chemprop_rel = {}, {}
+    for ds in DATASETS:
+        abl = json.loads((RESULTS / f"modularity_ablation_{ds}.json").read_text())["raw_results"]
+        metric = "roc_auc" if ds in CLS else "rmse"
+        graph = np.array([r[metric] for r in abl["residual_only"]], dtype=float).mean()
+        hybrid = np.array([r[metric] for r in abl["direct_hybrid"]], dtype=float).mean()
+        framework_rel[ds] = (graph - hybrid) / graph * 100 if ds not in CLS \
+            else (hybrid - graph) / graph * 100
+
+        cp = json.loads((RESULTS / f"chemprop_v2_{ds}.json").read_text())["summary"]
+        cp_graph = cp["chemprop_graph"]["mean"]
+        cp_hybrid = cp["chemprop_hybrid"]["mean"]
+        chemprop_rel[ds] = (cp_graph - cp_hybrid) / cp_graph * 100 if ds not in CLS \
+            else (cp_hybrid - cp_graph) / cp_graph * 100
+
+    fig, axes = plt.subplots(1, 2, figsize=(150 * MM, 54 * MM),
+                             gridspec_kw=dict(width_ratios=[1.0, 1.0], wspace=0.30))
+    fig.subplots_adjust(left=0.135, right=0.99, top=0.85, bottom=0.30)
     h = 0.34
-    b1 = ax.barh(y + h / 2, framework, height=h, color="#2a5d9f",
-                 label="this framework", edgecolor="none")
-    b2 = ax.barh(y - h / 2, chemprop, height=h, color="#c46a1b",
-                 label="Chemprop v2.3.1", edgecolor="none")
-    ax.axvline(0, color="0.2", lw=0.7)
-    ax.set_yticks(y)
-    ax.set_yticklabels(rows)
-    ax.set_xlim(-9.5, 23)
-    ax.set_xlabel("change in test error after adding the 210 descriptors (%)\nnegative values mean the descriptors made the error worse")
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.legend(loc="lower right", frameon=False, handlelength=1.2,
-              borderaxespad=0.2)
-    for bars, vals in ((b1, framework), (b2, chemprop)):
-        for b, v in zip(bars, vals):
-            off = 0.45 if v >= 0 else -0.45
-            ax.text(v + off, b.get_y() + b.get_height() / 2,
-                    f"{v:+.1f}", va="center",
-                    ha="left" if v >= 0 else "right", fontsize=6)
+
+    for ax, group, xlabel, title in (
+        (axes[0], REG, "% change in RMSE", "a  Regression endpoints"),
+        (axes[1], CLS, "% change in AUROC", "b  Classification endpoints"),
+    ):
+        y = np.arange(len(group))[::-1] * 1.0
+        fw = [framework_rel[d] for d in group]
+        cp = [chemprop_rel[d] for d in group]
+        b1 = ax.barh(y + h / 2, fw, height=h, color="#2a5d9f",
+                     label="this framework", edgecolor="none")
+        b2 = ax.barh(y - h / 2, cp, height=h, color="#c46a1b",
+                     label="Chemprop v2.3.1", edgecolor="none")
+        ax.axvline(0, color="0.2", lw=0.7)
+        ax.set_yticks(y)
+        ax.set_yticklabels([LABEL[d] for d in group])
+        ax.set_xlabel(xlabel)
+        ax.set_title(title, loc="left", fontweight="bold")
+        ax.spines[["top", "right"]].set_visible(False)
+        for bars, vals in ((b1, fw), (b2, cp)):
+            for b, v in zip(bars, vals):
+                off = 0.35 if v >= 0 else -0.35
+                ax.text(v + off, b.get_y() + b.get_height() / 2, f"{v:+.1f}",
+                        va="center", ha="left" if v >= 0 else "right", fontsize=6)
+
+    axes[0].set_xlim(-9.5, 23.5)
+    axes[1].set_xlim(-4.2, 3.2)
+    fig.text(0.5, 0.04,
+             "Positive values mean that adding the descriptors helped.  "
+             "ESOL (Chemprop): the negative mean comes from one split of ten, on which the\n"
+             "descriptor hybrid reached a test RMSE of 2.76 while beating graph-only on the "
+             "other nine.  All values are computed from the saved per-split records.",
+             ha="center", va="bottom", fontsize=6.2, linespacing=1.35)
+    handles = [Patch(color="#2a5d9f", label="this framework"),
+               Patch(color="#c46a1b", label="Chemprop v2.3.1")]
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False,
+               bbox_to_anchor=(0.5, 0.945), handlelength=1.0, columnspacing=1.6)
     save(fig, "fig3_descriptor_effect")
 
 

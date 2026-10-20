@@ -78,6 +78,11 @@ OOD_DATASETS = ("esol", "lipophilicity", "bbbp")
 #: Endpoints in the manuscript's order.
 ALL_DATASETS = ("esol", "freesolv", "lipophilicity", "bbbp", "bace")
 
+#: Standardised test value above which a descriptor input is reported as an
+#: extrapolation hazard.  Not a validated cut-off: it is the magnitude at which
+#: a linear component of a standardised model can dominate the prediction.
+MAGNITUDE_THRESHOLD = 10.0
+
 
 def load_metadata(dataset: str, data_dir: Path) -> dict[str, Any]:
     """Return smiles column, target columns, task type and clean CSV path."""
@@ -282,6 +287,19 @@ def audit_ood_shift(dataset: str, meta: dict[str, Any], seeds: list[int]) -> lis
         affected = int(np.any(outside, axis=1).sum())
         n_test = int(test.shape[0])
 
+        # Magnitude-aware companion to the range count.  A descriptor one unit
+        # outside the training range and a descriptor thousands of standard
+        # deviations outside it are both "out of range", but only the second
+        # can dominate a standardised model input.
+        train_nan = np.nan_to_num(train, nan=0.0, posinf=0.0, neginf=0.0)
+        test_nan = np.nan_to_num(test, nan=0.0, posinf=0.0, neginf=0.0)
+        scale = np.nanstd(train_nan, axis=0)
+        scale = np.where(scale > 1e-12, scale, 1.0)
+        z = np.abs((test_nan - train_nan.mean(axis=0)) / scale)
+        max_z = float(z.max()) if z.size else 0.0
+        worst_descriptor = names[int(np.argmax(z.max(axis=0)))]
+        n_molecules_above = int(np.any(z > MAGNITUDE_THRESHOLD, axis=1).sum())
+
         rows.append(
             {
                 "split": seed,
@@ -290,6 +308,10 @@ def audit_ood_shift(dataset: str, meta: dict[str, Any], seeds: list[int]) -> lis
                 "pct_mols_affected": 100.0 * affected / n_test,
                 "n_descriptors": n_descriptors,
                 "n_test_molecules": n_test,
+                "max_abs_standardised_test_value": max_z,
+                "worst_magnitude_descriptor": worst_descriptor,
+                "magnitude_threshold": MAGNITUDE_THRESHOLD,
+                "n_molecules_above_magnitude_threshold": n_molecules_above,
             }
         )
     return rows

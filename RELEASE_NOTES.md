@@ -4,7 +4,8 @@
 
 This release is the code and results archive for the manuscript
 
-> *Evidence-Guided Molecular Property Modelling with a Configuration-Driven Modular Framework*
+> *Evidence before prediction: a configuration-driven framework for testing how
+> molecular descriptors shape property models*
 > (target journal: *Journal of Cheminformatics*)
 
 ### What is in this release
@@ -13,7 +14,7 @@ This release is the code and results archive for the manuscript
   dataset advisor, feature-evidence scorecard and recommender).
 * The benchmark runners that produced every table and figure of the manuscript,
   including the Chemprop v2.3.1 external comparison.
-* **Archived per-split results** under `benchmarks/results/` (43 files) and the
+* **Archived per-split results** under `benchmarks/results/` (59 files) and the
   20 Bemis-Murcko scaffold manifests per endpoint under `benchmarks/splits/`, so
   the reported statistics can be recomputed without retraining.
 * Statistics tooling:
@@ -22,8 +23,9 @@ This release is the code and results archive for the manuscript
     multiplicity control; writes `benchmarks/results/paper_statistics.json`.
   * `benchmarks/generate_si_tables.py` — renders the Additional-file tables from
     those comparisons.
-  * `benchmarks/validate_paper_statistics.py` — regression check that the
-    archived results reproduce the 30 transcribed published values.
+  * `benchmarks/validate_paper_statistics.py` — regression check that recomputes
+    2,024 quantities from the archived per-split scores (184 paired comparisons)
+    and reports any inconsistency.
 * `REPRODUCING.md` — environment pinning, per-artifact commands, and an
   explicit list of what reproduces exactly and what does not.
 
@@ -51,6 +53,16 @@ This release is the code and results archive for the manuscript
   committed generator.
 * **Documentation.** `README.md` now points at the manuscript results and the
   reproduction instructions; the stale development ADMET table was removed.
+* **Revision analyses.** The submission revision adds four artefacts, each with
+  its runner and its archived output: a high-repetition random-subset control
+  (50 draws per split and budget in all five endpoints,
+  `run_random_control_study.py`), distribution-free checks of every paired
+  comparison plus a Friedman/Nemenyi block test over the six selectors
+  (`statistical_robustness.py`), two one-factor sensitivity analyses
+  (`run_hyperparameter_sensitivity.py`, `run_redundancy_sensitivity.py`), and a
+  cross-environment descriptor-contract check plus a diagnosis of the ESOL
+  split-3 divergence (`diagnose_descriptor_contract.py`,
+  `diagnose_esol_divergence.py`). `reproduce.py` wraps the whole sequence.
 
 ### Release checklist before minting the Zenodo DOI
 
@@ -80,8 +92,14 @@ This release is the code and results archive for the manuscript
   entries in RDKit 2026.09.1. Rerunning descriptor-based steps with a different
   RDKit version changes the feature block. Pin the version (see
   `REPRODUCING.md`, section 2).
-* The statistics are computed on **five splits**; the minimum detectable
-  differences at 80% power are reported in the manuscript. Ten- and
-  twenty-split reruns are supported by the code but were not part of the
-  archived results.
+* The statistics are computed on **ten** Bemis–Murcko scaffold splits per
+  endpoint (seeds 1–10); twenty manifests per endpoint are provided, and every
+  runner accepts `--seeds`. Ten splits still leave limited power for differences
+  of a few hundredths of a metric unit, and the overlapping training sets make
+  paired intervals descriptive; the manuscript reports both a Nadeau–Bengio
+  corrected interval (primary) and an exact sign-flip permutation test
+  (secondary, more permissive), and states where they disagree.
+* No run was excluded. The one ESOL split on which two routes diverged is
+  reported and diagnosed in the manuscript (`diagnose_esol_divergence.py`), not
+  removed from the archive.
 * Neural runs are seeded per split but are not bit-for-bit deterministic on GPU.

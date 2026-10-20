@@ -6,7 +6,11 @@
       "pct_ood_descriptors": 9.523809523809524,
       "pct_mols_affected": 7.079646017699115,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 21.213321685791016,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_guanido",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 13
     },
     {
       "split": 2,
@@ -14,7 +18,11 @@
       "pct_ood_descriptors": 17.61904761904762,
       "pct_mols_affected": 6.1946902654867255,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 17.31098747253418,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_SH",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 15
     },
     {
       "split": 3,
@@ -22,7 +30,11 @@
       "pct_ood_descriptors": 20.952380952380953,
       "pct_mols_affected": 11.504424778761061,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 3113.67919921875,
+      "worst_magnitude_descriptor": "rdkit_2d.Ipc",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 7
     },
     {
       "split": 4,
@@ -30,7 +42,11 @@
       "pct_ood_descriptors": 4.761904761904762,
       "pct_mols_affected": 7.079646017699115,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 21.21322250366211,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_thiazole",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 11
     },
     {
       "split": 5,
@@ -38,7 +54,11 @@
       "pct_ood_descriptors": 6.190476190476191,
       "pct_mols_affected": 5.3097345132743365,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 30.016613006591797,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_thiophene",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 9
     },
     {
       "split": 6,
@@ -46,7 +66,11 @@
       "pct_ood_descriptors": 5.238095238095238,
       "pct_mols_affected": 7.964601769911504,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 30.016632080078125,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_thiophene",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 3
     },
     {
       "split": 7,
@@ -54,7 +78,11 @@
       "pct_ood_descriptors": 7.142857142857143,
       "pct_mols_affected": 5.3097345132743365,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 21.236961364746094,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_barbitur",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 31
     },
     {
       "split": 8,
@@ -62,7 +90,11 @@
       "pct_ood_descriptors": 5.238095238095238,
       "pct_mols_affected": 7.079646017699115,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 17.310832977294922,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_oxime",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 5
     },
     {
       "split": 9,
@@ -70,7 +102,11 @@
       "pct_ood_descriptors": 14.761904761904763,
       "pct_mols_affected": 3.5398230088495577,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 30.01662826538086,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_oxazole",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 6
     },
     {
       "split": 10,
@@ -78,7 +114,11 @@
       "pct_ood_descriptors": 0.9523809523809523,
       "pct_mols_affected": 1.7699115044247788,
       "n_descriptors": 210,
-      "n_test_molecules": 113
+      "n_test_molecules": 113,
+      "max_abs_standardised_test_value": 21.213321685791016,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_guanido",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 32
     }
   ],
   "lipophilicity": [
@@ -88,7 +128,11 @@
       "pct_ood_descriptors": 5.238095238095238,
       "pct_mols_affected": 3.0952380952380953,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 28.96539878845215,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_dihydropyridine",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 44
     },
     {
       "split": 2,
@@ -96,7 +140,11 @@
       "pct_ood_descriptors": 9.047619047619047,
       "pct_mols_affected": 3.3333333333333335,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 60.48903274536133,
+      "worst_magnitude_descriptor": "rdkit_2d.BCUT2D_MWLOW",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 35
     },
     {
       "split": 3,
@@ -104,7 +152,11 @@
       "pct_ood_descriptors": 9.523809523809524,
       "pct_mols_affected": 4.523809523809524,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 61.96381378173828,
+      "worst_magnitude_descriptor": "rdkit_2d.BCUT2D_MWLOW",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 26
     },
     {
       "split": 4,
@@ -112,7 +164,11 @@
       "pct_ood_descriptors": 6.190476190476191,
       "pct_mols_affected": 3.0952380952380953,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 40.97557067871094,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_lactam",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 31
     },
     {
       "split": 5,
@@ -120,7 +176,11 @@
       "pct_ood_descriptors": 2.380952380952381,
       "pct_mols_affected": 2.857142857142857,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 40.97555160522461,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_barbitur",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 27
     },
     {
       "split": 6,
@@ -128,7 +188,11 @@
       "pct_ood_descriptors": 10.0,
       "pct_mols_affected": 4.761904761904762,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 57.95757293701172,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_phos_acid",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 36
     },
     {
       "split": 7,
@@ -136,7 +200,11 @@
       "pct_ood_descriptors": 3.3333333333333335,
       "pct_mols_affected": 3.3333333333333335,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 33.466739654541016,
+      "worst_magnitude_descriptor": "rdkit_2d.EState_VSA11",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 42
     },
     {
       "split": 8,
@@ -144,7 +212,11 @@
       "pct_ood_descriptors": 12.857142857142858,
       "pct_mols_affected": 3.5714285714285716,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 57.95743179321289,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_benzodiazepine",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 30
     },
     {
       "split": 9,
@@ -152,7 +224,11 @@
       "pct_ood_descriptors": 28.571428571428573,
       "pct_mols_affected": 3.8095238095238093,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 57.95808792114258,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_epoxide",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 37
     },
     {
       "split": 10,
@@ -160,7 +236,11 @@
       "pct_ood_descriptors": 11.904761904761905,
       "pct_mols_affected": 5.0,
       "n_descriptors": 210,
-      "n_test_molecules": 420
+      "n_test_molecules": 420,
+      "max_abs_standardised_test_value": 57.95713806152344,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_azo",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 14
     }
   ],
   "bbbp": [
@@ -170,7 +250,11 @@
       "pct_ood_descriptors": 16.19047619047619,
       "pct_mols_affected": 4.901960784313726,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 16.30974578857422,
+      "worst_magnitude_descriptor": "rdkit_2d.PEOE_VSA14",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 39
     },
     {
       "split": 2,
@@ -178,7 +262,11 @@
       "pct_ood_descriptors": 2.380952380952381,
       "pct_mols_affected": 1.9607843137254901,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 28.539216995239258,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_phos_acid",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 50
     },
     {
       "split": 3,
@@ -186,7 +274,11 @@
       "pct_ood_descriptors": 8.571428571428571,
       "pct_mols_affected": 3.4313725490196076,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 23.295299530029297,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_nitroso",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 36
     },
     {
       "split": 4,
@@ -194,7 +286,11 @@
       "pct_ood_descriptors": 3.8095238095238093,
       "pct_mols_affected": 4.411764705882353,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 23.29532814025879,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_oxazole",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 54
     },
     {
       "split": 5,
@@ -202,7 +298,11 @@
       "pct_ood_descriptors": 5.714285714285714,
       "pct_mols_affected": 2.450980392156863,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 32.97486877441406,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_C_S",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 36
     },
     {
       "split": 6,
@@ -210,7 +310,11 @@
       "pct_ood_descriptors": 7.619047619047619,
       "pct_mols_affected": 5.392156862745098,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 430.36773681640625,
+      "worst_magnitude_descriptor": "rdkit_2d.Kappa3",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 54
     },
     {
       "split": 7,
@@ -218,7 +322,11 @@
       "pct_ood_descriptors": 1.9047619047619047,
       "pct_mols_affected": 2.450980392156863,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 18.03321647644043,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_aldehyde",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 60
     },
     {
       "split": 8,
@@ -226,7 +334,11 @@
       "pct_ood_descriptors": 9.047619047619047,
       "pct_mols_affected": 8.823529411764707,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 477.8852844238281,
+      "worst_magnitude_descriptor": "rdkit_2d.Kappa3",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 35
     },
     {
       "split": 9,
@@ -234,7 +346,11 @@
       "pct_ood_descriptors": 3.3333333333333335,
       "pct_mols_affected": 2.9411764705882355,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 20.168148040771484,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_nitroso",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 62
     },
     {
       "split": 10,
@@ -242,7 +358,11 @@
       "pct_ood_descriptors": 13.333333333333334,
       "pct_mols_affected": 1.4705882352941178,
       "n_descriptors": 210,
-      "n_test_molecules": 204
+      "n_test_molecules": 204,
+      "max_abs_standardised_test_value": 23.295276641845703,
+      "worst_magnitude_descriptor": "rdkit_2d.fr_phos_acid",
+      "magnitude_threshold": 10.0,
+      "n_molecules_above_magnitude_threshold": 35
     }
   ]
 }

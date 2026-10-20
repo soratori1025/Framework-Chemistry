@@ -1,0 +1,51 @@
+{
+  "split_analysed": 3,
+  "chemprop": {
+    "seeds": [
+      3,
+      103,
+      203
+    ],
+    "clip_z": 5.0,
+    "runs": [
+      {
+        "seed": 3,
+        "test_rmse_original_units": 0.6656223377658097,
+        "epochs_run": 24,
+        "best_val_loss": null,
+        "test_prediction_abs_max_standardised": 2.6450634002685547,
+        "test_prediction_abs_max_original_units": 8.11105728149414
+      },
+      {
+        "seed": 103,
+        "test_rmse_original_units": 0.6989248073475688,
+        "epochs_run": 19,
+        "best_val_loss": null,
+        "test_prediction_abs_max_standardised": 2.826557159423828,
+        "test_prediction_abs_max_original_units": 8.4675931930542
+      },
+      {
+        "seed": 203,
+        "test_rmse_original_units": 0.7185796452859368,
+        "epochs_run": 30,
+        "best_val_loss": null,
+        "test_prediction_abs_max_standardised": 2.9867615699768066,
+        "test_prediction_abs_max_original_units": 8.782307624816895
+      }
+    ],
+    "n_divergent_runs": 0,
+    "rmse_values": [
+      0.6656223377658097,
+      0.6989248073475688,
+      0.7185796452859368
+    ],
+    "rmse_mean": 0.6943755967997718,
+    "rmse_median": 0.6989248073475688,
+    "descriptor_standardised_abs_max_test": 5.0,
+    "descriptor_standardised_abs_max_train": 5.0,
+    "target_original_test_range": [
+      -8.402000427246094,
+      1.5800000429153442
+    ]
+  }
+}

@@ -1,6 +1,4 @@
 dataset,total_records,unique_inchikeys,duplicated_structures,duplicated_records,target_sd,conflict_threshold_half_sd,max_span,conflicts_count,seed_1_boundary_crossings,seed_2_boundary_crossings,seed_3_boundary_crossings,seed_4_boundary_crossings,seed_5_boundary_crossings,seed_6_boundary_crossings,seed_7_boundary_crossings,seed_8_boundary_crossings,seed_9_boundary_crossings,seed_10_boundary_crossings
 esol,1128,1117,11,22,2.0955,1.0478,1.03,0,0,0,0,0,0,0,0,0,0,0
-freesolv,642,642,0,0,3.8448,1.9224,0.0,0,0,0,0,0,0,0,0,0,0,0
 lipophilicity,4200,4200,0,0,1.2029,0.6014,0.0,0,0,0,0,0,0,0,0,0,0,0
 bbbp,2039,1971,64,132,0.4239,0.212,0.0,11,1,0,1,1,2,1,2,1,2,2
-bace,1513,1513,0,0,0.4981,0.2491,0.0,0,0,0,0,0,0,0,0,0,0,0

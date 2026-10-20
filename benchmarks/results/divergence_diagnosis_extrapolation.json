@@ -1,0 +1,52 @@
+{
+  "split_analysed": 3,
+  "descriptor_extrapolation": {
+    "worst_held_out_extrapolation_units": 1000000000.0,
+    "worst_held_out_descriptor": "rdkit_2d.fr_piperzine",
+    "worst_validation_extrapolation_units": 1.0000001192092896,
+    "worst_validation_descriptor": "rdkit_2d.SlogP_VSA7",
+    "max_abs_clipped_standardised_test_value": 3113.679443359375,
+    "per_split_test_extrapolation": {
+      "1": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 1
+      },
+      "2": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 2
+      },
+      "3": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 5
+      },
+      "4": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 1
+      },
+      "5": {
+        "max_test_extrapolation_units": 1.0,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "6": {
+        "max_test_extrapolation_units": 0.585690975189209,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "7": {
+        "max_test_extrapolation_units": 1.0,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "8": {
+        "max_test_extrapolation_units": 0.5202049612998962,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "9": {
+        "max_test_extrapolation_units": 0.714285671710968,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "10": {
+        "max_test_extrapolation_units": 0.14243127405643463,
+        "n_cells_beyond_one_training_span": 0
+      }
+    }
+  }
+}

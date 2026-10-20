@@ -1,0 +1,22 @@
+name: chemistry-framework
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=1.26
+  - pandas=2.2
+  - scipy=1.13
+  - scikit-learn=1.5
+  - matplotlib=3.9
+  - joblib=1.6
+  - pyyaml
+  - pytest
+  - pip
+  - pip:
+      # exact versions used for the manuscript results
+      - rdkit==2023.9.6
+      - torch==2.14.1
+      - torch-geometric==2.8.1
+      - lightning==2.6.6
+      # chemprop==2.3.1 is needed only for the external comparison; install it in
+      # a separate environment (see REPRODUCING.md)

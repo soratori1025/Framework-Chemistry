@@ -1,0 +1,307 @@
+{
+  "note": "one-factor-at-a-time sensitivity of the descriptor effect to encoder width; all other settings as in run_evidence_routing_experiment.py",
+  "datasets": {
+    "freesolv": {
+      "dataset": "freesolv",
+      "metric": "rmse",
+      "splits": [
+        1,
+        2,
+        3
+      ],
+      "hidden_dims": [
+        64,
+        128,
+        256
+      ],
+      "runs": [
+        {
+          "dataset": "freesolv",
+          "split": 1,
+          "hidden_dim": 64,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.5652929140382261,
+          "val_score": 1.224683598120125,
+          "best_epoch": 38,
+          "best_val_loss": 0.5394349694252014
+        },
+        {
+          "dataset": "freesolv",
+          "split": 1,
+          "hidden_dim": 64,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.1973450278108955,
+          "val_score": 1.1167999342255723,
+          "best_epoch": 38,
+          "best_val_loss": 0.4018891155719757
+        },
+        {
+          "dataset": "freesolv",
+          "split": 1,
+          "hidden_dim": 128,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.290274957289463,
+          "val_score": 0.8435551453695359,
+          "best_epoch": 38,
+          "best_val_loss": 0.3052510917186737
+        },
+        {
+          "dataset": "freesolv",
+          "split": 1,
+          "hidden_dim": 128,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.2212530499579337,
+          "val_score": 0.8730345859558752,
+          "best_epoch": 40,
+          "best_val_loss": 0.31098413467407227
+        },
+        {
+          "dataset": "freesolv",
+          "split": 1,
+          "hidden_dim": 256,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.1452945078104,
+          "val_score": 0.8386960371256544,
+          "best_epoch": 39,
+          "best_val_loss": 0.28595608472824097
+        },
+        {
+          "dataset": "freesolv",
+          "split": 1,
+          "hidden_dim": 256,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.208503787854295,
+          "val_score": 0.8221799756020797,
+          "best_epoch": 16,
+          "best_val_loss": 0.27662181854248047
+        },
+        {
+          "dataset": "freesolv",
+          "split": 2,
+          "hidden_dim": 64,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.5697988552577773,
+          "val_score": 1.2966999717168157,
+          "best_epoch": 37,
+          "best_val_loss": 0.555955171585083
+        },
+        {
+          "dataset": "freesolv",
+          "split": 2,
+          "hidden_dim": 64,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.3229370666292701,
+          "val_score": 1.6081000898487499,
+          "best_epoch": 39,
+          "best_val_loss": 0.4455760419368744
+        },
+        {
+          "dataset": "freesolv",
+          "split": 2,
+          "hidden_dim": 128,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.2125858532113865,
+          "val_score": 0.7796928145661338,
+          "best_epoch": 33,
+          "best_val_loss": 0.24811553955078125
+        },
+        {
+          "dataset": "freesolv",
+          "split": 2,
+          "hidden_dim": 128,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.3358678520741718,
+          "val_score": 0.8850194975219232,
+          "best_epoch": 37,
+          "best_val_loss": 0.25027695298194885
+        },
+        {
+          "dataset": "freesolv",
+          "split": 2,
+          "hidden_dim": 256,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.1684089264968482,
+          "val_score": 0.8607162066564283,
+          "best_epoch": 26,
+          "best_val_loss": 0.29187753796577454
+        },
+        {
+          "dataset": "freesolv",
+          "split": 2,
+          "hidden_dim": 256,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.051154825390548,
+          "val_score": 0.6766109775152218,
+          "best_epoch": 28,
+          "best_val_loss": 0.1939522922039032
+        },
+        {
+          "dataset": "freesolv",
+          "split": 3,
+          "hidden_dim": 64,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.408970299786096,
+          "val_score": 1.744352218932945,
+          "best_epoch": 40,
+          "best_val_loss": 0.7392939329147339
+        },
+        {
+          "dataset": "freesolv",
+          "split": 3,
+          "hidden_dim": 64,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 1.178944334675177,
+          "val_score": 1.2187050053042423,
+          "best_epoch": 38,
+          "best_val_loss": 0.44775211811065674
+        },
+        {
+          "dataset": "freesolv",
+          "split": 3,
+          "hidden_dim": 128,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.2449659068636898,
+          "val_score": 1.5153596783462633,
+          "best_epoch": 34,
+          "best_val_loss": 0.561884880065918
+        },
+        {
+          "dataset": "freesolv",
+          "split": 3,
+          "hidden_dim": 128,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 0.9139675514922092,
+          "val_score": 1.1159816182649684,
+          "best_epoch": 38,
+          "best_val_loss": 0.3671887516975403
+        },
+        {
+          "dataset": "freesolv",
+          "split": 3,
+          "hidden_dim": 256,
+          "route": "graph",
+          "metric": "rmse",
+          "test_score": 1.1775860289715427,
+          "val_score": 1.4497722381080815,
+          "best_epoch": 38,
+          "best_val_loss": 0.49418050050735474
+        },
+        {
+          "dataset": "freesolv",
+          "split": 3,
+          "hidden_dim": 256,
+          "route": "hybrid",
+          "metric": "rmse",
+          "test_score": 0.8882920008724239,
+          "val_score": 0.9886479960029304,
+          "best_epoch": 35,
+          "best_val_loss": 0.3560201823711395
+        }
+      ],
+      "descriptor_effect": [
+        {
+          "hidden_dim": 64,
+          "split": 1,
+          "metric": "rmse",
+          "descriptor_effect_percent": 23.506647409402696
+        },
+        {
+          "hidden_dim": 64,
+          "split": 2,
+          "metric": "rmse",
+          "descriptor_effect_percent": 15.725695543838953
+        },
+        {
+          "hidden_dim": 64,
+          "split": 3,
+          "metric": "rmse",
+          "descriptor_effect_percent": 16.325820717856203
+        },
+        {
+          "hidden_dim": 128,
+          "split": 1,
+          "metric": "rmse",
+          "descriptor_effect_percent": 5.349395254212062
+        },
+        {
+          "hidden_dim": 128,
+          "split": 2,
+          "metric": "rmse",
+          "descriptor_effect_percent": -10.16686765199247
+        },
+        {
+          "hidden_dim": 128,
+          "split": 3,
+          "metric": "rmse",
+          "descriptor_effect_percent": 26.586941340854025
+        },
+        {
+          "hidden_dim": 256,
+          "split": 1,
+          "metric": "rmse",
+          "descriptor_effect_percent": -5.519041575143844
+        },
+        {
+          "hidden_dim": 256,
+          "split": 2,
+          "metric": "rmse",
+          "descriptor_effect_percent": 10.03536505475478
+        },
+        {
+          "hidden_dim": 256,
+          "split": 3,
+          "metric": "rmse",
+          "descriptor_effect_percent": 24.566700095090027
+        }
+      ],
+      "descriptor_effect_by_hidden_dim": {
+        "64": {
+          "mean_effect_percent": 18.51938789036595,
+          "effects_per_split": [
+            23.506647409402696,
+            15.725695543838953,
+            16.325820717856203
+          ],
+          "n_positive": 3,
+          "n_negative": 0
+        },
+        "128": {
+          "mean_effect_percent": 7.256489647691207,
+          "effects_per_split": [
+            5.349395254212062,
+            -10.16686765199247,
+            26.586941340854025
+          ],
+          "n_positive": 2,
+          "n_negative": 1
+        },
+        "256": {
+          "mean_effect_percent": 9.694341191566988,
+          "effects_per_split": [
+            -5.519041575143844,
+            10.03536505475478,
+            24.566700095090027
+          ],
+          "n_positive": 2,
+          "n_negative": 1
+        }
+      }
+    }
+  }
+}

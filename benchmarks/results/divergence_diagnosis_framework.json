@@ -1,0 +1,733 @@
+{
+  "split_analysed": 3,
+  "descriptor_extrapolation": {
+    "worst_held_out_extrapolation_units": 1000000000.0,
+    "worst_held_out_descriptor": "rdkit_2d.fr_piperzine",
+    "worst_validation_extrapolation_units": 1.0000001192092896,
+    "worst_validation_descriptor": "rdkit_2d.SlogP_VSA7",
+    "max_abs_clipped_standardised_test_value": 3113.679443359375,
+    "per_split_test_extrapolation": {
+      "1": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 1
+      },
+      "2": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 2
+      },
+      "3": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 5
+      },
+      "4": {
+        "max_test_extrapolation_units": 1000000000.0,
+        "n_cells_beyond_one_training_span": 1
+      },
+      "5": {
+        "max_test_extrapolation_units": 1.0,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "6": {
+        "max_test_extrapolation_units": 0.585690975189209,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "7": {
+        "max_test_extrapolation_units": 1.0,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "8": {
+        "max_test_extrapolation_units": 0.5202049612998962,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "9": {
+        "max_test_extrapolation_units": 0.714285671710968,
+        "n_cells_beyond_one_training_span": 0
+      },
+      "10": {
+        "max_test_extrapolation_units": 0.14243127405643463,
+        "n_cells_beyond_one_training_span": 0
+      }
+    }
+  },
+  "extreme_standardised_inputs": {
+    "threshold": 5.0,
+    "per_split": {
+      "1": {
+        "n_features_above_threshold": 58,
+        "n_test_molecules_affected": 133,
+        "max_abs_standardised_test_value": 21.21320343017578,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_guanido",
+            "max_abs_standardised_test_value": 21.21320343017578,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_barbitur",
+            "max_abs_standardised_test_value": 20.0224609375,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 23
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_imide",
+            "max_abs_standardised_test_value": 14.224078178405762,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 23
+          },
+          {
+            "feature": "rdkit_2d.PEOE_VSA13",
+            "max_abs_standardised_test_value": 13.010221481323242,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_sulfonamd",
+            "max_abs_standardised_test_value": 12.502097129821777,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_furan",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_hdrzine",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 4
+          }
+        ]
+      },
+      "2": {
+        "n_features_above_threshold": 79,
+        "n_test_molecules_affected": 211,
+        "max_abs_standardised_test_value": 17.310882568359375,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_SH",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999997615814209,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_lactone",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_phos_acid",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_phos_ester",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999998807907104,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_thiazole",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_furan",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_hdrzine",
+            "max_abs_standardised_test_value": 10.571187019348145,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 3
+          }
+        ]
+      },
+      "3": {
+        "n_features_above_threshold": 75,
+        "n_test_molecules_affected": 189,
+        "max_abs_standardised_test_value": 3113.679443359375,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.Ipc",
+            "max_abs_standardised_test_value": 3113.679443359375,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 4
+          },
+          {
+            "feature": "rdkit_2d.fr_priamide",
+            "max_abs_standardised_test_value": 15.494447708129883,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_lactone",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_ether",
+            "max_abs_standardised_test_value": 13.096259117126465,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 4
+          },
+          {
+            "feature": "rdkit_2d.NumAliphaticHeterocycles",
+            "max_abs_standardised_test_value": 9.675155639648438,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_methoxy",
+            "max_abs_standardised_test_value": 9.595945358276367,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.NumSaturatedHeterocycles",
+            "max_abs_standardised_test_value": 9.453935623168945,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_Ndealkylation1",
+            "max_abs_standardised_test_value": 9.444575309753418,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 1
+          }
+        ]
+      },
+      "4": {
+        "n_features_above_threshold": 41,
+        "n_test_molecules_affected": 116,
+        "max_abs_standardised_test_value": 21.21320343017578,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_thiazole",
+            "max_abs_standardised_test_value": 21.21320343017578,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 4
+          },
+          {
+            "feature": "rdkit_2d.fr_SH",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_lactone",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_sulfonamd",
+            "max_abs_standardised_test_value": 11.750072479248047,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_Al_OH_noTert",
+            "max_abs_standardised_test_value": 11.374139785766602,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 4
+          },
+          {
+            "feature": "rdkit_2d.fr_furan",
+            "max_abs_standardised_test_value": 11.307393074035645,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_Al_OH",
+            "max_abs_standardised_test_value": 10.358964920043945,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 4
+          }
+        ]
+      },
+      "5": {
+        "n_features_above_threshold": 53,
+        "n_test_molecules_affected": 116,
+        "max_abs_standardised_test_value": 30.01666259765625,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_thiophene",
+            "max_abs_standardised_test_value": 30.01666259765625,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_oxime",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.PEOE_VSA5",
+            "max_abs_standardised_test_value": 15.667526245117188,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_phos_acid",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999998807907104,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_phos_ester",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999998807907104,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_unbrch_alkane",
+            "max_abs_standardised_test_value": 13.35963249206543,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_sulfonamd",
+            "max_abs_standardised_test_value": 12.238715171813965,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          }
+        ]
+      },
+      "6": {
+        "n_features_above_threshold": 28,
+        "n_test_molecules_affected": 89,
+        "max_abs_standardised_test_value": 30.01666259765625,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_thiophene",
+            "max_abs_standardised_test_value": 30.01666259765625,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_SH",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998807907104,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 1.0000001192092896,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_Ndealkylation1",
+            "max_abs_standardised_test_value": 9.96103572845459,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.VSA_EState5",
+            "max_abs_standardised_test_value": 9.905878067016602,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.VSA_EState1",
+            "max_abs_standardised_test_value": 9.47607421875,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_barbitur",
+            "max_abs_standardised_test_value": 9.444575309753418,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 22
+          },
+          {
+            "feature": "rdkit_2d.fr_ArN",
+            "max_abs_standardised_test_value": 8.55009651184082,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          }
+        ]
+      },
+      "7": {
+        "n_features_above_threshold": 49,
+        "n_test_molecules_affected": 112,
+        "max_abs_standardised_test_value": 21.236970901489258,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_C_S",
+            "max_abs_standardised_test_value": 21.236970901489258,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_barbitur",
+            "max_abs_standardised_test_value": 21.236970901489258,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 23
+          },
+          {
+            "feature": "rdkit_2d.fr_oxime",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_imide",
+            "max_abs_standardised_test_value": 15.460159301757812,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 24
+          },
+          {
+            "feature": "rdkit_2d.fr_SH",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_furan",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_phos_acid",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_phos_ester",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          }
+        ]
+      },
+      "8": {
+        "n_features_above_threshold": 37,
+        "n_test_molecules_affected": 101,
+        "max_abs_standardised_test_value": 17.310882568359375,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_oxime",
+            "max_abs_standardised_test_value": 17.310882568359375,
+            "raw_train_std": 0.9999998211860657,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_furan",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.SlogP_VSA8",
+            "max_abs_standardised_test_value": 10.25732421875,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 3
+          },
+          {
+            "feature": "rdkit_2d.fr_imidazole",
+            "max_abs_standardised_test_value": 9.96103572845459,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_Ndealkylation1",
+            "max_abs_standardised_test_value": 9.0,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_ArN",
+            "max_abs_standardised_test_value": 8.55009651184082,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_C_S",
+            "max_abs_standardised_test_value": 7.969369888305664,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 2
+          }
+        ]
+      },
+      "9": {
+        "n_features_above_threshold": 29,
+        "n_test_molecules_affected": 87,
+        "max_abs_standardised_test_value": 30.01666259765625,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_oxazole",
+            "max_abs_standardised_test_value": 30.01666259765625,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 2
+          },
+          {
+            "feature": "rdkit_2d.fr_epoxide",
+            "max_abs_standardised_test_value": 21.21320343017578,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_piperdine",
+            "max_abs_standardised_test_value": 13.394028663635254,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_lactone",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_furan",
+            "max_abs_standardised_test_value": 11.307393074035645,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_Ar_NH",
+            "max_abs_standardised_test_value": 9.566546440124512,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 5
+          },
+          {
+            "feature": "rdkit_2d.fr_Nhpyrrole",
+            "max_abs_standardised_test_value": 9.566546440124512,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 5
+          },
+          {
+            "feature": "rdkit_2d.fr_hdrzine",
+            "max_abs_standardised_test_value": 9.444575309753418,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          }
+        ]
+      },
+      "10": {
+        "n_features_above_threshold": 52,
+        "n_test_molecules_affected": 124,
+        "max_abs_standardised_test_value": 21.21320343017578,
+        "top_features": [
+          {
+            "feature": "rdkit_2d.fr_guanido",
+            "max_abs_standardised_test_value": 21.21320343017578,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_SH",
+            "max_abs_standardised_test_value": 14.98332405090332,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_thiazole",
+            "max_abs_standardised_test_value": 12.22020149230957,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_Ar_NH",
+            "max_abs_standardised_test_value": 10.752941131591797,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 10
+          },
+          {
+            "feature": "rdkit_2d.fr_Nhpyrrole",
+            "max_abs_standardised_test_value": 10.752941131591797,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 10
+          },
+          {
+            "feature": "rdkit_2d.fr_barbitur",
+            "max_abs_standardised_test_value": 10.571187019348145,
+            "raw_train_std": 1.0,
+            "n_test_molecules_above_threshold": 23
+          },
+          {
+            "feature": "rdkit_2d.fr_unbrch_alkane",
+            "max_abs_standardised_test_value": 10.136605262756348,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          },
+          {
+            "feature": "rdkit_2d.fr_Al_OH_noTert",
+            "max_abs_standardised_test_value": 10.063185691833496,
+            "raw_train_std": 0.9999999403953552,
+            "n_test_molecules_above_threshold": 1
+          }
+        ]
+      }
+    }
+  },
+  "framework": {
+    "k_star": 50,
+    "prior_statistics": {
+      "k_star": 50,
+      "coefficient_abs_max": 0.8171538710594177,
+      "train_abs_max": 11.313995361328125,
+      "val_abs_max": 11.128009796142578,
+      "test_abs_max": 128.71693420410156,
+      "test_prediction_range": [
+        -8.085442543029785,
+        128.71693420410156
+      ],
+      "target_train_range": [
+        -9.331999778747559,
+        1.5700000524520874
+      ]
+    },
+    "runs": {
+      "prior_rec": [
+        {
+          "seed": 3,
+          "test_rmse": 13.244575397717373,
+          "val_metric": 0.5581932766407979,
+          "best_epoch": 38,
+          "best_val_loss": 0.15143979393539175,
+          "test_prediction_abs_max": 128.2080078125,
+          "test_prediction_min": -8.424551010131836,
+          "test_prediction_max": 128.2080078125,
+          "target_test_range": [
+            -8.402000427246094,
+            1.5800000429153442
+          ]
+        },
+        {
+          "seed": 103,
+          "test_rmse": 13.251123344738021,
+          "val_metric": 0.5198885040693948,
+          "best_epoch": 39,
+          "best_val_loss": 0.13369580536289552,
+          "test_prediction_abs_max": 128.16409301757812,
+          "test_prediction_min": -8.551066398620605,
+          "test_prediction_max": 128.16409301757812,
+          "target_test_range": [
+            -8.402000427246094,
+            1.5800000429153442
+          ]
+        },
+        {
+          "seed": 203,
+          "test_rmse": 13.22146412646727,
+          "val_metric": 0.5657787925331834,
+          "best_epoch": 36,
+          "best_val_loss": 0.15697090024441746,
+          "test_prediction_abs_max": 127.78739929199219,
+          "test_prediction_min": -8.607712745666504,
+          "test_prediction_max": 127.78739929199219,
+          "target_test_range": [
+            -8.402000427246094,
+            1.5800000429153442
+          ]
+        }
+      ],
+      "hybrid_rec": [
+        {
+          "seed": 3,
+          "test_rmse": 0.7071410457442011,
+          "val_metric": 0.564625169346522,
+          "best_epoch": 31,
+          "best_val_loss": 0.14717473603982842,
+          "test_prediction_abs_max": 8.455753326416016,
+          "test_prediction_min": -8.455753326416016,
+          "test_prediction_max": 0.5662022829055786,
+          "target_test_range": [
+            -8.402000427246094,
+            1.5800000429153442
+          ]
+        },
+        {
+          "seed": 103,
+          "test_rmse": 0.6931445366502759,
+          "val_metric": 0.5365016203764295,
+          "best_epoch": 34,
+          "best_val_loss": 0.13788583149424696,
+          "test_prediction_abs_max": 8.064090728759766,
+          "test_prediction_min": -8.064090728759766,
+          "test_prediction_max": 0.701026201248169,
+          "target_test_range": [
+            -8.402000427246094,
+            1.5800000429153442
+          ]
+        },
+        {
+          "seed": 203,
+          "test_rmse": 0.7273638828002936,
+          "val_metric": 0.5641114940129619,
+          "best_epoch": 35,
+          "best_val_loss": 0.14426656746495087,
+          "test_prediction_abs_max": 8.493383407592773,
+          "test_prediction_min": -8.493383407592773,
+          "test_prediction_max": 0.6305921673774719,
+          "target_test_range": [
+            -8.402000427246094,
+            1.5800000429153442
+          ]
+        }
+      ]
+    },
+    "prior_rec_summary": {
+      "n_seeds": 3,
+      "n_divergent_runs": 3,
+      "rmse_values": [
+        13.244575397717373,
+        13.251123344738021,
+        13.22146412646727
+      ]
+    },
+    "hybrid_rec_summary": {
+      "n_seeds": 3,
+      "n_divergent_runs": 0,
+      "rmse_values": [
+        0.7071410457442011,
+        0.6931445366502759,
+        0.7273638828002936
+      ]
+    }
+  }
+}
