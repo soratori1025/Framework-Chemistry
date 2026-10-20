@@ -31,12 +31,20 @@ with `--generate-config my_experiment.yaml`.
 
 ## 3. Declare the experiment
 
+`inspect --generate-config` (above) drafts a complete, valid configuration; this
+section shows the same file by hand. It is a single top-level `dataset` block,
+not the `data:` block of earlier versions:
+
 ```yaml
 # my_experiment.yaml
-data:
+name: my_experiment
+
+dataset:
+  provider: csv
   path: my_table.csv
   smiles_column: smiles
-  targets: [logS]
+  targets:
+    logS: {column: logS}
 
 features:
   physchem:
@@ -62,6 +70,8 @@ model:
   descriptors: {enabled: true}
   fusion: concat
   prior: frozen
+
+training: {epochs: 40, batch_size: 64, checkpoint_dir: runs/my_experiment}
 ```
 
 Everything is validated against a typed schema before any computation runs:
@@ -78,13 +88,24 @@ are errors, not silent defaults.
 ```bash
 chemistry-framework prepare my_experiment.yaml            # featurise, cache, hash the definitions
 chemistry-framework train   my_experiment.yaml            # fit, evaluate, write the run record
-chemistry-framework predict --checkpoint <run>/model.pt  --input new_table.csv --output predictions.csv
+chemistry-framework predict --checkpoint runs/my_experiment/my_experiment_logS.pt \
+                            --input new_table.csv --output predictions.csv
 ```
 
-`train` writes the checkpoint together with the resolved configuration, its
-hash, the split seed, the per-split predictions and the metric table. Feature
-statistics, scalers and priors are fitted on the training partition only; the
-test partition is read once, for the final evaluation.
+`train` writes the checkpoint to `<training.checkpoint_dir>/<name>_<task>.pt`
+(`my_experiment_logS.pt` above), together with its configuration, its hash, the
+split seed and the metric table. Feature statistics, scalers and priors are
+fitted on the training partition only; the held-out partitions are read once,
+for the evaluation.
+
+`predict` recomputes every input the model needs from the SMILES in
+`--input`: the descriptor block, the frozen prior and the atom/bond graphs are
+rebuilt from the definitions stored in the checkpoint, so a prediction uses
+exactly the featurisation its training used. Descriptor types that cannot be
+rebuilt from a stored definition (Morgan bits, 3D descriptors, SMARTS counts)
+are refused with an explicit error rather than silently recomputed. When the
+input file also carries measured values, the predictions can be compared with
+the evaluation printed by `train`.
 
 ## 5. Read the evidence
 

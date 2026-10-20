@@ -27,12 +27,13 @@ Top-level sections:
 
 ```yaml
 features:
-  elements:     {type: element_counts}
-  bonds:        {type: bond_pair_counts}
-  fragments:    {type: smarts_patterns, patterns: [...]}
-  ecfp:         {type: morgan_fingerprint, radius: 2, n_bits: 2048}
-  physchem:     {type: rdkit_descriptors, names: [MolWt, MolLogP, TPSA, ...]}
-  rdkit2d:      {type: rdkit_descriptors, families: [all]}
+  elements:  {type: elements, elements: [C, N, O, Cl]}
+  bonds:     {type: bond_pairs, elements: [C, N, O], bond_orders: ["1", "2", "a"]}
+  fragments: {type: smarts, pattern: "c1ccccc1", mode: count}
+  ecfp:      {type: morgan, radius: 2, n_bits: 2048}
+  physchem:  {type: rdkit_descriptors, names: [MolWt, MolLogP, TPSA]}
+  rdkit2d:   {type: rdkit_descriptors, families: [all]}
+  # also available: python (callable), benson_groups, condition, descriptors_3d
 ```
 
 Each block may carry `group`, `description`, `source` and `definition`. The
@@ -61,7 +62,7 @@ descriptor branch gives a graph-only model. The five manuscript configurations
 split: {method: scaffold, fractions: [0.8, 0.1, 0.1], seed: 1}
 ```
 
-`method` is `scaffold`, `random`, or `size`. Scaffold splits group molecules by
+`method` is `scaffold`, `random`, `size` or `smarts`. Scaffold splits group molecules by
 Bemis--Murcko scaffold, treating acyclic molecules as singleton groups; the
 groups are shuffled with the split seed, sorted by decreasing size, and each is
 assigned to the partition whose current size is lowest relative to its target
