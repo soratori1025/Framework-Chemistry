@@ -1,0 +1,129 @@
+{
+  "molecule": "phenacetin",
+  "smiles": "CCOc1ccc(NC(C)=O)cc1",
+  "inchikey": "CPJSUEIXXCENMM-UHFFFAOYSA-N",
+  "dataset": "ESOL",
+  "split_seed": 1,
+  "partition": "train",
+  "measured": -2.35,
+  "prior_estimate": -2.58,
+  "descriptors_in_pool": 210,
+  "train_size": 902,
+  "test_size": 113,
+  "descriptors_outside_train_range_test": 20,
+  "k_candidates": [
+    10,
+    20,
+    50
+  ],
+  "k_star": 20,
+  "route": [
+    "MolLogP",
+    "MolMR",
+    "Chi3v",
+    "Ipc",
+    "BCUT2D_LOGPHI",
+    "PEOE_VSA6",
+    "Kappa2",
+    "BCUT2D_MWLOW",
+    "FpDensityMorgan1",
+    "PEOE_VSA7",
+    "RingCount",
+    "SPS",
+    "SMR_VSA10",
+    "SMR_VSA7",
+    "fr_benzene",
+    "fr_bicyclic",
+    "BCUT2D_MRHI",
+    "SlogP_VSA5",
+    "BalabanJ",
+    "EState_VSA8"
+  ],
+  "k10_route": [
+    "MolLogP",
+    "MolMR",
+    "Chi3v",
+    "Ipc",
+    "BCUT2D_LOGPHI",
+    "PEOE_VSA6",
+    "Kappa2",
+    "BCUT2D_MWLOW",
+    "FpDensityMorgan1",
+    "PEOE_VSA7"
+  ],
+  "table": [
+    {
+      "name": "MolWt",
+      "abs_rho": 0.68,
+      "rank": 9,
+      "support": 902,
+      "value": 179.22,
+      "range": [
+        16.04,
+        780.95
+      ],
+      "inside": true,
+      "evidence": "redundant",
+      "in_route": false
+    },
+    {
+      "name": "TPSA",
+      "abs_rho": 0.01,
+      "rank": 182,
+      "support": 682,
+      "value": 38.33,
+      "range": [
+        0.0,
+        268.68
+      ],
+      "inside": true,
+      "evidence": "redundant",
+      "in_route": false
+    },
+    {
+      "name": "NumHDonors",
+      "abs_rho": 0.13,
+      "rank": 86,
+      "support": 401,
+      "value": 1.0,
+      "range": [
+        0.0,
+        11.0
+      ],
+      "inside": true,
+      "evidence": "redundant",
+      "in_route": false
+    },
+    {
+      "name": "NumRotatableBonds",
+      "abs_rho": 0.25,
+      "rank": 53,
+      "support": 609,
+      "value": 3.0,
+      "range": [
+        0.0,
+        23.0
+      ],
+      "inside": true,
+      "evidence": "redundant",
+      "in_route": false
+    },
+    {
+      "name": "MolLogP",
+      "abs_rho": 0.83,
+      "rank": 1,
+      "support": 902,
+      "value": 2.04,
+      "range": [
+        -7.57,
+        10.39
+      ],
+      "inside": true,
+      "evidence": "supported",
+      "in_route": true
+    }
+  ],
+  "test_rmse_full_descriptors": 0.595,
+  "test_rmse_compact_route": 0.749,
+  "test_rmse_graph_only": 0.681
+}

@@ -294,18 +294,35 @@ def evaluate_dataset_baselines(dataset_name: str, seed: int = 1, X_fp: np.ndarra
     return results
 
 def main():
-    parser = argparse.ArgumentParser(description="Run canonical baselines across 8 datasets")
+    parser = argparse.ArgumentParser(description="Run canonical baselines on the manuscript endpoints")
     parser.add_argument("--dataset", type=str, default="esol", help="Dataset name or 'all'")
-    parser.add_argument("--seed", type=int, default=1, help="Seed index (1 to 5)")
-    parser.add_argument("--all-seeds", action="store_true", help="Run across all 5 seeds and aggregate mean/std")
+    parser.add_argument(
+        "--all-seeds",
+        action="store_true",
+        help="Deprecated alias for the default ten-seed run (kept for compatibility).",
+    )
+    add_seed_argument(parser)
     args = parser.parse_args()
+
+    if args.all_seeds and args.seeds is not None:
+        raise SystemExit("Use either --seeds or --all-seeds, not both")
 
     manifest_file = DATA_DIR / "dataset_manifest.json"
     with open(manifest_file, "r") as f:
         all_datasets = list(json.load(f).keys())
 
+    if args.dataset == "all" and args.seeds is None and not args.all_seeds:
+        # The manifest also holds endpoints that are not part of the manuscript
+        # (clintox, hiv, tox21); running them by accident costs hours, so make
+        # the intent explicit.
+        print(
+            "Note: '--dataset all' covers every prepared endpoint "
+            f"({len(all_datasets)}), including ones outside the manuscript. "
+            "Pass the endpoint names explicitly for the paper scope."
+        )
+
     target_datasets = all_datasets if args.dataset == "all" else [args.dataset]
-    seeds = [1, 2, 3, 4, 5] if args.all_seeds else [args.seed]
+    seed_list = resolve_seeds(args.seeds)
 
     for d in target_datasets:
         meta_d = json.load(open(manifest_file))[d]
@@ -318,11 +335,11 @@ def main():
         X_desc_raw = np.nan_to_num(X_desc_raw, nan=0.0, posinf=1e4, neginf=-1e4)
 
         all_results = []
-        for s in seeds:
+        for s in seed_list:
             res = evaluate_dataset_baselines(d, seed=s, X_fp=X_fp, X_desc_raw=X_desc_raw)
             all_results.extend(res)
 
-        if args.all_seeds:
+        if len(seed_list) > 1:
 
             models = sorted(list({r["model"] for r in all_results}))
             agg: dict[str, dict[str, Any]] = {}
@@ -340,16 +357,17 @@ def main():
                         }
             summary = {
                 "dataset": d,
-                "n_seeds": len(seeds),
+                "n_seeds": len(seed_list),
+                "seeds": seed_list,
                 "aggregated": agg,
                 "raw_runs": all_results,
             }
             out_file = RESULTS_DIR / f"baselines_{d}_aggregated.json"
             with open(out_file, "w") as f:
                 json.dump(summary, f, indent=2)
-            print(f"\n🎉 Saved 5-seed aggregated baselines for {d} to: {out_file}")
+            print(f"\n🎉 Saved {len(seed_list)}-seed aggregated baselines for {d} to: {out_file}")
         else:
-            out_file = RESULTS_DIR / f"baselines_{d}_seed_{args.seed}.json"
+            out_file = RESULTS_DIR / f"baselines_{d}_seed_{seed_list[0]}.json"
             with open(out_file, "w") as f:
                 json.dump(all_results, f, indent=2)
             print(f"\n🎉 Finished evaluation. Saved to: {out_file}")

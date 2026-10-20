@@ -26,3 +26,24 @@ framework_docs_backup/
 
 # Benchmark results are tracked: they accompany the manuscript and are
 # archived with the release DOI (see REPRODUCING.md).
+# Resume files from interrupted routing runs are never released.
+benchmarks/results/*_partial.json
+
+# Manuscript build artifacts (the manuscript sources themselves are tracked)
+manuscript/_build/
+manuscript/additional_file_1_source/_build/
+manuscript/**/*.aux
+manuscript/**/*.log
+manuscript/**/*.out
+manuscript/**/*.synctex.gz
+manuscript/**/*.fls
+manuscript/**/*.fdb_latexmk
+manuscript/**/build.log
+manuscript/**/missfont.log
+
+# Figure previews: the vector PDFs are tracked, the raster previews are not
+manuscript/figs/*.png
+
+# Scratch output of one-off runs
+$out/
+$o/

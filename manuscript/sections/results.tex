@@ -1,0 +1,190 @@
+\section{Results}\label{sec:results}
+
+\subsection{Performance depends on the endpoint, not on the model class}\label{subsec:cross-task-results}
+
+The best model depended on the task (Tables~\ref{tab:baselines-regression} and \ref{tab:baselines-classification}). The descriptor MLP and the framework direct hybrid tied for the lowest mean RMSE on ESOL ($0.623$), the framework direct hybrid was best on Lipophilicity ($0.606$), and Chemprop's D-MPNN with descriptors was best on FreeSolv ($0.946$) and BBBP ($0.923$); the RDKit 2D Random Forest remained best on BACE ($0.822$). After Holm correction only two paired comparisons excluded zero: the framework hybrid beat the RDKit 2D Random Forest on Lipophilicity ($\Delta=-0.142$, corrected 95\% CI $[-0.179,-0.106]$, 10/10 splits) and trailed it on BACE (hybrid $-0.037$ AUROC, $[-0.058,-0.017]$, 0/10 wins); every other comparison was inconclusive, including the ESOL hybrid-versus-Random-Forest and hybrid-versus-graph-only contrasts (Additional file 1, Table S5). Descriptors outperformed ECFP4 fingerprints with Random Forests on every task, although the BACE margin was negligible ($0.822$ versus $0.822$ at the displayed precision).
+
+\begin{table}[t]
+\caption{Regression performance (RMSE, mean $\pm$ SD over ten saved splits). Bold marks the best mean in each column; ties at the displayed precision are both bold.}
+\label{tab:baselines-regression}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Model & ESOL & FreeSolv & Lipophilicity \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Reference models}} \\
+Dummy & $1.894\pm0.197$ & $3.619\pm0.388$ & $1.148\pm0.039$ \\
+ECFP4 + Random Forest & $1.352\pm0.093$ & $1.795\pm0.306$ & $0.853\pm0.028$ \\
+RDKit 2D + Random Forest & $0.637\pm0.061$ & $1.089\pm0.175$ & $0.748\pm0.025$ \\
+Descriptor MLP & $\mathbf{0.623\pm0.040}$ & $1.290\pm0.446$ & $0.683\pm0.023$ \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Chemprop v2.3.1}} \\
+Graph-only D-MPNN & $0.791\pm0.063$ & $1.178\pm0.320$ & $0.641\pm0.085$ \\
+D-MPNN + descriptors ($x_d$) & $0.844\pm0.640$ & $\mathbf{0.946\pm0.261}$ & $0.639\pm0.068$ \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Framework}} \\
+Graph only (\cfg{residual\_only}) & $0.623\pm0.092$ & $1.251\pm0.153$ & $0.607\pm0.031$ \\
+Graph + descriptors (\cfg{direct\_hybrid}) & $\mathbf{0.623\pm0.054}$ & $1.099\pm0.249$ & $\mathbf{0.606\pm0.019}$ \\
+Prior + graph residual (\cfg{prior\_residual}) & $0.681\pm0.113$ & $1.175\pm0.207$ & $0.609\pm0.036$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Classification performance (AUROC, mean $\pm$ SD over ten saved splits). Bold marks the best mean in each column; ties at the displayed precision are both bold.}
+\label{tab:baselines-classification}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Model & BBBP & BACE \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Reference models}} \\
+Dummy & $0.500\pm0.000$ & $0.500\pm0.000$ \\
+ECFP4 + Random Forest & $0.905\pm0.022$ & $0.822\pm0.028$ \\
+RDKit 2D + Random Forest & $0.912\pm0.019$ & $\mathbf{0.822\pm0.027}$ \\
+Descriptor MLP & $0.915\pm0.028$ & $0.787\pm0.034$ \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Chemprop v2.3.1}} \\
+Graph-only D-MPNN & $0.911\pm0.024$ & $0.808\pm0.056$ \\
+D-MPNN + descriptors ($x_d$) & $\mathbf{0.923\pm0.019}$ & $0.793\pm0.040$ \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Framework}} \\
+Graph only (\cfg{residual\_only}) & $0.914\pm0.034$ & $0.802\pm0.038$ \\
+Graph + descriptors (\cfg{direct\_hybrid}) & $0.916\pm0.029$ & $0.785\pm0.033$ \\
+Prior + graph residual (\cfg{prior\_residual}) & $0.910\pm0.034$ & $0.783\pm0.062$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The framework and Chemprop graph only models were close: the framework was more accurate on ESOL ($0.623$ versus $0.791$, nominal $p=0.027$, Holm-adjusted $p=0.053$ within the two external comparisons for that dataset), Chemprop was more accurate on FreeSolv ($1.252$ versus $1.178$, not significant), and the remaining tasks were indistinguishable; across tasks the framework won between three and nine of ten splits (Additional file 1, Table S6). More informative than either ranking was the effect of adding descriptors (Fig.~\ref{fig:descriptor-effect}). In the framework the change in the mean was small on ESOL ($+0.1\%$), Lipophilicity ($+0.1\%$) and BBBP ($+0.2\%$), clearly positive on FreeSolv ($+12.1\%$), and slightly negative on BACE ($-2.1\%$). Chemprop showed the same pattern on FreeSolv ($+19.7\%$), Lipophilicity ($+0.2\%$), BBBP ($+1.3\%$) and BACE ($-1.9\%$), but on ESOL its descriptor hybrid was better on nine of the ten splits and failed badly on one (test RMSE $2.76$), so the mean fell by $6.8\%$ with an SD of $0.64$. Reporting only that mean would have reversed the sign of the effect on ESOL; the per-split record kept by the workflow is what makes the failure visible. On the four endpoints without such a failure the two implementations agreed on the sign and approximate size of the descriptor effect, which suggests that the effect is a property of the task and protocol rather than of the code.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.78\textwidth]{figs/fig3_descriptor_effect.pdf}
+\caption{Effect of adding 210 RDKit descriptors to a graph-only D-MPNN, in two independent implementations. Bars show the change in the ten-split mean of the primary metric (RMSE for ESOL, FreeSolv and Lipophilicity; AUROC for BBBP and BACE), signed so that positive values mean a lower error or a higher AUROC. The ESOL value for Chemprop is dominated by one split, in which its descriptor hybrid reached a test RMSE of 2.76 while being better than graph-only on the other nine. Computed from Tables~\ref{tab:baselines-regression} and \ref{tab:baselines-classification}.}
+\label{fig:descriptor-effect}
+\end{figure}
+
+\subsection{Descriptor evidence shows what the data support, not what is universally important}\label{subsec:feature-results}
+
+A chemist approaching a new endpoint asks two things before any model is trained: are the records trustworthy, and which of the several hundred descriptors are actually supported by the training molecules? The audit answers the first, the scorecard and the selectors answer the second, and the two answers are independent of the learner. The audit found duplicated structures in two of the five benchmarks (Table~\ref{tab:hygiene}, discussed below).
+
+Figure~\ref{fig:worked} follows a single molecule through both checks, so that the numbers in the tables can be read on a concrete case.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig2_worked_example.pdf}
+\caption{One molecule followed through the audit and the descriptor scorecard. (a) Phenacetin in the ESOL dataset; its measured aqueous solubility is $\log_{10}S=-2.35$ and it belongs to the training partition of split 1. (b) Training-partition evidence for five of the 210 descriptors. Bars are absolute Spearman correlations with the measured solubility; a descriptor is grey if the recommender did not keep it, which in these cases is because its Pearson correlation with a higher-ranked descriptor exceeded 0.85. (c) Audit output for the same split. The full scorecard covers every descriptor and every split.}
+\label{fig:worked}
+\end{figure}
+
+With a Random Forest as learner (ESOL, FreeSolv, BBBP), recommended subsets had better mean scores than random subsets of the same size at every budget, and the corrected intervals excluded zero at all budgets on ESOL, at $K\leq20$ on FreeSolv, and at $K=5$ on BBBP; the margin shrank as $K$ grew. At $K=50$ on ESOL, 10 and 20 on FreeSolv, and the three larger budgets on BBBP, the recommendation still had the better mean but the corrected interval did not separate it from random draws. Against the full 210-descriptor pool the picture reverses: at $K=5$ and $K=10$ on ESOL the recommended subset was significantly worse, and every other budget was inconclusive (Additional file 1, Table S3).
+
+Across six selectors on five datasets (Table~\ref{tab:selectors}), Random Forest importance and mutual information ranked best on average, with mean ranks of 2.20 and 2.35, respectively. The framework recommender ranked fourth (3.65), was best in one of the 20 dataset-budget cells, and had mean pairwise Jaccard stability of 0.76. This stability was below Spearman ranking (0.88) and mutual information (0.80), but above Random Forest importance (0.65), MI--Pearson (0.57), and L1 (0.47). These results support a transparent and reasonably stable candidate-generation heuristic, not a selector that consistently outperforms established alternatives. The selector match with the downstream Random Forest may favour RF importance.
+
+The practical reading for a chemist is therefore: the scorecard tells you what the data can support, the recommender proposes a compact and stable subset, and the ranking among selectors is close enough that the choice should be made on inspectability and stability rather than on a small score difference.
+
+\begin{table}[t]
+\caption{Six feature selectors on five datasets with a Random Forest downstream. Mean rank (1 = best) per dataset over $K\in\{5,10,20,50\}$ and overall over 20 dataset-budget cells; Best denotes cells in which the selector had the best mean score; Jaccard: mean pairwise stability over splits and cells. Full results in Additional file 1, Table S4.}
+\label{tab:selectors}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+ & \multicolumn{5}{c}{Mean rank per dataset} & & & \\
+\cmidrule(lr){2-6}
+Selector & ESOL & FreeSolv & Lipo. & BBBP & BACE & Overall & Best & Jaccard \\
+\midrule
+RF impurity importance & 1.0 & 1.8 & 1.8 & 4.8 & 1.8 & 2.20 & 10 & 0.65 \\
+Mutual information & 2.8 & 2.5 & 1.5 & 2.2 & 2.8 & 2.35 & 3 & 0.80 \\
+MI-Pearson & 3.8 & 4.2 & 3.5 & 1.5 & 2.8 & 3.15 & 4 & 0.57 \\
+Framework recommender & 3.8 & 3.2 & 3.5 & 3.8 & 4.0 & 3.65 & 1 & 0.76 \\
+Spearman top-$K$ & 3.8 & 3.2 & 5.0 & 5.8 & 5.8 & 4.70 & 0 & 0.88 \\
+L1 (lasso / L1-logistic) & 6.0 & 6.0 & 5.8 & 3.0 & 4.0 & 4.95 & 2 & 0.47 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The data audit finds problems that the training score cannot see}\label{subsec:audit-results}
+
+The audit found duplicated structures in two of the five benchmarks (Table~\ref{tab:hygiene}). BBBP contained 64 structures recorded more than once (132 records, 6.5\%), 11 of them with conflicting labels; ESOL contained 11 duplicated structures whose label spans stayed below the conflict threshold (largest span 1.03 log units, compared with a threshold of 1.0478). Across the ten scaffold splits, the mean number of out-of-range descriptors was $19.4\pm12.8$ for ESOL, $20.8\pm14.8$ for Lipophilicity, and $15.1\pm9.5$ for BBBP; the corresponding fractions of test molecules affected were $6.3\pm2.5\%$, $3.7\pm0.7\%$, and $3.8\pm2.1\%$, respectively. These diagnostics are range-based indicators rather than a comprehensive measure of distribution shift. In BBBP the relationship was not monotone: the hybrid's weakest split (split 8) had 19 out-of-range descriptors and 8.8\% of test molecules affected, but split 3 had almost as many (18) and gave the hybrid its best score (Additional file 1, Table S2). A range-based count is therefore a warning flag, not a predictor of which split will be hardest.
+
+\begin{table}[t]
+\caption{Structure-level audit by InChIKey. Duplicated structures are structures recorded more than once (records in parentheses). Conflicts are duplicated structures whose labels disagree (classification) or span more than half the target standard deviation (regression).}
+\label{tab:hygiene}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Dataset & Records & Unique InChIKeys & Duplicated structures & Conflicts & Largest span \\
+\midrule
+ESOL & 1,128 & 1,117 & 11 (22) & 0 & 1.03 \\
+FreeSolv & 642 & 642 & 0 (0) & 0 & 0.00 \\
+Lipophilicity & 4,200 & 4,200 & 0 (0) & 0 & 0.00 \\
+BBBP & 2,039 & 1,971 & 64 (132) & 11 & -- \\
+BACE & 1,513 & 1,513 & 0 (0) & 0 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The duplicate-controlled BBBP sensitivity analysis retained 1,960 unique structures after excluding the 11 conflicting label groups and retaining one record for each of the 53 remaining duplicated groups. On ten new scaffold manifests, mean AUROC was $0.8656\pm0.0577$ for the framework graph only model and $0.8637\pm0.0422$ for its descriptor hybrid. Chemprop v2.3.1 achieved $0.8686\pm0.0398$ with graph only and $0.8744\pm0.0428$ with the 210 molecular descriptors, while RDKit 2D plus Random Forest achieved $0.8940\pm0.0305$ (Additional file 1, Table S12). The hybrid minus graph mean difference was $-0.0019$ for the framework (5/10 splits favoured the hybrid) and $+0.0057$ for Chemprop (9/10 splits favoured the hybrid). For the framework the paired 95\% $t$ interval included zero, so these results do not establish a conclusive advantage from descriptor augmentation in this workflow. The Chemprop hybrid-minus-graph difference was in the same direction but smaller, and its interval also included zero; after Holm correction within the five sensitivity comparisons neither implementation separates (Additional file 1, Table S12b). The exact ranking differed from the primary benchmark. Scores were lower for the learned models on the sensitivity data, but this change cannot be attributed to duplicate leakage alone because both data composition and split manifests differed.
+
+\subsection{Descriptor routing depends on feature budget and endpoint}\label{subsec:routing-results}
+
+The harmonised routing results show that the value of a compact descriptor route depends on the endpoint (Table~\ref{tab:routing}). The full 210-descriptor hybrid had the lowest mean RMSE on ESOL ($0.614\pm0.039$) and FreeSolv ($1.038\pm0.214$). On Lipophilicity the recommender route had the lowest mean of the six routes ($0.581\pm0.041$), below the full descriptor set ($0.606$); on BACE the graph-only model had the highest mean AUROC ($0.798$), and the six routes spanned only $0.014$, less than the between-split SD. On BBBP every route lay within $0.007$ AUROC of the best. The random-subset control is the important comparator. The recommender beat it on Lipophilicity ($0.581$ versus $0.591$), but was within one SD of it on ESOL ($0.620$ versus $0.631$), FreeSolv ($1.147$ versus $1.149$), BBBP ($0.915$ versus $0.910$) and BACE ($0.797$ versus $0.792$), and every paired recommender-minus-control difference had a Holm-corrected interval that included zero (Additional file~1, Table~S7b). The same correction left the Lipophilicity gap to the full descriptor set inconclusive, so the apparent benefit of compactness is not established at this sample size either. A compact route therefore does not appear to require an informed selection rule on these endpoints; what matters is that it is tested rather than assumed. Per-split outputs and checkpoint decisions are archived in the repository; the checkpoint selection rule and result-file inventory are documented in Additional file~1, Table~S13.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figs/fig4_routing.pdf}
+\caption{Compact descriptor routes compared with the matched random control. Points are mean paired differences over ten splits and error bars are population SDs. Positive values mean that the route had a lower RMSE (a) or a higher AUROC (b) than a random subset of the same size drawn at the same split-specific budget $K^*$. The largest mean improvement is the full descriptor set on FreeSolv (about 10\%), but every interval includes zero: at this sample size no route is separated from its control.}
+\label{fig:routing}
+\end{figure}
+
+\begin{table}[t]
+\caption{Harmonised evidence-guided descriptor routing. Entries are test RMSE for ESOL, FreeSolv, and Lipophilicity, and test AUROC for BBBP and BACE; values are mean $\pm$ population SD over ten saved splits. All route checkpoints are selected by minimum validation loss, and the recommended route's $K^*$ is selected using the primary validation metric at that checkpoint. Spearman and MI use the same split-specific $K^*$; the random route averages ten random-subset draws per split. Bold text marks the best mean in each row. The full checkpoint-level audit covers 250 model runs; see Additional file 1, Table S13.}
+\label{tab:routing}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+Dataset & Metric & Graph only & All 210 & Recommender & Spearman & MI & Random \\
+ESOL & RMSE $\downarrow$ & $0.638\pm0.074$ & $\mathbf{0.614\pm0.039}$ & $0.620\pm0.078$ & $0.620\pm0.075$ & $0.622\pm0.062$ & $0.631\pm0.057$ \\
+FreeSolv & RMSE $\downarrow$ & $1.205\pm0.164$ & $\mathbf{1.038\pm0.214}$ & $1.147\pm0.140$ & $1.134\pm0.156$ & $1.168\pm0.180$ & $1.149\pm0.141$ \\
+Lipophilicity & RMSE $\downarrow$ & $0.607\pm0.031$ & $0.606\pm0.019$ & $\mathbf{0.581\pm0.041}$ & $0.592\pm0.033$ & $0.599\pm0.032$ & $0.591\pm0.027$ \\
+BBBP & AUROC $\uparrow$ & $0.914\pm0.034$ & $\mathbf{0.916\pm0.029}$ & $0.915\pm0.023$ & $0.913\pm0.020$ & $0.910\pm0.018$ & $0.910\pm0.020$ \\
+BACE & AUROC $\uparrow$ & $\mathbf{0.798\pm0.038}$ & $0.786\pm0.033$ & $0.797\pm0.036$ & $0.786\pm0.059$ & $0.784\pm0.051$ & $0.792\pm0.042$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Configurable predictive roles are useful but not uniformly beneficial}\label{subsec:modularity-results}
+
+The best role assignment was also task dependent (Table~\ref{tab:ablation}). The descriptor-only role was best on ESOL ($0.619$), direct fusion on FreeSolv, Lipophilicity, and BBBP, and graph only on BACE ($0.802$ versus $0.785$ for direct fusion). The margins were often small: on Lipophilicity and ESOL the four learned roles other than the prior and prior-plus-residual variants spanned $0.004$ and $0.018$ RMSE respectively, so the ordering should be read as a trend across ten splits rather than as a separated ranking. No paired interval excluded zero for the prior/residual model against graph only on any task, and on ESOL it had the largest split-to-split variability of the learned models. At the level of training seeds, variation was small relative to split variation for most models (SD over three seeds 0.003 - 0.007 AUROC on BBBP), but reached 0.013 for the prior/residual model, about a third of its between-split SD of 0.034 (Additional file 1, Table S8).
+
+\begin{table}[t]
+\caption{Predictive-role ablation (primary metric, mean $\pm$ SD over ten splits; RMSE for ESOL, FreeSolv, and Lipophilicity, AUROC for BBBP and BACE). Bold text marks the best mean per column.}
+\label{tab:ablation}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Configuration & ESOL & FreeSolv & Lipophilicity & BBBP & BACE \\
+\midrule
+\cfg{prior\_only} & $0.913\pm0.073$ & $2.015\pm0.116$ & $1.009\pm0.036$ & $0.812\pm0.030$ & $0.660\pm0.055$ \\
+\cfg{direct\_only} & $\mathbf{0.619\pm0.045}$ & $1.350\pm0.458$ & $0.683\pm0.034$ & $0.903\pm0.041$ & $0.785\pm0.046$ \\
+\cfg{residual\_only} & $0.623\pm0.092$ & $1.251\pm0.153$ & $0.607\pm0.031$ & $0.914\pm0.034$ & $\mathbf{0.802\pm0.038}$ \\
+\cfg{direct\_hybrid} & $0.623\pm0.054$ & $\mathbf{1.099\pm0.249}$ & $\mathbf{0.606\pm0.019}$ & $\mathbf{0.916\pm0.029}$ & $0.785\pm0.033$ \\
+\cfg{prior\_residual} & $0.681\pm0.113$ & $1.175\pm0.207$ & $0.609\pm0.036$ & $0.910\pm0.034$ & $0.783\pm0.062$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+

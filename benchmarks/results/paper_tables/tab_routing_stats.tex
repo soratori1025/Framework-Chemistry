@@ -1,40 +1,40 @@
 \begin{table}[H]
-\caption{Paired comparisons for the harmonised descriptor routing: the recommender route minus each reference route, on the splits of Table~\ref{tab:routing-si}. Negative values on the regression tasks and positive values on the classification tasks mean that the recommender route is better. $p_{\mathrm{H}}$ is Holm-adjusted within each dataset ($m=5$). No comparison across the five endpoints and five reference routes survives the correction; the largest corrected effect is the recommender against random subsets on FreeSolv ($p=0.064$ before adjustment, $p=0.318$ after).}\label{tab:routing-stats}
+\caption{Paired comparisons for the harmonised descriptor routing: the recommender route minus each reference route, on the 10 splits of Table~\ref{tab:routing-si}. Negative values on the regression tasks and positive values on the classification tasks mean that the recommender route is better. $p_{\mathrm{H}}$ is Holm-adjusted within each dataset ($m=5$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. No comparison in this table survives Holm correction, so every entry is reported as inconclusive. The smallest corrected $p$-value in this table belongs to Recommender route vs Graph only on Lipophilicity ($p=0.121$, $p_{\mathrm{H}}=0.605$).}\label{tab:routing-stats}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llccccr@{}}
 \toprule
 Dataset & Recommender minus & $\bar\Delta\pm\mathrm{SD}$ & Corrected 95\% interval & $p$ & $p_{\mathrm{H}}$ & Wins \\
 \midrule
-ESOL & Graph only & $-0.023\pm0.066$ & $[-0.139,0.093]$ & $0.617$ & $1.000$ & 2/5 \\
-ESOL & All 210 descriptors & $+0.035\pm0.070$ & $[-0.088,0.159]$ & $0.472$ & $1.000$ & 1/5 \\
-ESOL & Spearman control & $+0.031\pm0.031$ & $[-0.024,0.086]$ & $0.196$ & $0.979$ & 1/5 \\
-ESOL & Mutual-information control & $+0.028\pm0.061$ & $[-0.081,0.136]$ & $0.519$ & $1.000$ & 1/5 \\
-ESOL & Random subsets & $+0.024\pm0.029$ & $[-0.028,0.076]$ & $0.271$ & $1.000$ & 1/5 \\
+ESOL & Graph only & $-0.017\pm0.053$ & $[-0.077,0.042]$ & $0.528$ & $1.000$ & 7/10 \\
+ESOL & All 210 descriptors & $+0.006\pm0.074$ & $[-0.077,0.089]$ & $0.875$ & $1.000$ & 5/10 \\
+ESOL & Spearman control & $-0.000\pm0.035$ & $[-0.040,0.040]$ & $0.997$ & $1.000$ & 4/10 \\
+ESOL & Mutual-information control & $-0.001\pm0.061$ & $[-0.070,0.068]$ & $0.964$ & $1.000$ & 5/10 \\
+ESOL & Random subsets & $-0.011\pm0.038$ & $[-0.054,0.033]$ & $0.597$ & $1.000$ & 6/10 \\
 \midrule
-FreeSolv & Graph only & $-0.086\pm0.163$ & $[-0.376,0.204]$ & $0.455$ & $1.000$ & 2/5 \\
-FreeSolv & All 210 descriptors & $+0.048\pm0.205$ & $[-0.315,0.412]$ & $0.731$ & $1.000$ & 3/5 \\
-FreeSolv & Spearman control & $-0.043\pm0.108$ & $[-0.235,0.149]$ & $0.566$ & $1.000$ & 2/5 \\
-FreeSolv & Mutual-information control & $-0.022\pm0.050$ & $[-0.111,0.067]$ & $0.532$ & $1.000$ & 4/5 \\
-FreeSolv & Random subsets & $-0.054\pm0.033$ & $[-0.114,0.005]$ & $0.064$ & $0.318$ & 5/5 \\
+FreeSolv & Graph only & $-0.058\pm0.108$ & $[-0.180,0.065]$ & $0.313$ & $1.000$ & 7/10 \\
+FreeSolv & All 210 descriptors & $+0.108\pm0.135$ & $[-0.045,0.262]$ & $0.145$ & $0.724$ & 3/10 \\
+FreeSolv & Spearman control & $+0.013\pm0.101$ & $[-0.101,0.127]$ & $0.804$ & $1.000$ & 4/10 \\
+FreeSolv & Mutual-information control & $-0.021\pm0.098$ & $[-0.132,0.090]$ & $0.679$ & $1.000$ & 6/10 \\
+FreeSolv & Random subsets & $-0.003\pm0.053$ & $[-0.063,0.058]$ & $0.919$ & $1.000$ & 4/10 \\
 \midrule
-Lipophilicity & Graph only & $-0.003\pm0.031$ & $[-0.058,0.052]$ & $0.885$ & $1.000$ & 2/5 \\
-Lipophilicity & All 210 descriptors & $-0.021\pm0.031$ & $[-0.075,0.033]$ & $0.344$ & $1.000$ & 3/5 \\
-Lipophilicity & Spearman control & $-0.011\pm0.024$ & $[-0.055,0.032]$ & $0.503$ & $1.000$ & 3/5 \\
-Lipophilicity & Mutual-information control & $-0.015\pm0.020$ & $[-0.050,0.020]$ & $0.307$ & $1.000$ & 4/5 \\
-Lipophilicity & Random subsets & $-0.007\pm0.022$ & $[-0.046,0.032]$ & $0.639$ & $1.000$ & 3/5 \\
+Lipophilicity & Graph only & $-0.026\pm0.030$ & $[-0.061,0.008]$ & $0.121$ & $0.605$ & 8/10 \\
+Lipophilicity & All 210 descriptors & $-0.025\pm0.032$ & $[-0.062,0.011]$ & $0.154$ & $0.605$ & 9/10 \\
+Lipophilicity & Spearman control & $-0.011\pm0.018$ & $[-0.031,0.009]$ & $0.244$ & $0.605$ & 6/10 \\
+Lipophilicity & Mutual-information control & $-0.018\pm0.023$ & $[-0.043,0.008]$ & $0.150$ & $0.605$ & 8/10 \\
+Lipophilicity & Random subsets & $-0.010\pm0.023$ & $[-0.035,0.016]$ & $0.400$ & $0.605$ & 9/10 \\
 \midrule
-BBBP & Graph only & $-0.005\pm0.036$ & $[-0.069,0.059]$ & $0.847$ & $1.000$ & 3/5 \\
-BBBP & All 210 descriptors & $+0.004\pm0.015$ & $[-0.023,0.030]$ & $0.718$ & $1.000$ & 3/5 \\
-BBBP & Spearman control & $-0.009\pm0.017$ & $[-0.040,0.022]$ & $0.458$ & $1.000$ & 2/5 \\
-BBBP & Mutual-information control & $-0.012\pm0.018$ & $[-0.043,0.019]$ & $0.354$ & $1.000$ & 2/5 \\
-BBBP & Random subsets & $-0.007\pm0.023$ & $[-0.048,0.033]$ & $0.635$ & $1.000$ & 3/5 \\
+BBBP & Graph only & $+0.001\pm0.038$ & $[-0.043,0.044]$ & $0.965$ & $1.000$ & 6/10 \\
+BBBP & All 210 descriptors & $-0.001\pm0.014$ & $[-0.017,0.015]$ & $0.881$ & $1.000$ & 6/10 \\
+BBBP & Spearman control & $+0.002\pm0.026$ & $[-0.027,0.032]$ & $0.863$ & $1.000$ & 5/10 \\
+BBBP & Mutual-information control & $+0.005\pm0.019$ & $[-0.016,0.027]$ & $0.578$ & $1.000$ & 6/10 \\
+BBBP & Random subsets & $+0.005\pm0.015$ & $[-0.011,0.022]$ & $0.490$ & $1.000$ & 8/10 \\
 \midrule
-BACE & Graph only & $+0.028\pm0.023$ & $[-0.012,0.068]$ & $0.126$ & $0.631$ & 5/5 \\
-BACE & All 210 descriptors & $+0.017\pm0.030$ & $[-0.036,0.070]$ & $0.425$ & $0.915$ & 3/5 \\
-BACE & Spearman control & $+0.018\pm0.025$ & $[-0.025,0.062]$ & $0.305$ & $0.915$ & 3/5 \\
-BACE & Mutual-information control & $+0.017\pm0.029$ & $[-0.034,0.067]$ & $0.415$ & $0.915$ & 3/5 \\
-BACE & Random subsets & $+0.019\pm0.017$ & $[-0.011,0.050]$ & $0.155$ & $0.631$ & 4/5 \\
+BACE & Graph only & $-0.001\pm0.029$ & $[-0.034,0.031]$ & $0.924$ & $1.000$ & 4/10 \\
+BACE & All 210 descriptors & $+0.011\pm0.019$ & $[-0.011,0.033]$ & $0.288$ & $1.000$ & 7/10 \\
+BACE & Spearman control & $+0.011\pm0.038$ & $[-0.031,0.054]$ & $0.571$ & $1.000$ & 7/10 \\
+BACE & Mutual-information control & $+0.013\pm0.031$ & $[-0.023,0.048]$ & $0.441$ & $1.000$ & 5/10 \\
+BACE & Random subsets & $+0.005\pm0.017$ & $[-0.015,0.024]$ & $0.610$ & $1.000$ & 6/10 \\
 \bottomrule
 \end{tabular}
 \end{table}

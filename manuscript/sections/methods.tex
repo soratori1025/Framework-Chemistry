@@ -1,0 +1,96 @@
+\section{Methods}\label{sec:methods}
+% =============================================================================
+
+\subsection{Framework and configuration}\label{subsec:architecture}
+
+\framework{} organises an experiment as data loading, configuration validation, splitting, featurisation, feature analysis, model construction, training, and evaluation (Fig.~\ref{fig:workflow}). Molecules are supplied as strings in the simplified molecular input line entry system (SMILES). A YAML (human-readable data serialisation) configuration declares the input file and targets, named feature blocks, routes that assign blocks to tasks, priors, task types, split strategy, and model, training, evaluation, and analysis settings; it is parsed against a typed schema before any computation. Feature definitions and resolved feature names are hashed, so cached matrices and results can be traced to the definitions that produced them. Feature blocks include element counts, bond-pair counts, substructure counts from SMILES arbitrary target specification (SMARTS) patterns, Morgan fingerprints \cite{rogers2010ecfp}, and the RDKit 2D descriptor set (210 descriptors in RDKit 2023.09.6) \cite{rdkit}; model components, implemented in PyTorch \cite{paszke2019pytorch}, include directed message-passing neural network (D-MPNN) and graph isomorphism network (GIN) encoders, a multilayer perceptron (MLP) descriptor encoder, fusion modules, and task-specific heads. A command-line interface (CLI) and a Python application programming interface (API) expose the commands \cfg{inspect}, \cfg{validate}, \cfg{prepare}, \cfg{train}, and \cfg{predict}; Additional file 2 documents installation, configuration, and outputs. Interfaces for 3D, reaction, mixture, and protein inputs exist but are not evaluated here. The test suite (61 tests) covers configuration parsing, featurisation, feature analysis, the dataset advisor, and training.
+
+% The figure code is kept in fig1_alternatives.tex so that it can also be compiled on
+% its own (fig1_preview.tex).  Every number in it comes from
+% benchmarks/fig1_worked_example.py.
+\subsection{Feature evidence and dataset audit}\label{subsec:feature-evidence}
+
+Training-derived scorecard statistics are computed on the training partition. For each feature the scorecard records provenance, including domain, source and definition, training support (number of molecules with a non-zero value), training mean, standard deviation and range, the Spearman correlation with each target, collinear partners ($|r|\geq0.95$ by default) and, when supplied, bootstrap evidence for prior coefficients and model-dependent group contributions such as permutation or group-removal effects. An ordered rule assigns each feature an evidence class that can be, \emph{out of distribution/unsupported} (zero support or held-out values outside the training range), \emph{weak/uncertain}, \emph{redundant}, \emph{supported} (a sign-consistent prior coefficient whose bootstrap 95\% interval excludes zero, together with a positive model contribution in at least 80\% of repeats) or \emph{model-dependent}. Because the out of distribution class uses held-out ranges, it serves post hoc diagnosis only and is never used for selection; it is a simple range based applicability-domain check \cite{netzeva2005ad,sahigara2012ad}.
+
+The scorecard and recommender serve complementary but distinct purposes. The scorecard is an evidence-documentation and diagnostic layer: it records what is known about a feature under the current dataset and split, but does not itself select features or decide how a feature block enters a model. The recommender is an optional candidate-generation heuristic that returns a compact subset under a fixed relevance and redundancy rule. In particular, the recommender does not consume the scorecard's categorical evidence classes, learn endpoint-specific weights, or automatically alter model architecture. The user remains responsible for deciding whether and how a proposed subset is used.
+
+The dataset advisor (\cfg{inspect}) reports SMILES validity, repeated SMILES strings, scaffold diversity \cite{bemis1996scaffold}, Tanimoto diversity of Morgan fingerprints \cite{rogers2010ecfp,bajusz2015tanimoto}, target skewness, outliers, and class balance, and drafts a starting configuration. For this study, an audit script in the repository additionally matched structures by the International Chemical Identifier key (InChIKey) \cite{heller2015inchi}; a duplicated structure was counted as a conflict if its labels disagreed (classification) or spanned more than half the target standard deviation (regression). Covariate shift between partitions was summarised as the number of descriptors with any test value outside the training range and the fraction of test molecules affected. We report both illustrative split-level diagnostics and the mean and population standard deviation over the ten saved scaffold splits where available. For BBBP, the audit also identified duplicate InChIKeys crossing partition boundaries in several scaffold manifests. Inspection of the affected records showed tautomeric representations that produced different Murcko scaffold strings, so scaffold grouping alone did not guarantee structure identity across partitions.
+
+\subsection{Predictive roles}\label{subsec:roles}
+
+A route maps named feature blocks to a task, so the same block can be reassigned without changing the feature calculator or training loop. In the \emph{direct} role, features are encoded by an MLP and optionally concatenated with the graph representation; in the \emph{prior} role, a feature set $x_p$ defines a baseline fitted on the training partition; in the \emph{residual} role, a network corrects that baseline:
+\begin{equation}
+    \hat{z}(\mathcal{G}, x_d, x_p) = h_\theta\!\left(\left[\,\phi_\theta(\mathcal{G})\,;\,\psi_\theta(x_d)\,\right]\right) + f_p(x_p),
+    \label{eq:prior-residual}
+\end{equation}
+where $\phi_\theta$ encodes the molecular graph $\mathcal{G}$, $\psi_\theta$ encodes directly routed descriptors $x_d$, $h_\theta$ is the readout and output head, and either encoder can be disabled. For regression $\hat{y}=\hat{z}$; for binary classification $\hat{z}$ is a logit and $\hat{y}=\sigma(\hat{z})$. The pattern follows $\Delta$-machine learning \cite{ramakrishnan2015delta}, with a statistical baseline of physicochemical descriptors in place of a lower-level calculation. The framework fits priors by ridge, least-squares, or logistic regression, optionally with fixed coefficients; in the benchmark, priors were fitted with scikit-learn \cite{pedregosa2011sklearn} (ridge, $\alpha=1$; logistic, $C=1$, using the log-odds from \cfg{decision\_function}) on six descriptors (\cfg{MolWt}, \cfg{MolLogP}, \cfg{TPSA}, \cfg{NumHDonors}, \cfg{NumHAcceptors}, \cfg{NumRotatableBonds}), frozen, and supplied as an input. The network was trained on the original target (Huber loss \cite{huber1964robust} or binary cross-entropy on logits). Listing~\ref{lst:config} shows how roles are declared.
+
+\begin{lstlisting}[float=t, caption={Configuration excerpt showing the three predictive roles in Eq.~\eqref{eq:prior-residual}. The excerpt is validated against the framework schema. Removing the task prior gives a direct hybrid, disabling the descriptor branch gives a prior and residual model, and setting the graph encoder to none gives a descriptor-only model.}, label={lst:config}]
+features:
+  physchem:                       # six descriptors used by the prior
+    type: rdkit_descriptors
+    names: [MolWt, MolLogP, TPSA, NumHDonors,
+            NumHAcceptors, NumRotatableBonds]
+  rdkit2d:                        # full RDKit 2D descriptor pool
+    type: rdkit_descriptors
+    families: [all]
+priors:
+  logS_prior: {use: [physchem], fit: ridge}        # prior role
+routes:
+  logS: [rdkit2d]                                  # direct role
+tasks:
+  logS: {target: logS, kind: scalar, route: logS, prior: logS_prior}
+split: {method: scaffold, fractions: [0.8, 0.1, 0.1], seed: 1}
+model:
+  structure: {encoder: dmpnn, hidden_dim: 128, depth: 3}   # graph branch
+  descriptors: {enabled: true}
+  fusion: concat
+  prior: frozen
+\end{lstlisting}
+
+\subsection{Feature recommendation and comparison selectors}\label{subsec:selectors}
+
+The framework recommendation at budget $K$ (\cfg{select\_evidence\_recommendation}) uses the training partition only: (1) compute the absolute Spearman correlation $s_j$ of each feature with the target, setting $s_j=0$ for features with standard deviation below $10^{-6}$; (2) sort features by $s_j$; (3) add a feature if $s_j\geq10^{-4}$ and its absolute Pearson correlation with every selected feature is at most 0.85; (4) if fewer than $K$ features pass, pad with the next-ranked features. Padding was never triggered: at least 128 descriptors passed step 3 in every split. The rule is a transparent relevance and redundancy heuristic related to correlation based and minimum redundancy selection \cite{hall1999cfs,peng2005mrmr}; it uses the scorecard's association and collinearity statistics but not its evidence classes. It is therefore presented as a reproducible candidate-generation rule for this workflow, not as a novel feature-selection algorithm or a claim that its selected descriptors are universally important.
+
+Five selectors served as comparators at $K\in\{5,10,20,50\}$: Spearman top-$K$; mutual information (MI) top-$K$ with the $k$-nearest-neighbour estimators of scikit-learn ($k=3$) \cite{kraskov2004mi,ross2014mi}; an MI-Pearson selector that greedily maximises mutual information relevance while penalising mean absolute Pearson correlation with selected features; Random Forest impurity importance (100 trees, depth $\leq12$) \cite{breiman2001rf}; and L1 selection, where L1 denotes absolute-value regularisation (order of entry on the least angle regression (LARS) lasso path for regression, or absolute coefficients of an L1-penalised logistic regression with $C=1$ for classification) \cite{tibshirani1996lasso,efron2004lars}. L1 selection used a standard scaler fitted on the training partition only. Random subsets (ten draws per split) and the full pool were additional references on ESOL, FreeSolv, and BBBP. Selected subsets were evaluated with a Random Forest (100 trees). Stability was the mean pairwise Jaccard index of the selected sets over the ten splits \cite{kalousis2007stability,nogueira2018stability}.
+
+\subsection{Evidence-guided descriptor routing}\label{subsec:routing}
+
+To test whether feature evidence can guide model configuration, the 210-descriptor input of the direct hybrid was replaced by a compact route. For each split, the recommended subset was evaluated at $K\in\{10,20,50\}$, and the budget with the best primary validation metric ($K^*$) was retained. Spearman, mutual information (MI), and random subsets reused the same split-specific $K^*$ as matched controls; the random route averaged ten random-subset draws per split. An auxiliary prior and residual model also used the recommended $K^*$ subset as its prior input (\cfg{prior\_rec}); because this changes the predictive role as well as the descriptor route, it is retained in the dataset JSON outputs rather than in the matched direct-hybrid selector table. All compact-route checkpoints were selected by minimum validation loss, and $K^*$ was selected using the primary validation metric evaluated at that checkpoint. The graph-only and full-descriptor references used the same validation-loss checkpoint rule. Thus, checkpoint selection is harmonised across all five datasets and all routing comparisons. The full checkpoint-level audit covers 250 model runs and is recorded in \url{benchmarks/results/routing_checkpoint_audit.csv}; dataset-specific result files are listed in Additional file 1, Table~S13.
+
+\subsection{Datasets and splits}\label{subsec:datasets}
+
+Five datasets from MoleculeNet were used (Table~\ref{tab:datasets}): the ESOL aqueous-solubility benchmark \cite{delaney2004esol}, FreeSolv hydration free energy \cite{mobley2014freesolv}, Lipophilicity \cite{hersey2015lipo}, blood-brain barrier penetration (BBBP) \cite{martins2012bbbp}, and the beta-site amyloid precursor protein cleaving enzyme 1 (BACE-1) inhibition dataset, referred to as BACE \cite{subramanian2016bace}, in their DeepChem distributions; SMILES that RDKit could not parse were removed (11 in BBBP), and no deduplication was applied in the primary benchmark. Structures were additionally matched by InChIKey to audit duplicate allocation across the saved partitions. For BBBP, we performed a sensitivity analysis after removing the groups with conflicting labels and retaining one record for each remaining InChIKey. New scaffold split manifests were generated and reused across every model in that sensitivity comparison. Each primary dataset has ten saved 80/10/10 manifests reused by every model. Scaffold splits group molecules by Bemis-Murcko scaffold \cite{bemis1996scaffold}, with acyclic molecules as singleton groups; groups are shuffled with the split seed, sorted by decreasing size, and assigned to the partition whose size is lowest relative to its target fraction. Unlike the DeepChem splitter used for MoleculeNet, large scaffold groups can fall into validation or test, so scores are not directly comparable with published scaffold split values. MoleculeNet recommends random splits for ESOL, FreeSolv, and Lipophilicity \cite{wu2018moleculenet}; we used scaffold splits for ESOL and Lipophilicity to test generalisation beyond the training scaffolds, which is known to be harder but still optimistic relative to prospective use \cite{sheridan2013timesplit,guo2024scaffold}.
+
+\begin{table}[t]
+\caption{MoleculeNet datasets, prediction endpoints, primary metrics, and saved split manifests. Counts refer to the processed datasets used in the experiments.}
+\label{tab:datasets}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}p{0.10\textwidth}p{0.19\textwidth}p{0.11\textwidth}p{0.075\textwidth}rrrrp{0.10\textwidth}@{}}
+\toprule
+Dataset & Endpoint & Task & Metric & $N$ & Train & Valid. & Test & Split \\
+\midrule
+ESOL & Aqueous solubility ($\log_{10}$ mol\,L$^{-1}$) & Regression & RMSE & 1,128 & 902 & 113 & 113 & Scaffold \\
+FreeSolv & Hydration free energy (kcal\,mol$^{-1}$) & Regression & RMSE & 642 & 513 & 64 & 65 & Random \\
+Lipophilicity & Octanol/water $\log D$ at pH 7.4 & Regression & RMSE & 4,200 & 3,360 & 420 & 420 & Scaffold \\
+BBBP & Blood-brain barrier penetration & Binary class. & AUROC & 2,039 & 1,631 & 204 & 204 & Scaffold \\
+BACE & BACE-1 inhibition & Binary class. & AUROC & 1,513 & 1,209 & 152 & 152 & Scaffold \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The regression targets remain on their native scales. Source-level target summaries, class prevalence, and dataset provenance are provided in Additional file 1, Table S1a. The fixed modelling settings are listed in Additional file 1, Table S1b.
+
+The five benchmark endpoints were modelled independently. Thus, this study evaluates a common multi-representation workflow across several tasks, rather than joint multi-task learning with parameters shared across multiple endpoints.
+
+\subsection{Reference models and external comparator}\label{subsec:models}
+
+Reference models were a dummy predictor, an extended-connectivity fingerprint with radius 2 and 2,048 bits (ECFP4), RDKit 2D descriptors with a Random Forest (100 trees), and a three-layer descriptor MLP. The external comparator was Chemprop v2.3.1 \cite{graff2026chemprop} (hidden size 300, depth 3, up to 50 epochs with early stopping on validation loss), as a graph-only D-MPNN and with the 210 descriptors as molecule-level features ($x_d$). Five framework configurations isolated feature roles: \cfg{prior\_only}, \cfg{direct\_only} (descriptor MLP), \cfg{residual\_only} (graph only), \cfg{direct\_hybrid} (graph plus 210 descriptors), and \cfg{prior\_residual} (frozen six-descriptor prior plus graph residual). Feature scalers, target scalers, and priors were fitted on training data only; hyperparameters were fixed a priori (Additional file 1, Table S1b).
+
+\subsection{Evaluation and statistical analysis}\label{subsec:evaluation}
+
+The primary metrics were test root mean squared error (RMSE) for regression and area under the receiver operating characteristic curve (AUROC) for binary classification. Secondary metrics were mean absolute error (MAE), coefficient of determination ($R^2$), and average precision (AP), reported in Additional file 1. Results are means and population standard deviations (SDs) over ten splits. Because methods share splits, comparisons use paired differences $\Delta_s=m_A(s)-m_B(s)$, summarised by their mean, standard deviation, win count, and a 95\% confidence interval (CI) based on a $t$ distribution with nine degrees of freedom. Overlapping training sets make such intervals optimistic \cite{nadeau2003inference,dietterich1998tests}, so they are read descriptively, without multiplicity correction, and an interval that includes zero is treated as inconclusive rather than as equivalence \cite{ash2025comparison}. Training-seed variance was estimated by repeating four configurations with three seeds on one BBBP split.
+
+% =============================================================================

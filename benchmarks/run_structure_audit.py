@@ -48,7 +48,7 @@ the pinned version.
 Usage::
 
     python benchmarks/run_structure_audit.py
-    python benchmarks/run_structure_audit.py --seeds 1 2 3 4 5 --datasets esol lipophilicity bbbp
+    python benchmarks/run_structure_audit.py --seeds 1 2 3 4 5 6 7 8 9 10 --datasets esol lipophilicity bbbp
 """
 from __future__ import annotations
 
@@ -256,9 +256,12 @@ def audit_ood_shift(dataset: str, meta: dict[str, Any], seeds: list[int]) -> lis
     # where only RDKit and pandas are installed.
     from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
 
+    from benchmarks._descriptor_contract import select_contract_columns
+
     df, smiles_col, _ = read_clean_frame(meta)
     smiles = df[smiles_col].astype(str).tolist()
-    matrix, _ = extract_rdkit_2d_descriptors(smiles)
+    raw_matrix, raw_names = extract_rdkit_2d_descriptors(smiles)
+    matrix, names = select_contract_columns(raw_matrix, raw_names)
     n_descriptors = int(matrix.shape[1])
 
     rows: list[dict[str, Any]] = []

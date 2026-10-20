@@ -39,6 +39,7 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
+from benchmarks._descriptor_contract import select_contract_columns
 from benchmarks._seeds import DEFAULT_SEEDS, add_seed_argument, resolve_seeds
 
 torch.set_float32_matmul_precision("medium")
@@ -124,7 +125,7 @@ def run_benchmark_for_dataset(
     is_classification = cfg["task_type"] == "classification"
 
     print(f"📦 Extracting RDKit 2D descriptors for {len(smiles)} molecules...")
-    desc_matrix, desc_names = extract_rdkit_2d_descriptors(smiles)
+    desc_matrix, desc_names = select_contract_columns(*extract_rdkit_2d_descriptors(smiles))
     desc_matrix = np.nan_to_num(desc_matrix, nan=0.0, posinf=3.0, neginf=-3.0)
 
     results: dict[str, list[dict[str, Any]]] = {

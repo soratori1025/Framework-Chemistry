@@ -1,14 +1,14 @@
 \begin{table}[H]
-\caption{Selector comparisons that survive Holm correction within a dataset (family $m=20$: the five other selectors against the framework selector at four budgets). Of the 100 selector comparisons, one survives: mutual information outperforms the framework selector on Lipophilicity at $K=5$. On the other four endpoints no selector separates from the framework selector once multiplicity is controlled, which is consistent with the mean-rank table rather than in tension with it.}\label{tab:selector-stats}
+\caption{Selector comparisons that survive Holm correction within a dataset (family $m=20$: the five other selectors against the framework selector at four budgets, on the same splits as Table~\ref{tab:sel-full}). Of the 100 selector comparisons, 2 survive: rf_importance K=10 vs framework K=10 on ESOL and mutual_info K=5 vs framework K=5 on Lipophilicity. On the other endpoints no selector separates from the framework selector once multiplicity is controlled, which is consistent with the mean-rank table rather than in tension with it.}\label{tab:selector-stats}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llccccr@{}}
 \toprule
 Dataset & Comparison ($A$ vs $B$) & $\bar\Delta\pm\mathrm{SD}$ & Corrected 95\% interval & $p$ & $p_{\mathrm{H}}$ & Wins of $A$ \\
 \midrule
-ESOL & \multicolumn{6}{l}{no comparison survives the correction} \\
+ESOL & rf_importance K=10 vs framework K=10 & $-0.084\pm0.034$ & $[-0.122,-0.046]$ & $<0.001$ & $0.015^{*}$ & 10/10 \\
 FreeSolv & \multicolumn{6}{l}{no comparison survives the correction} \\
-Lipophilicity & mutual_info K=5 vs framework K=5 & $-0.084\pm0.015$ & $[-0.111,-0.058]$ & $<0.001$ & $0.019^{*}$ & 5/5 \\
+Lipophilicity & mutual_info K=5 vs framework K=5 & $-0.084\pm0.025$ & $[-0.113,-0.055]$ & $<0.001$ & $0.002^{**}$ & 10/10 \\
 BBBP & \multicolumn{6}{l}{no comparison survives the correction} \\
 BACE & \multicolumn{6}{l}{no comparison survives the correction} \\
 \bottomrule

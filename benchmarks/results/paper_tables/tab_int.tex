@@ -1,35 +1,35 @@
 \begin{table}[H]
-\caption{Internal paired comparisons on the main models. Hybrid: \cfg{direct\_hybrid}; graph only: \cfg{residual\_only}; prior/residual: \cfg{prior\_residual}. $\bar\Delta$ is the mean paired difference $m_A-m_B$ with the population SD of the differences; wins count the splits on which $A$ was better. Both intervals are two-sided $t$ intervals with four degrees of freedom: the nominal interval uses the paired standard error, and the corrected interval inflates the variance by $1/k+n_{\mathrm{test}}/n_{\mathrm{train}}$ to reflect the overlap of the training partitions (Nadeau--Bengio). $p$ is the corrected two-sided $p$-value and $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=20$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. Only the hybrid-versus-Random-Forest comparison on Lipophilicity survives the correction; the ESOL and BACE comparisons that exclude zero in the nominal interval have corrected intervals that just include zero and are reported as inconclusive.}\label{tab:int}
+\caption{Internal paired comparisons on the main models. Hybrid: \cfg{direct\_hybrid}; graph only: \cfg{residual\_only}; prior/residual: \cfg{prior\_residual}. All entries are paired on the same 10 saved splits, and win counts are out of 10. $\bar\Delta$ is the mean paired difference $m_A-m_B$ with the population SD of the differences; wins count the splits on which $A$ was better. Both intervals are two-sided $t$ intervals with 9 degrees of freedom: the nominal interval uses the paired standard error, and the corrected interval inflates the variance by $1/k+n_{\mathrm{test}}/n_{\mathrm{train}}$ to reflect the overlap of the training partitions (Nadeau--Bengio). $p$ is the corrected two-sided $p$-value and $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=20$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. The comparisons that survive Holm correction are Hybrid vs RDKit 2D + RF on Lipophilicity and Hybrid vs RDKit 2D + RF on BACE; every other entry is reported as inconclusive. }\label{tab:int}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llccccccc@{}}
 \toprule
 Dataset (metric) & Comparison ($A$ vs $B$) & $\bar\Delta\pm\mathrm{SD}$ & Nominal 95\% interval & Corrected 95\% interval & $p$ & $p_{\mathrm{H}}$ & Wins of $A$ \\
 \midrule
-ESOL (RMSE) & Hybrid vs RDKit 2D + RF & $-0.052\pm0.0335$ & $[-0.099,-0.006]$ & $[-0.112,0.007]$ & $0.070$ & $0.218$ & 5/5 \\
- & Hybrid vs Graph only & $-0.058\pm0.0337$ & $[-0.105,-0.011]$ & $[-0.118,0.002]$ & $0.054$ & $0.218$ & 4/5 \\
- & Prior/residual vs Graph only & $+0.012\pm0.0919$ & $[-0.115,0.140]$ & $[-0.150,0.175]$ & $0.843$ & $0.843$ & 2/5 \\
- & Prior/residual vs Hybrid & $+0.070\pm0.0969$ & $[-0.064,0.205]$ & $[-0.101,0.242]$ & $0.319$ & $0.638$ & 1/5 \\
+ESOL (RMSE) & Hybrid vs RDKit 2D + RF & $-0.014\pm0.0622$ & $[-0.061,0.033]$ & $[-0.085,0.056]$ & $0.657$ & $1.000$ & 5/10 \\
+ & Hybrid vs Graph only & $-0.001\pm0.0844$ & $[-0.064,0.063]$ & $[-0.096,0.095]$ & $0.986$ & $1.000$ & 7/10 \\
+ & Prior/residual vs Graph only & $+0.057\pm0.0990$ & $[-0.018,0.132]$ & $[-0.055,0.169]$ & $0.278$ & $0.899$ & 4/10 \\
+ & Prior/residual vs Hybrid & $+0.058\pm0.0888$ & $[-0.009,0.125]$ & $[-0.043,0.158]$ & $0.225$ & $0.899$ & 2/10 \\
 \midrule
-FreeSolv (RMSE) & Hybrid vs RDKit 2D + RF & $-0.069\pm0.1086$ & $[-0.220,0.082]$ & $[-0.262,0.124]$ & $0.376$ & $1.000$ & 3/5 \\
- & Hybrid vs Graph only & $-0.135\pm0.1619$ & $[-0.359,0.090]$ & $[-0.422,0.153]$ & $0.263$ & $1.000$ & 4/5 \\
- & Prior/residual vs Graph only & $-0.048\pm0.1680$ & $[-0.281,0.185]$ & $[-0.346,0.250]$ & $0.679$ & $1.000$ & 3/5 \\
- & Prior/residual vs Hybrid & $+0.087\pm0.1870$ & $[-0.173,0.346]$ & $[-0.245,0.419]$ & $0.508$ & $1.000$ & 2/5 \\
+FreeSolv (RMSE) & Hybrid vs RDKit 2D + RF & $+0.010\pm0.1737$ & $[-0.121,0.141]$ & $[-0.187,0.207]$ & $0.913$ & $1.000$ & 5/10 \\
+ & Hybrid vs Graph only & $-0.152\pm0.2523$ & $[-0.342,0.039]$ & $[-0.438,0.135]$ & $0.262$ & $1.000$ & 6/10 \\
+ & Prior/residual vs Graph only & $-0.076\pm0.2818$ & $[-0.288,0.137]$ & $[-0.396,0.244]$ & $0.605$ & $1.000$ & 7/10 \\
+ & Prior/residual vs Hybrid & $+0.076\pm0.3086$ & $[-0.157,0.309]$ & $[-0.275,0.426]$ & $0.636$ & $1.000$ & 4/10 \\
 \midrule
-Lipophilicity (RMSE) & Hybrid vs RDKit 2D + RF & $-0.147\pm0.0210$ & $[-0.176,-0.118]$ & $[-0.184,-0.110]$ & $<0.001$ & $0.002^{**}$ & 5/5 \\
- & Hybrid vs Graph only & $+0.018\pm0.0429$ & $[-0.042,0.077]$ & $[-0.058,0.094]$ & $0.550$ & $1.000$ & 2/5 \\
- & Prior/residual vs Graph only & $+0.003\pm0.0214$ & $[-0.027,0.033]$ & $[-0.035,0.041]$ & $0.840$ & $1.000$ & 2/5 \\
- & Prior/residual vs Hybrid & $-0.015\pm0.0427$ & $[-0.074,0.044]$ & $[-0.091,0.061]$ & $0.613$ & $1.000$ & 2/5 \\
+Lipophilicity (RMSE) & Hybrid vs RDKit 2D + RF & $-0.142\pm0.0323$ & $[-0.167,-0.118]$ & $[-0.179,-0.106]$ & $<0.001$ & $<0.001^{**}$ & 10/10 \\
+ & Hybrid vs Graph only & $-0.001\pm0.0228$ & $[-0.018,0.016]$ & $[-0.027,0.025]$ & $0.943$ & $1.000$ & 5/10 \\
+ & Prior/residual vs Graph only & $+0.002\pm0.0332$ & $[-0.023,0.028]$ & $[-0.035,0.040]$ & $0.885$ & $1.000$ & 6/10 \\
+ & Prior/residual vs Hybrid & $+0.003\pm0.0285$ & $[-0.018,0.025]$ & $[-0.029,0.036]$ & $0.821$ & $1.000$ & 6/10 \\
 \midrule
-BBBP (AUROC) & Hybrid vs RDKit 2D + RF & $-0.002\pm0.0161$ & $[-0.025,0.020]$ & $[-0.031,0.026]$ & $0.827$ & $1.000$ & 3/5 \\
- & Hybrid vs Graph only & $-0.008\pm0.0332$ & $[-0.055,0.038]$ & $[-0.067,0.050]$ & $0.711$ & $1.000$ & 2/5 \\
- & Prior/residual vs Graph only & $+0.008\pm0.0239$ & $[-0.025,0.041]$ & $[-0.034,0.050]$ & $0.631$ & $1.000$ & 3/5 \\
- & Prior/residual vs Hybrid & $+0.016\pm0.0358$ & $[-0.033,0.066]$ & $[-0.047,0.080]$ & $0.514$ & $1.000$ & 4/5 \\
+BBBP (AUROC) & Hybrid vs RDKit 2D + RF & $+0.004\pm0.0283$ & $[-0.017,0.025]$ & $[-0.028,0.036]$ & $0.783$ & $1.000$ & 5/10 \\
+ & Hybrid vs Graph only & $+0.002\pm0.0400$ & $[-0.028,0.032]$ & $[-0.043,0.047]$ & $0.931$ & $1.000$ & 6/10 \\
+ & Prior/residual vs Graph only & $-0.005\pm0.0184$ & $[-0.019,0.009]$ & $[-0.026,0.016]$ & $0.625$ & $1.000$ & 4/10 \\
+ & Prior/residual vs Hybrid & $-0.006\pm0.0401$ & $[-0.037,0.024]$ & $[-0.052,0.039]$ & $0.755$ & $1.000$ & 4/10 \\
 \midrule
-BACE (AUROC) & Hybrid vs RDKit 2D + RF & $-0.029\pm0.0151$ & $[-0.050,-0.008]$ & $[-0.056,-0.003]$ & $0.038$ & $0.154$ & 0/5 \\
- & Hybrid vs Graph only & $+0.011\pm0.0396$ & $[-0.044,0.066]$ & $[-0.059,0.081]$ & $0.690$ & $1.000$ & 3/5 \\
- & Prior/residual vs Graph only & $+0.003\pm0.0359$ & $[-0.047,0.053]$ & $[-0.060,0.067]$ & $0.898$ & $1.000$ & 3/5 \\
- & Prior/residual vs Hybrid & $-0.008\pm0.0153$ & $[-0.029,0.014]$ & $[-0.035,0.019]$ & $0.473$ & $1.000$ & 1/5 \\
+BACE (AUROC) & Hybrid vs RDKit 2D + RF & $-0.037\pm0.0182$ & $[-0.051,-0.023]$ & $[-0.058,-0.017]$ & $0.003$ & $0.011^{*}$ & 0/10 \\
+ & Hybrid vs Graph only & $-0.017\pm0.0357$ & $[-0.044,0.010]$ & $[-0.057,0.024]$ & $0.368$ & $1.000$ & 2/10 \\
+ & Prior/residual vs Graph only & $-0.019\pm0.0495$ & $[-0.057,0.018]$ & $[-0.075,0.037]$ & $0.457$ & $1.000$ & 4/10 \\
+ & Prior/residual vs Hybrid & $-0.002\pm0.0478$ & $[-0.038,0.034]$ & $[-0.057,0.052]$ & $0.924$ & $1.000$ & 6/10 \\
 \bottomrule
 \end{tabular}
 \end{table}

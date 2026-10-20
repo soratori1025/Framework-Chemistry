@@ -1,21 +1,21 @@
 \begin{table}[H]
-\caption{Framework minus Chemprop v2.3.1 on matched splits, for the graph only model and for the graph model with the 210 descriptors. Conventions follow Table~\ref{tab:int}; $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=10$). No comparison approaches the corrected threshold, so these data do not separate the two implementations, and the agreement in the direction of the descriptor effect is descriptive.}\label{tab:ext}
+\caption{Framework minus Chemprop v2.3.1 on matched splits, for the graph only model and for the graph model with the 210 descriptors. Conventions follow Table~\ref{tab:int}; all entries are paired on the same 10 splits and $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=10$). No comparison in this table survives Holm correction, so every entry is reported as inconclusive. Adding the 210 descriptors raises the mean score in both implementations on FreeSolv, Lipophilicity, and BBBP, lowers it in both on BACE, and disagrees between implementations on ESOL. Because a comparison between the two implementations at this sample size is underpowered, the agreement is descriptive.}\label{tab:ext}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llcccccc@{}}
 \toprule
 Dataset (metric) & Model pair & $\bar\Delta\pm\mathrm{SD}$ & Nominal 95\% interval & Corrected 95\% interval & $p$ & $p_{\mathrm{H}}$ & Wins of framework \\
 \midrule
-ESOL (RMSE) & graph only & $-0.119\pm0.0996$ & $[-0.257,0.019]$ & $[-0.296,0.057]$ & $0.134$ & $0.268$ & 4/5 \\
-ESOL (RMSE) & graph + 210 descriptors & $-0.031\pm0.0994$ & $[-0.169,0.107]$ & $[-0.207,0.145]$ & $0.646$ & $0.646$ & 3/5 \\
-FreeSolv (RMSE) & graph only & $+0.042\pm0.1274$ & $[-0.135,0.219]$ & $[-0.184,0.268]$ & $0.634$ & $1.000$ & 2/5 \\
-FreeSolv (RMSE) & graph + 210 descriptors & $-0.041\pm0.1338$ & $[-0.226,0.145]$ & $[-0.278,0.197]$ & $0.658$ & $1.000$ & 3/5 \\
-Lipophilicity (RMSE) & graph only & $-0.018\pm0.0269$ & $[-0.056,0.019]$ & $[-0.066,0.029]$ & $0.347$ & $0.693$ & 3/5 \\
-Lipophilicity (RMSE) & graph + 210 descriptors & $-0.035\pm0.0557$ & $[-0.112,0.042]$ & $[-0.134,0.063]$ & $0.378$ & $0.693$ & 3/5 \\
-BBBP (AUROC) & graph only & $-0.001\pm0.0170$ & $[-0.024,0.023]$ & $[-0.031,0.029]$ & $0.957$ & $1.000$ & 3/5 \\
-BBBP (AUROC) & graph + 210 descriptors & $-0.003\pm0.0208$ & $[-0.032,0.026]$ & $[-0.040,0.034]$ & $0.840$ & $1.000$ & 2/5 \\
-BACE (AUROC) & graph only & $-0.001\pm0.0407$ & $[-0.058,0.056]$ & $[-0.073,0.071]$ & $0.970$ & $1.000$ & 1/5 \\
-BACE (AUROC) & graph + 210 descriptors & $-0.004\pm0.0153$ & $[-0.025,0.017]$ & $[-0.031,0.023]$ & $0.718$ & $1.000$ & 2/5 \\
+ESOL (RMSE) & graph only & $-0.167\pm0.1261$ & $[-0.262,-0.072]$ & $[-0.310,-0.024]$ & $0.026$ & $0.053$ & 9/10 \\
+ESOL (RMSE) & graph + 210 descriptors & $-0.221\pm0.6143$ & $[-0.685,0.242]$ & $[-0.917,0.474]$ & $0.490$ & $0.490$ & 7/10 \\
+FreeSolv (RMSE) & graph only & $+0.073\pm0.2786$ & $[-0.137,0.283]$ & $[-0.243,0.389]$ & $0.615$ & $0.615$ & 3/10 \\
+FreeSolv (RMSE) & graph + 210 descriptors & $+0.153\pm0.1913$ & $[0.009,0.298]$ & $[-0.064,0.370]$ & $0.145$ & $0.290$ & 1/10 \\
+Lipophilicity (RMSE) & graph only & $-0.034\pm0.0775$ & $[-0.092,0.025]$ & $[-0.121,0.054]$ & $0.408$ & $0.581$ & 7/10 \\
+Lipophilicity (RMSE) & graph + 210 descriptors & $-0.033\pm0.0593$ & $[-0.078,0.011]$ & $[-0.100,0.034]$ & $0.290$ & $0.581$ & 6/10 \\
+BBBP (AUROC) & graph only & $+0.003\pm0.0378$ & $[-0.025,0.032]$ & $[-0.039,0.046]$ & $0.859$ & $1.000$ & 4/10 \\
+BBBP (AUROC) & graph + 210 descriptors & $-0.007\pm0.0209$ & $[-0.023,0.009]$ & $[-0.031,0.017]$ & $0.529$ & $1.000$ & 5/10 \\
+BACE (AUROC) & graph only & $-0.006\pm0.0294$ & $[-0.028,0.017]$ & $[-0.039,0.028]$ & $0.710$ & $1.000$ & 3/10 \\
+BACE (AUROC) & graph + 210 descriptors & $-0.007\pm0.0208$ & $[-0.023,0.009]$ & $[-0.031,0.016]$ & $0.512$ & $1.000$ & 4/10 \\
 \bottomrule
 \end{tabular}
 \end{table}

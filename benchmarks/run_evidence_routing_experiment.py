@@ -263,11 +263,14 @@ def run_evidence_routing_dataset(dataset_name: str, seeds: list[int] | None = No
 
     batch_size = 64
 
-    for split_idx, seed in enumerate(seed_list):
-        if any(r.get("split") == split_idx + 1 for r in per_split_results):
-            print(f"\n--- Split {split_idx + 1}/{len(seed_list)} (Seed {seed}) already completed, skipping ---")
+    for seed in seed_list:
+        # The split number is the seed index (split N == seed N), not the
+        # position in ``--seeds``.  Using the position silently renumbers the
+        # splits whenever the runner is restarted for a subset of seeds.
+        if any(r.get("split") == seed for r in per_split_results):
+            print(f"\n--- Split {seed}/{max(seed_list)} (Seed {seed}) already completed, skipping ---")
             continue
-        print(f"\n--- Split {split_idx + 1}/{len(seed_list)} (Seed {seed}) ---")
+        print(f"\n--- Split {seed}/{max(seed_list)} (Seed {seed}) ---")
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
         with open(split_file, "r") as f:
             split_dict = json.load(f)
@@ -432,11 +435,11 @@ def run_evidence_routing_dataset(dataset_name: str, seeds: list[int] | None = No
         )
         print(f"  ✓ prior_rec (K*={best_k_rec}): val_loss={pr_vl:.4f}, val={pr_vs:.4f}, test {primary_metric}={pr_test_metrics[primary_metric]:.4f}")
 
-        dir_hyb_metric = cached_ablation.get("direct_hybrid", [{}])[split_idx].get(primary_metric, float("nan"))
-        res_only_metric = cached_ablation.get("residual_only", [{}])[split_idx].get(primary_metric, float("nan"))
+        dir_hyb_metric = cached_ablation.get("direct_hybrid", [{}])[seed - 1].get(primary_metric, float("nan"))
+        res_only_metric = cached_ablation.get("residual_only", [{}])[seed - 1].get(primary_metric, float("nan"))
 
         split_record = {
-            "split": split_idx + 1,
+            "split": seed,
             "seed": seed,
             "best_k": best_k_rec,
             "hybrid_rec": best_rec_test_metrics,
@@ -533,12 +536,14 @@ def run_evidence_routing_dataset(dataset_name: str, seeds: list[int] | None = No
                 "checkpoint_epoch": info["epoch"],
                 "test_metric": round(info["test_metric"], 5),
             })
-    audit_csv = RESULTS_DIR / "routing_checkpoint_audit.csv"
+    # One audit file per dataset, overwritten on every run: the five datasets
+    # are executed independently, and appending to a shared file mixed rows from
+    # superseded runs into the released audit log.  Merge the per-dataset files
+    # into the combined ``routing_checkpoint_audit.csv`` with
+    # ``python benchmarks/rebuild_routing_audit.py``.
+    audit_csv = RESULTS_DIR / f"routing_checkpoint_audit_{dataset_name}.csv"
     audit_df = pd.DataFrame(csv_rows)
-    if audit_csv.exists():
-        audit_df.to_csv(audit_csv, mode="a", header=False, index=False)
-    else:
-        audit_df.to_csv(audit_csv, index=False)
+    audit_df.to_csv(audit_csv, index=False)
 
     print(f"\n==================================================================")
     print(f"📊 Summary for {dataset_name.upper()} ({primary_metric.upper()}):")
@@ -551,7 +556,7 @@ def run_evidence_routing_dataset(dataset_name: str, seeds: list[int] | None = No
     print(f"  - prior_rec:                {summary['prior_rec']['mean']:.4f} ± {summary['prior_rec']['std']:.4f}")
     print(f"  ★ Paired Δ vs direct_hybrid: {paired_vs_direct_hybrid['delta_mean']:+.4f} (95% CI: [{paired_vs_direct_hybrid['ci_95'][0]:.4f}, {paired_vs_direct_hybrid['ci_95'][1]:.4f}], wins: {paired_vs_direct_hybrid['wins']})")
     print(f"  ★ Paired Δ vs residual_only: {paired_vs_residual_only['delta_mean']:+.4f} (95% CI: [{paired_vs_residual_only['ci_95'][0]:.4f}, {paired_vs_residual_only['ci_95'][1]:.4f}], wins: {paired_vs_residual_only['wins']})")
-    print(f"Saved results to: {out_file} and appended to {audit_csv}")
+    print(f"Saved results to: {out_file} and wrote the audit log {audit_csv}")
 
     return out_payload
 

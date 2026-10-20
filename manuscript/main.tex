@@ -1,0 +1,114 @@
+% =============================================================================
+% chemistry-framework -- manuscript for Journal of Cheminformatics (BMC)
+% Research article. Single column, Times, unnumbered BMC-style headings,
+% structured abstract, Vancouver-style numeric references.
+% Build: pdflatex main ; pdflatex main
+% =============================================================================
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{mathptmx}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[margin=24mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{lineno}
+\usepackage[font=small,labelfont=bf,labelsep=period,justification=justified,singlelinecheck=false]{caption}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{listings}
+\lstdefinelanguage{yaml}{morecomment=[l]{\#},morestring=[b]", sensitive=true}
+\lstset{
+  language=yaml,
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=true,
+  breakindent=1em,
+  commentstyle=\itshape,
+  frame=single,
+  framerule=0.3pt,
+  numbers=none,
+  xleftmargin=3pt,
+  xrightmargin=3pt,
+  aboveskip=6pt,
+  belowskip=6pt
+}
+
+% --- BMC-like heading style: bold, unnumbered -------------------------------
+\setcounter{secnumdepth}{0}
+\titleformat{\section}{\normalfont\bfseries\large}{}{0pt}{}
+\titlespacing*{\section}{0pt}{14pt plus 2pt minus 2pt}{5pt}
+\titleformat{\subsection}{\normalfont\bfseries\normalsize}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{11pt plus 2pt minus 2pt}{3pt}
+\titleformat{\subsubsection}{\normalfont\bfseries\itshape\normalsize}{}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{9pt plus 1pt minus 1pt}{2pt}
+
+\captionsetup[figure]{name=Fig.}
+\captionsetup[table]{skip=4pt}
+
+\newcommand{\framework}{\texttt{chemistry-framework}}
+\newcommand{\cfg}[1]{\texttt{#1}}
+
+\renewcommand{\arraystretch}{1.0}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt minus 1pt}
+\onehalfspacing
+
+\begin{document}
+
+% ---------------------------------------------------------------------------
+% Title block
+% ---------------------------------------------------------------------------
+\begin{flushleft}
+{\small\scshape Research article}\\[6pt]
+{\LARGE\bfseries Evidence before prediction: a configuration-driven framework for testing how molecular descriptors shape property models}\\[14pt]
+{\large D.~K.~N.~N.}$^{1}$\\[4pt]
+{\small $^{1}$\emph{[Department, Institution, City, Country]}}\\[2pt]
+{\small Correspondence: \emph{[email address]}}\\[6pt]
+\end{flushleft}
+
+\vspace{2pt}
+\hrule
+\vspace{10pt}
+
+% ---------------------------------------------------------------------------
+% Structured abstract
+% ---------------------------------------------------------------------------
+\section*{Abstract}
+
+\noindent\textbf{Background.} When a chemist builds a machine-learning model for a molecular property, most of the attention goes to the learner: a graph neural network, a descriptor-based model, or a hybrid. In practice much of the outcome is decided earlier, by the quality of the data, by which of several hundred descriptors enter the model, and by the role those descriptors are given. These choices are usually buried in task-specific scripts, so a reader cannot tell which were tested, which were assumed, and which produced the reported score.
+
+\noindent\textbf{Results.} We present \framework, an open-source workflow in which an experiment is declared in one validated configuration file and every run writes a record that can be replayed. We tested three hypotheses. \emph{H1, that training-partition evidence can guide descriptor choice}, is partly supported: subsets chosen from the scorecard beat random subsets of the same size at every budget tested, and significantly in 8 of 12 dataset--budget cells, but the rule ranked fourth of six selectors (mean rank 3.65). \emph{H2, that the effect of adding descriptors transfers between implementations}, holds on four of five endpoints: the framework and Chemprop v2.3.1 agreed in direction and approximate size ($+12.1\%$ versus $+19.7\%$ on FreeSolv; at most about $2\%$ elsewhere), while ESOL disagreed because one Chemprop run diverged and reached a test RMSE of $2.76$ on a single split, a failure that only the per-split record exposed. \emph{H3, that routes and predictive roles matter but are endpoint-specific}, holds: the full 210-descriptor hybrid led on ESOL and FreeSolv, the recommender route on Lipophilicity and graph-only on BACE, while on BBBP every route lay within $0.007$ AUROC. No compact route separated from its matched random control.
+
+\noindent\textbf{Conclusions.} Evidence from the training partition is useful for narrowing choices, but it does not name a universal winner, and a mean that hides one divergent run is unfinished evidence. Declaring the audit, the descriptor evidence, the route and the role in one configuration makes these comparisons cheap to run and possible to audit. The framework does not prescribe a better predictor; it makes the alternatives testable on the user's own data.
+
+\vspace{6pt}
+\noindent\textbf{Keywords:} Cheminformatics; molecular property prediction; feature selection; graph neural networks; QSAR; reproducibility; configuration-driven software
+
+\vspace{4pt}
+\hrule
+\vspace{4pt}
+
+\linenumbers
+
+\input{sections/background.tex}
+\input{sections/results.tex}
+\input{sections/discussion.tex}
+\input{sections/conclusions.tex}
+\input{sections/methods.tex}
+
+\input{sections/refs.tex}
+\end{document}

@@ -1,16 +1,16 @@
 \begin{table}[H]
-\caption{Paired statistics for the duplicate-controlled BBBP sensitivity analysis (five new scaffold manifests). $\bar\Delta$ is $A$ minus $B$ in AUROC; $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=5$). The hybrid-minus-graph difference is inconclusive for both implementations, and the difference between the framework hybrid and the RDKit 2D Random Forest does not survive multiplicity correction.}\label{tab:bbbp-sensitivity-stats}
+\caption{Paired statistics for the duplicate-controlled BBBP sensitivity analysis (10 new scaffold manifests; the same manifests are used for every model). $\bar\Delta$ is $A$ minus $B$ in AUROC; $p_{\mathrm{H}}$ is Holm-adjusted within this table ($m=5$). No comparison in this table survives Holm correction, so every entry is reported as inconclusive. Because the cleaned dataset and its split manifests differ from the primary benchmark, the ranking seen here cannot be attributed to duplicate leakage alone.}\label{tab:bbbp-sensitivity-stats}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccccr@{}}
 \toprule
 Comparison ($A$ vs $B$) & $\bar\Delta\pm\mathrm{SD}$ & Corrected 95\% interval & $p$ & $p_{\mathrm{H}}$ & Wins of $A$ \\
 \midrule
-Framework hybrid $-$ Framework graph only & $+0.0066\pm0.0342$ & $[-0.0539,0.0670]$ & $0.778$ & $0.778$ & 3/5 \\
-Chemprop hybrid $-$ Chemprop graph only & $+0.0171\pm0.0229$ & $[-0.0235,0.0577]$ & $0.306$ & $0.730$ & 4/5 \\
-Framework hybrid $-$ RDKit 2D + RF & $-0.0184\pm0.0098$ & $[-0.0357,-0.0011]$ & $0.042$ & $0.210$ & 0/5 \\
-Framework graph only $-$ RDKit 2D + RF & $-0.0250\pm0.0287$ & $[-0.0757,0.0257]$ & $0.243$ & $0.730$ & 1/5 \\
-Chemprop hybrid $-$ RDKit 2D + RF & $-0.0176\pm0.0128$ & $[-0.0403,0.0052]$ & $0.098$ & $0.394$ & 1/5 \\
+Framework hybrid $-$ Framework graph only & $-0.0019\pm0.0393$ & $[-0.0464,0.0426]$ & $0.925$ & $0.925$ & 5/10 \\
+Chemprop hybrid $-$ Chemprop graph only & $+0.0057\pm0.0111$ & $[-0.0068,0.0183]$ & $0.329$ & $0.861$ & 9/10 \\
+Framework hybrid $-$ RDKit 2D + RF & $-0.0303\pm0.0289$ & $[-0.0629,0.0024]$ & $0.065$ & $0.327$ & 2/10 \\
+Framework graph only $-$ RDKit 2D + RF & $-0.0284\pm0.0426$ & $[-0.0766,0.0198]$ & $0.215$ & $0.861$ & 3/10 \\
+Chemprop hybrid $-$ RDKit 2D + RF & $-0.0196\pm0.0307$ & $[-0.0543,0.0150]$ & $0.232$ & $0.861$ & 4/10 \\
 \bottomrule
 \end{tabular}
 \end{table}

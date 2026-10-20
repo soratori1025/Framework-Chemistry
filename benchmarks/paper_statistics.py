@@ -39,6 +39,7 @@ rendered from that JSON by ``benchmarks/generate_si_tables.py``.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import sys
@@ -81,11 +82,20 @@ def load_json(filename: str):
 
 
 def split_sizes(dataset: str, seeds: list[int]) -> tuple[float, float]:
-    """Mean (n_train, n_test) over the manifests actually used."""
+    """Mean (n_train, n_test) over the manifests actually used.
+
+    Endpoints stored in a subdirectory (``bbbp_sensitivity/``) are found as
+    well, so the Nadeau-Bengio correction also applies to the sensitivity
+    analysis.
+    """
     n_train, n_test = [], []
     for seed in seeds:
-        path = SPLITS_DIR / f"{dataset}_seed_{seed}.json"
-        if not path.exists():
+        candidates = (
+            SPLITS_DIR / f"{dataset}_seed_{seed}.json",
+            SPLITS_DIR / dataset / f"{dataset}_seed_{seed}.json",
+        )
+        path = next((c for c in candidates if c.exists()), None)
+        if path is None:
             continue
         with open(path, "r", encoding="utf-8") as fh:
             split = json.load(fh)
@@ -436,9 +446,9 @@ def build_sensitivity() -> list[Comparison]:
     study = load_json("bbbp_sensitivity_study.json")
     chemprop = load_json("chemprop_bbbp_sensitivity.json")
     metric = "roc_auc"
-    seeds = list(range(1, 6))
-    n_train, n_test = split_sizes("bbbp", seeds)
     per_split = {k: v["per_split"] for k, v in study["summary"].items()}
+    seeds = study.get("seeds") or list(range(1, len(per_split["framework_hybrid"]) + 1))
+    n_train, n_test = split_sizes("bbbp_sensitivity", seeds)
     pairs = [
         ("Framework hybrid", per_split["framework_hybrid"], "Framework graph only", per_split["framework_graph_only"]),
         ("Chemprop hybrid", chemprop["summary"]["chemprop_hybrid"]["values"], "Chemprop graph only", chemprop["summary"]["chemprop_graph"]["values"]),
@@ -467,7 +477,28 @@ def build_sensitivity() -> list[Comparison]:
 # ---------------------------------------------------------------------------
 # entry point
 # ---------------------------------------------------------------------------
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    global RESULTS_DIR
+
+    parser = argparse.ArgumentParser(
+        description="Compute the paired statistics behind the manuscript tables."
+    )
+    parser.add_argument(
+        "--results-dir",
+        type=Path,
+        default=RESULTS_DIR,
+        help="Directory holding the benchmark result JSON files (default: benchmarks/results)",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Where to write paper_statistics.json (default: <results-dir>/paper_statistics.json)",
+    )
+    args = parser.parse_args(argv)
+    RESULTS_DIR = args.results_dir
+    out_path = args.out or RESULTS_DIR / "paper_statistics.json"
+
     builders = [
         build_internal,
         build_external,
@@ -487,10 +518,10 @@ def main() -> int:
         "multiplicity": "holm_step_down_within_family",
         "comparisons": [c.as_dict() for c in comparisons],
     }
-    with open(RESULTS_DIR / "paper_statistics.json", "w", encoding="utf-8") as fh:
+    with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh, indent=2)
 
-    print(f"wrote {len(comparisons)} comparisons to {RESULTS_DIR / 'paper_statistics.json'}")
+    print(f"wrote {len(comparisons)} comparisons to {out_path}")
     print("\ninternal comparisons (naive -> Nadeau-Bengio, Holm-adjusted p):")
     for c in comparisons:
         if c.table != "internal":

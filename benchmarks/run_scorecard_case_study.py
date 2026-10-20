@@ -43,6 +43,11 @@ DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 RESULTS_DIR = REPO_ROOT / "benchmarks" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
+# The benchmark design uses ten split manifests (seeds 1-10). The dataset
+# directories also hold extra manifests used only by the duplicate-controlled
+# BBBP sensitivity analysis, so every loop has to filter on these seeds.
+STUDY_SEEDS = tuple(range(1, 11))
+
 def analyze_bbbp_splits() -> dict[str, Any]:
     print("\n" + "=" * 70)
     print("🔬 E2.1: BBBP Split Breakdown & OOD Descriptor Analysis")
@@ -66,7 +71,7 @@ def analyze_bbbp_splits() -> dict[str, Any]:
             ablation_data = json.load(f)["raw_results"]
 
     split_reports = []
-    seeds = [1, 2, 3, 4, 5]
+    seeds = list(STUDY_SEEDS)
 
     for seed in seeds:
         split_file = REPO_ROOT / meta["splits"][f"seed_{seed}"]["split_file"]
@@ -120,27 +125,97 @@ def analyze_bbbp_splits() -> dict[str, Any]:
               f"{n_mols_affected}/{len(test_idx)} mols ({pct_mols_affected:.1f}%) affected | "
               f"Direct Hybrid AUC={dir_hyb_auc:.4f}, Graph AUC={res_only_auc:.4f}")
 
+    # The design-hardest split of the original five-split study was split 5; with
+    # the ten-split rerun it stays split 5 so that the contrast remains comparable
+    # and is not silently replaced by the newly added split 10.
     s5 = split_reports[4]
-    s1_4_ood_desc = [r["n_ood_descriptors"] for r in split_reports[:4]]
-    s1_4_mols = [r["pct_mols_affected"] for r in split_reports[:4]]
-    s1_4_dir_hyb = [r["direct_hybrid_auc"] for r in split_reports[:4]]
+    others = [r for r in split_reports if r["seed"] != 5]
+    ood_desc, mols, hyb = ([r[k] for r in others] for k in ("n_ood_descriptors", "pct_mols_affected", "direct_hybrid_auc"))
 
-    print("\n🔍 Split 5 Contrast:")
-    print(f"  - Split 5 OOD descriptors: {s5['n_ood_descriptors']} vs Mean(1-4): {np.mean(s1_4_ood_desc):.1f}")
-    print(f"  - Split 5 Mols affected: {s5['pct_mols_affected']:.1f}% vs Mean(1-4): {np.mean(s1_4_mols):.1f}%")
-    print(f"  - Split 5 Direct Hybrid AUC: {s5['direct_hybrid_auc']:.4f} vs Mean(1-4): {np.mean(s1_4_dir_hyb):.4f}")
+    print("\n🔍 Split 5 Contrast (against the other nine splits):")
+    print(f"  - Split 5 OOD descriptors: {s5['n_ood_descriptors']} vs Mean(others): {np.mean(ood_desc):.1f}")
+    print(f"  - Split 5 Mols affected: {s5['pct_mols_affected']:.1f}% vs Mean(others): {np.mean(mols):.1f}%")
+    print(f"  - Split 5 Direct Hybrid AUC: {s5['direct_hybrid_auc']:.4f} vs Mean(others): {np.mean(hyb):.4f}")
 
     return {
+        "n_splits": len(split_reports),
         "split_reports": split_reports,
         "split_5_contrast": {
             "split_5": s5,
-            "mean_splits_1_to_4": {
-                "n_ood_descriptors": float(np.mean(s1_4_ood_desc)),
-                "pct_mols_affected": float(np.mean(s1_4_mols)),
-                "direct_hybrid_auc": float(np.mean(s1_4_dir_hyb)),
-            }
-        }
+            "mean_other_splits": {
+                "n_ood_descriptors": float(np.mean(ood_desc)),
+                "pct_mols_affected": float(np.mean(mols)),
+                "direct_hybrid_auc": float(np.mean(hyb)),
+            },
+        },
     }
+
+def analyze_scaffold_ood_means(datasets: tuple[str, ...] = ("esol", "lipophilicity", "bbbp")) -> dict[str, Any]:
+    """Cross-split mean out-of-range descriptor statistics on the scaffold manifests.
+
+    This is the quantity quoted in Additional file 1 ("Across all ten scaffold
+    splits ..."): for every saved scaffold manifest, count the descriptors whose
+    test values fall outside the training range and the fraction of test
+    molecules affected by at least one such descriptor.
+    """
+    print("\n" + "=" * 70)
+    print("🔬 E2.4: Out-of-range descriptor means across all saved scaffold splits")
+    print("=" * 70)
+
+    manifest_file = DATA_DIR / "dataset_manifest.json"
+    with open(manifest_file, "r") as f:
+        manifest = json.load(f)
+
+    out: dict[str, Any] = {}
+    for dataset_name in datasets:
+        meta = manifest[dataset_name]
+        df_clean = pd.read_csv(REPO_ROOT / meta["clean_csv"])
+        smiles_col = meta.get("smiles_col", "smiles")
+        if smiles_col not in df_clean.columns:
+            smiles_col = "mol" if "mol" in df_clean.columns else "smiles"
+        X_raw, feature_names = extract_rdkit_2d_descriptors(df_clean[smiles_col].tolist())
+        X_clean = np.nan_to_num(X_raw, nan=0.0, posinf=1e4, neginf=-1e4)
+
+        per_split = []
+        for key, entry in sorted(meta["splits"].items(), key=lambda kv: int(kv[0].split("_")[1])):
+            seed = int(key.split("_")[1])
+            if seed not in STUDY_SEEDS:
+                continue
+            sfile = REPO_ROOT / entry["split_file"]
+            if not sfile.exists():
+                continue
+            with open(sfile, "r") as f:
+                split = json.load(f)
+            X_tr, X_te = X_clean[split["train"]], X_clean[split["test"]]
+            is_ood = (X_te < X_tr.min(axis=0) - 1e-6) | (X_te > X_tr.max(axis=0) + 1e-6)
+            n_desc = int(np.sum(is_ood.sum(axis=0) > 0))
+            per_split.append({
+                "seed": seed,
+                "n_test": len(X_te),
+                "n_ood_descriptors": n_desc,
+                "pct_ood_descriptors": 100.0 * n_desc / len(feature_names),
+                "pct_mols_affected": 100.0 * float(np.mean(np.any(is_ood, axis=1))),
+            })
+
+        def mean_sd(field: str) -> dict[str, float]:
+            vals = [r[field] for r in per_split]
+            return {"mean": float(np.mean(vals)), "sd": float(np.std(vals))}
+
+        out[dataset_name] = {
+            "n_splits": len(per_split),
+            "n_descriptors": len(feature_names),
+            "n_ood_descriptors": mean_sd("n_ood_descriptors"),
+            "pct_ood_descriptors": mean_sd("pct_ood_descriptors"),
+            "pct_mols_affected": mean_sd("pct_mols_affected"),
+            "per_split": per_split,
+        }
+        print(f"{dataset_name}: {len(per_split)} splits, "
+              f"{out[dataset_name]['n_ood_descriptors']['mean']:.1f} "
+              f"+/- {out[dataset_name]['n_ood_descriptors']['sd']:.1f} out-of-range descriptors, "
+              f"{out[dataset_name]['pct_mols_affected']['mean']:.1f} "
+              f"+/- {out[dataset_name]['pct_mols_affected']['sd']:.1f}% test molecules affected")
+    return out
+
 
 def analyze_scaffold_vs_random(dataset_name: str = "esol") -> dict[str, Any]:
     print("\n" + "=" * 70)
@@ -355,12 +430,14 @@ def audit_dataset_hygiene() -> dict[str, Any]:
 
 def main():
     bbbp_analysis = analyze_bbbp_splits()
+    ood_means = analyze_scaffold_ood_means()
     scaffold_shift_esol = analyze_scaffold_vs_random("esol")
     scaffold_shift_lipo = analyze_scaffold_vs_random("lipophilicity")
     hygiene_audit = audit_dataset_hygiene()
 
     full_case_study = {
         "bbbp_hard_split_analysis": bbbp_analysis,
+        "scaffold_ood_means": ood_means,
         "scaffold_vs_random_shift": {
             "esol": scaffold_shift_esol,
             "lipophilicity": scaffold_shift_lipo,

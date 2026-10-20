@@ -1,5 +1,5 @@
 \begin{table}[H]
-\caption{Framework-recommended top-$K$ subsets versus random $K$-subsets (ten draws per split, averaged) and versus the full 210-descriptor pool, with a Random Forest downstream. $\bar\Delta$ is the mean paired difference, recommended minus the comparator, so a negative value in panel (a) and a positive value in panel (b) mean that the recommended subset scores worse than the comparator (RMSE for ESOL and FreeSolv; AUROC for BBBP). $p_{\mathrm{H}}$ is Holm-adjusted within each dataset across the eight comparisons of the two panels ($m=8$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. Recommended subsets beat random subsets of the same size at every budget on the two regression tasks and at $K=5$ on BBBP; against the full pool the only corrected differences are ESOL at $K=5$ and $K=10$, where the recommended subset is worse. Random subsets average ten draws per split, so those differences carry the draw noise of the comparator.}\label{tab:rec-random}
+\caption{Framework-recommended top-$K$ subsets versus random $K$-subsets (ten draws per split, averaged) and versus the full 210-descriptor pool, with a Random Forest downstream. All entries are paired on the same 10 splits. $\bar\Delta$ is the mean paired difference, recommended minus the comparator, so a negative value in panel (a) and a positive value in panel (b) mean that the recommended subset scores worse than the comparator (RMSE for ESOL and FreeSolv; AUROC for BBBP). $p_{\mathrm{H}}$ is Holm-adjusted within each dataset across the eight comparisons of the two panels ($m=8$); $^{*}p_{\mathrm{H}}<0.05$, $^{**}p_{\mathrm{H}}<0.01$. Against random subsets of the same size, the recommended subsets score significantly better at ESOL $K=5$, ESOL $K=10$, ESOL $K=20$, ESOL $K=50$, FreeSolv $K=5$, FreeSolv $K=10$, FreeSolv $K=20$, and BBBP $K=5$ and nowhere worse; the remaining 4 of the 12 dataset-budget cells do not separate. Against the full 210-descriptor pool, the corrected differences are nowhere favourable and unfavourable at ESOL $K=5$ and ESOL $K=10$, leaving 10 of 12 cells inconclusive. Random subsets average ten draws per split, so differences against them carry the draw noise of the comparator.}\label{tab:rec-random}
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
 \textbf{(a) Recommended versus random subsets}\par\smallskip
@@ -7,20 +7,20 @@
 \toprule
 Dataset & $K$ & $\bar\Delta$ & Corrected 95\% interval & $p_{\mathrm{H}}$ & Wins of recommended \\
 \midrule
-ESOL & 5 & $-0.813$ & $[-0.908,-0.718]$ & $<0.001^{**}$ & 5/5 \\
- & 10 & $-0.453$ & $[-0.573,-0.333]$ & $0.003^{**}$ & 5/5 \\
- & 20 & $-0.246$ & $[-0.383,-0.110]$ & $0.022^{*}$ & 5/5 \\
- & 50 & $-0.127$ & $[-0.152,-0.102]$ & $0.001^{**}$ & 5/5 \\
+ESOL & 5 & $-0.745$ & $[-0.894,-0.596]$ & $<0.001^{**}$ & 10/10 \\
+ & 10 & $-0.419$ & $[-0.526,-0.313]$ & $<0.001^{**}$ & 10/10 \\
+ & 20 & $-0.204$ & $[-0.307,-0.102]$ & $0.006^{**}$ & 10/10 \\
+ & 50 & $-0.116$ & $[-0.165,-0.068]$ & $0.002^{**}$ & 10/10 \\
 \midrule
-FreeSolv & 5 & $-1.601$ & $[-2.011,-1.190]$ & $0.003^{**}$ & 5/5 \\
- & 10 & $-1.000$ & $[-1.335,-0.666]$ & $0.008^{**}$ & 5/5 \\
- & 20 & $-0.637$ & $[-1.070,-0.204]$ & $0.090$ & 5/5 \\
- & 50 & $-0.322$ & $[-0.682,0.038]$ & $0.339$ & 5/5 \\
+FreeSolv & 5 & $-1.546$ & $[-1.924,-1.169]$ & $<0.001^{**}$ & 10/10 \\
+ & 10 & $-1.009$ & $[-1.223,-0.794]$ & $<0.001^{**}$ & 10/10 \\
+ & 20 & $-0.567$ & $[-0.785,-0.350]$ & $0.001^{**}$ & 10/10 \\
+ & 50 & $-0.300$ & $[-0.515,-0.084]$ & $0.059$ & 10/10 \\
 \midrule
-BBBP & 5 & $+0.121$ & $[0.081,0.161]$ & $0.009^{**}$ & 5/5 \\
- & 10 & $+0.046$ & $[-0.005,0.097]$ & $0.464$ & 4/5 \\
- & 20 & $+0.011$ & $[-0.022,0.044]$ & $1.000$ & 4/5 \\
- & 50 & $+0.006$ & $[-0.007,0.019]$ & $1.000$ & 3/5 \\
+BBBP & 5 & $+0.096$ & $[0.039,0.152]$ & $0.032^{*}$ & 10/10 \\
+ & 10 & $+0.043$ & $[0.007,0.078]$ & $0.140$ & 8/10 \\
+ & 20 & $+0.015$ & $[-0.006,0.036]$ & $0.551$ & 8/10 \\
+ & 50 & $+0.004$ & $[-0.005,0.014]$ & $0.671$ & 4/10 \\
 \bottomrule
 \end{tabular}
 
@@ -29,20 +29,20 @@ BBBP & 5 & $+0.121$ & $[0.081,0.161]$ & $0.009^{**}$ & 5/5 \\
 \toprule
 Dataset & $K$ & $\bar\Delta$ & Corrected 95\% interval & $p_{\mathrm{H}}$ & Wins of recommended \\
 \midrule
-ESOL & 5 & $+0.052$ & $[0.030,0.074]$ & $0.014^{*}$ & 0/5 \\
- & 10 & $+0.059$ & $[0.032,0.086]$ & $0.015^{*}$ & 0/5 \\
- & 20 & $+0.035$ & $[0.005,0.064]$ & $0.060$ & 0/5 \\
- & 50 & $-0.001$ & $[-0.015,0.013]$ & $0.842$ & 3/5 \\
+ESOL & 5 & $+0.063$ & $[0.031,0.094]$ & $0.006^{**}$ & 0/10 \\
+ & 10 & $+0.080$ & $[0.048,0.111]$ & $0.002^{**}$ & 0/10 \\
+ & 20 & $+0.055$ & $[0.002,0.107]$ & $0.088$ & 0/10 \\
+ & 50 & $+0.010$ & $[-0.016,0.036]$ & $0.389$ & 5/10 \\
 \midrule
-FreeSolv & 5 & $+0.358$ & $[-0.089,0.806]$ & $0.339$ & 1/5 \\
- & 10 & $+0.181$ & $[-0.162,0.524]$ & $0.435$ & 1/5 \\
- & 20 & $+0.113$ & $[-0.019,0.245]$ & $0.339$ & 0/5 \\
- & 50 & $-0.026$ & $[-0.150,0.097]$ & $0.583$ & 2/5 \\
+FreeSolv & 5 & $+0.321$ & $[0.062,0.580]$ & $0.082$ & 1/10 \\
+ & 10 & $+0.151$ & $[-0.022,0.324]$ & $0.238$ & 2/10 \\
+ & 20 & $+0.092$ & $[-0.042,0.227]$ & $0.310$ & 2/10 \\
+ & 50 & $-0.019$ & $[-0.097,0.058]$ & $0.584$ & 5/10 \\
 \midrule
-BBBP & 5 & $-0.031$ & $[-0.068,0.005]$ & $0.465$ & 1/5 \\
- & 10 & $-0.019$ & $[-0.061,0.022]$ & $1.000$ & 1/5 \\
- & 20 & $-0.008$ & $[-0.035,0.020]$ & $1.000$ & 1/5 \\
- & 50 & $+0.001$ & $[-0.016,0.018]$ & $1.000$ & 2/5 \\
+BBBP & 5 & $-0.048$ & $[-0.084,-0.012]$ & $0.097$ & 1/10 \\
+ & 10 & $-0.023$ & $[-0.050,0.003]$ & $0.376$ & 2/10 \\
+ & 20 & $-0.009$ & $[-0.023,0.006]$ & $0.629$ & 2/10 \\
+ & 50 & $-0.001$ & $[-0.010,0.007]$ & $0.766$ & 3/10 \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -27,6 +27,8 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
+from benchmarks._descriptor_contract import select_contract_columns
+from benchmarks._seeds import add_seed_argument, resolve_seeds
 
 torch.set_float32_matmul_precision("medium")
 
@@ -49,7 +51,7 @@ def build_chemprop_mpnn(
     return models.MPNN(message_passing=mp, agg=agg, predictor=ffn, batch_norm=True)
 
 def run_bbbp_sensitivity_chemprop(
-    seeds: list[int] = [1, 2, 3, 4, 5],
+    seeds: list[int] | None = None,
     d_h: int = 300,
     depth: int = 3,
     max_epochs: int = 50,
@@ -59,10 +61,12 @@ def run_bbbp_sensitivity_chemprop(
     csv_path = DATA_DIR / "bbbp_sensitivity_clean.csv"
     df = pd.read_csv(csv_path)
 
+    seed_list = resolve_seeds(seeds)
+
     smiles = df["smiles"].astype(str).tolist()
     raw_targets = df["p_np"].values.astype(np.float32)
 
-    desc_matrix, desc_names = extract_rdkit_2d_descriptors(smiles)
+    desc_matrix, desc_names = select_contract_columns(*extract_rdkit_2d_descriptors(smiles))
     desc_matrix = np.nan_to_num(desc_matrix, nan=0.0, posinf=3.0, neginf=-3.0)
 
     results: dict[str, list[dict[str, Any]]] = {
@@ -70,7 +74,7 @@ def run_bbbp_sensitivity_chemprop(
         "chemprop_hybrid": [],
     }
 
-    for seed in seeds:
+    for seed in seed_list:
         split_file = SPLITS_DIR / f"bbbp_sensitivity_seed_{seed}.json"
         with open(split_file) as f:
             sp = json.load(f)
@@ -191,6 +195,7 @@ def run_bbbp_sensitivity_chemprop(
                 "dataset": "bbbp_sensitivity",
                 "chemprop_version": "2.3.1",
                 "primary_metric": "roc_auc",
+                "seeds": seed_list,
                 "summary": summary,
                 "raw_results": results,
             },
@@ -203,4 +208,7 @@ def run_bbbp_sensitivity_chemprop(
     return summary
 
 if __name__ == "__main__":
-    run_bbbp_sensitivity_chemprop()
+    parser = argparse.ArgumentParser(description="Chemprop v2.3.1 BBBP duplicate-controlled sensitivity study")
+    add_seed_argument(parser)
+    args = parser.parse_args()
+    run_bbbp_sensitivity_chemprop(seeds=args.seeds)

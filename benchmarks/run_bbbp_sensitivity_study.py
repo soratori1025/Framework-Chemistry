@@ -27,6 +27,7 @@ if str(REPO_ROOT) not in sys.path:
 from chemistry_framework.data.graph import BatchMolGraph, mol_to_graph
 from chemistry_framework.encoders.gnn import DMPNNEncoder
 from chemistry_framework.features.pharmacophore import extract_rdkit_2d_descriptors
+from benchmarks._seeds import add_seed_argument, resolve_seeds
 
 DATA_DIR = REPO_ROOT / "data" / "moleculenet"
 SPLITS_DIR = REPO_ROOT / "benchmarks" / "splits" / "bbbp_sensitivity"
@@ -173,7 +174,7 @@ def train_and_eval(
         pr = 0.0
     return {"roc_auc": roc, "auprc": pr}
 
-def create_sensitivity_dataset_and_splits() -> tuple[pd.DataFrame, list[dict[str, list[int]]]]:
+def create_sensitivity_dataset_and_splits(seeds: list[int]) -> tuple[pd.DataFrame, list[dict[str, list[int]]]]:
     df_raw = pd.read_csv(DATA_DIR / "bbbp_clean.csv")
     inchikeys = []
     for s in df_raw["smiles"]:
@@ -209,7 +210,7 @@ def create_sensitivity_dataset_and_splits() -> tuple[pd.DataFrame, list[dict[str
     fractions = (0.8, 0.1, 0.1)
     splits = []
 
-    for seed in range(1, 6):
+    for seed in seeds:
         rng = np.random.default_rng(seed)
         shuffled = [g for g in group_values]
         rng.shuffle(shuffled)
@@ -235,7 +236,12 @@ def main():
     print("🔬 BBBP Duplicate-Controlled Sensitivity Study (P0 Benchmark)")
     print("=" * 70)
 
-    df_dedup, splits = create_sensitivity_dataset_and_splits()
+    parser = argparse.ArgumentParser(description="BBBP duplicate-controlled sensitivity study")
+    add_seed_argument(parser)
+    args = parser.parse_args()
+    seed_list = resolve_seeds(args.seeds)
+
+    df_dedup, splits = create_sensitivity_dataset_and_splits(seed_list)
     print(f"Sensitivity dataset size: {len(df_dedup)} molecules")
     print(f"Class distribution: {df_dedup['p_np'].value_counts().to_dict()}")
 
@@ -259,8 +265,8 @@ def main():
     batch_size = 64
 
     for split_idx, sp in enumerate(splits):
-        seed = split_idx + 1
-        print(f"\n--- Split {seed}/5 ---")
+        seed = seed_list[split_idx]
+        print(f"\n--- Split {seed}/{len(seed_list)} ---")
         train_idx = sp["train"]
         val_idx = sp["val"]
         test_idx = sp["test"]
@@ -315,14 +321,24 @@ def main():
 
     out_file = RESULTS_DIR / "bbbp_sensitivity_study.json"
     with open(out_file, "w") as f:
-        json.dump({"summary": summary, "raw_results": results}, f, indent=2)
+        json.dump(
+            {
+                "dataset": "bbbp_sensitivity",
+                "primary_metric": "roc_auc",
+                "seeds": seed_list,
+                "summary": summary,
+                "raw_results": results,
+            },
+            f,
+            indent=2,
+        )
 
     print("\n" + "=" * 70)
     print("📊 BBBP Sensitivity Benchmark Summary (AUROC):")
     for m, s in summary.items():
         print(f"  - {m:<22}: {s['mean']:.4f} ± {s['std']:.4f} (per-split: {[round(v, 4) for v in s['per_split']]})")
     diff = np.array(summary["framework_hybrid"]["per_split"]) - np.array(summary["framework_graph_only"]["per_split"])
-    print(f"  ★ Hybrid minus Graph-only Δ: {np.mean(diff):+.4f} ± {np.std(diff):.4f} (wins: {np.sum(diff > 0)}/5)")
+    print(f"  ★ Hybrid minus Graph-only Δ: {np.mean(diff):+.4f} ± {np.std(diff):.4f} (wins: {np.sum(diff > 0)}/{len(seed_list)})")
     print(f"Saved results to: {out_file}")
 
 if __name__ == "__main__":

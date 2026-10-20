@@ -1,0 +1,40 @@
+\section{Conclusions}\label{sec:conclusion}
+
+We stated three hypotheses in the Background so that they could fail. The results answer them as follows.
+
+\emph{H1, evidence is usable: partly supported.} Training-partition evidence is informative enough to act on. With a Random Forest downstream, descriptor subsets chosen from the scorecard beat random subsets of the same size at every budget tested, and the difference survived correction in 8 of the 12 dataset--budget cells. It is not, however, decisive: the recommender ranked fourth of six selectors overall (mean rank 3.65), and the correlation with the target is a weak guide to which descriptors a model will actually use. The honest description is a stable and inspectable way to generate a compact candidate set, not a claim that the selected descriptors are the important ones.
+
+\emph{H2, the descriptor effect transfers: supported on four of five endpoints.} Adding 210 descriptors to a graph model changed the error by a similar amount in two independently written implementations on FreeSolv ($+12.1\%$ and $+19.7\%$), Lipophilicity ($+0.1\%$ and $+0.2\%$), BBBP ($+0.2\%$ and $+1.3\%$) and BACE ($-2.1\%$ and $-1.9\%$). ESOL was the exception, and it is instructive: Chemprop's descriptor hybrid was better than graph-only on nine of ten splits and failed on one (test RMSE 2.76), so the ten-split mean reversed the sign of the effect. A mean without its per-split record would have produced a confident and wrong statement about chemistry. The practical consequence is that a descriptor effect should be reported per split before it is interpreted.
+
+\emph{H3, route and role matter but are endpoint-specific: supported.} The best route differed by endpoint: the full 210-descriptor hybrid on ESOL and FreeSolv, the recommender on Lipophilicity, graph-only on BACE, and no distinguishable winner on BBBP. The best predictive role also changed with the endpoint. Crucially, no compact route separated from a random subset of the same size once paired uncertainty was included, so the route is worth testing but should not be sold as a source of large gains on these endpoints.
+
+Taken together, the three answers point to a practical rule for a chemist: test the alternatives on your own splits, keep the per-split record, and treat a mean that hides one divergent run as unfinished. \framework{} exists to make that rule cheap to follow. An experiment is a plain-text configuration file; the five commands behind it read the data, audit it, validate the configuration, fit the declared representations, and write a record containing the configuration hash, split seed, predictions and checkpoint. A colleague or referee can therefore see which choice was made, on which evidence, and what happened when it was changed. The framework does not promise a universally better predictor, and the results here give no reason to expect one.
+
+\section*{Supplementary information}
+\textbf{Additional file 1:} Supplementary results (PDF). Dataset overview, target statistics, and provenance (Table S1a); fixed hyperparameters (Table S1b); scorecard diagnostics and split-level shift analysis (Table S2); recommended versus random subsets and the full pool (Table S3); six-selector results, stability and budget curves (Tables S4 and S4b, Figure S1); internal and external paired comparisons (Tables S5--S6); harmonised descriptor-routing results and their paired comparisons (Tables S7 and S7b); training-seed variance (Table S8); secondary metrics and per-split scores (Tables S9--S10); advisor case study on Caco-2 (Table S11); duplicate-controlled BBBP sensitivity analysis and its paired comparisons (Tables S12 and S12b); checkpoint protocol and result-file inventory (Table S13).
+
+\section*{Abbreviations}
+AP, average precision; AUROC, area under the receiver operating characteristic curve; BACE-1, beta-secretase 1; BBBP, blood--brain barrier penetration; CI, confidence interval; D-MPNN, directed message-passing neural network; ECFP, extended-connectivity fingerprint; GIN, graph isomorphism network; GNN, graph neural network; InChI, International Chemical Identifier; InChIKey, International Chemical Identifier key; LARS, least angle regression; MAE, mean absolute error; MI, mutual information; MI-Pearson, selector using mutual-information relevance and Pearson-correlation redundancy; MLP, multilayer perceptron; QSPR, quantitative structure--property relationship; QSAR, quantitative structure--activity relationship; RF, Random Forest; RMSE, root mean squared error; SD, standard deviation; SMILES, simplified molecular input line entry system; TDC, Therapeutics Data Commons.
+
+\section*{Declarations}
+
+\subsection*{Ethics approval and consent to participate}
+Not applicable.
+
+\subsection*{Consent for publication}
+Not applicable.
+
+\subsection*{Availability of data and materials}
+The datasets are publicly available through MoleculeNet \cite{wu2018moleculenet}. Split manifests, configuration files, per-split results, the scripts that produced them, and the manuscript sources are available at \url{https://github.com/soratori1025/Framework-Chemistry} (branch \texttt{paper1}, archived for this submission). Documentation, including a quick-start guide and the configuration reference, is maintained in the same repository.
+
+\subsection*{Competing interests}
+The authors declare that they have no competing interests.
+
+\subsection*{Funding}
+Not applicable.
+
+\subsection*{Authors' contributions}
+D.K.N.N. conceived the framework, developed the software, performed the experiments, analysed the results, and wrote the manuscript.
+
+\subsection*{Acknowledgements}
+The author thanks the developers of RDKit, PyTorch, scikit-learn, DeepChem, and Chemprop.

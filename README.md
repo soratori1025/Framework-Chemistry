@@ -12,12 +12,12 @@ Designed as an extensible platform for molecular property prediction, ADMET prof
 
 ## 📄 Bài báo & tái lập kết quả (Publication & reproducibility)
 
-Kho mã này là bản phát hành đi kèm bài báo **"Evidence-Guided Molecular Property Modelling with a Configuration-Driven Modular Framework"** (gửi *Journal of Cheminformatics*):
+Kho mã này là bản phát hành đi kèm bài báo **"Evidence before prediction: a configuration-driven framework for testing how molecular descriptors shape property models"** (gửi *Journal of Cheminformatics*):
 
-- 📦 **Kết quả bài báo**: kết quả thô theo từng split nằm trong [`benchmarks/results/`](benchmarks/results/); split manifests (20 seed/tập) ở [`benchmarks/splits/`](benchmarks/splits/).
+- 📦 **Kết quả bài báo**: kết quả thô theo từng split nằm trong [`benchmarks/results/`](benchmarks/results/); split manifests (20 seed/tập, bài báo dùng seed 1–10) ở [`benchmarks/splits/`](benchmarks/splits/).
 - 🔬 **Cách tái lập từng bảng/hình**: [`REPRODUCING.md`](REPRODUCING.md) — mỗi artifact đều có lệnh tương ứng, kèm cảnh báo về phiên bản RDKit cần pin.
 - 📈 **Thống kê so sánh cặp**: `python benchmarks/paper_statistics.py` (hiệu chỉnh Nadeau–Bengio + Holm–Bonferroni) và `python benchmarks/generate_si_tables.py`.
-- ✅ **Kiểm chứng**: `python benchmarks/validate_paper_statistics.py` đối chiếu kết quả lưu trữ với 30 giá trị đã công bố.
+- ✅ **Kiểm chứng**: `python benchmarks/validate_paper_statistics.py` tái tính 2.024 đại lượng từ điểm per-split (184 so sánh cặp) và kiểm tra tính nhất quán.
 - 📚 **Trích dẫn / DOI**: [`CITATION.cff`](CITATION.cff); các bước tạo DOI Zenodo: [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
 
 ---
@@ -455,7 +455,7 @@ Chi tiết trực quan hoá xem tại [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 🧪 Chạy Kiểm thử (Unit Tests)
 
-Bộ kiểm thử bao gồm 60 bài test tự động bao phủ toàn bộ các module:
+Bộ kiểm thử bao gồm 61 bài test tự động bao phủ toàn bộ các module:
 ```bash
 pytest tests/ -v
 ```
