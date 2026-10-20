@@ -433,15 +433,15 @@ print("Kết quả kiểm thử:", metrics)
 
 ## 📊 Kết quả Benchmark của bài báo
 
-Kết quả chính được báo cáo trong bài báo, tính trên **5 split Bemis–Murcko scaffold** (FreeSolv dùng split ngẫu nhiên như trong bài). Giá trị là mean ± độ lệch chuẩn (population SD) trên test set, tổng hợp từ [`benchmarks/results/`](benchmarks/results/):
+Kết quả chính được báo cáo trong bài báo, tính trên **10 split Bemis–Murcko scaffold** (FreeSolv dùng split ngẫu nhiên như trong bài). Giá trị là mean ± độ lệch chuẩn (population SD) trên test set, tổng hợp từ [`benchmarks/results/`](benchmarks/results/):
 
 | Tập dữ liệu | Nhiệm vụ | $N$ | Metric | Graph only | Graph + 210 descriptors | RDKit 2D + RF |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **ESOL** | Độ tan $\log S$ (hồi quy) | 1,128 | RMSE ↓ | $0.687\pm0.066$ | $\mathbf{0.629\pm0.042}$ | $0.682\pm0.039$ |
-| **FreeSolv** | Năng lượng hydrate hoá (hồi quy) | 642 | RMSE ↓ | $1.177\pm0.110$ | $\mathbf{1.042\pm0.210}$ | $1.111\pm0.156$ |
-| **Lipophilicity** | $\log D$ (hồi quy) | 4,200 | RMSE ↓ | $\mathbf{0.585\pm0.035}$ | $0.603\pm0.020$ | $0.750\pm0.011$ |
-| **BBBP** | Thấm qua hàng rào máu–não (phân loại) | 2,039 | AUROC ↑ | $\mathbf{0.917\pm0.010}$ | $0.909\pm0.024$ | $0.911\pm0.022$ |
-| **BACE** | Ức chế BACE-1 (phân loại) | 1,513 | AUROC ↑ | $0.788\pm0.027$ | $0.799\pm0.021$ | $\mathbf{0.828\pm0.019}$ |
+| **ESOL** | Độ tan $\log S$ (hồi quy) | 1,128 | RMSE ↓ | $0.637\pm0.092$ | $\mathbf{0.623\pm0.054}$ | $0.637\pm0.061$ |
+| **FreeSolv** | Năng lượng hydrate hoá (hồi quy) | 642 | RMSE ↓ | $1.251\pm0.153$ | $1.099\pm0.249$ | $1.089\pm0.175$ |
+| **Lipophilicity** | $\log D$ (hồi quy) | 4,200 | RMSE ↓ | $0.607\pm0.031$ | $\mathbf{0.606\pm0.019}$ | $0.748\pm0.025$ |
+| **BBBP** | Thấm qua hàng rào máu–não (phân loại) | 2,039 | AUROC ↑ | $0.914\pm0.034$ | $\mathbf{0.916\pm0.029}$ | $0.912\pm0.019$ |
+| **BACE** | Ức chế BACE-1 (phân loại) | 1,513 | AUROC ↑ | $\mathbf{0.802\pm0.038}$ | $0.785\pm0.033$ | $0.822\pm0.027$ |
 
 Kết luận chính: **không có biểu diễn hay cấu hình nào thắng tuyệt đối** trên cả 5 tập; việc thêm 210 descriptor RDKit đổi điểm theo *cùng một hướng* ở cả framework lẫn Chemprop v2.3.1. Sau hiệu chỉnh Nadeau–Bengio + Holm, chỉ so sánh Hybrid vs RDKit 2D+RF trên Lipophilicity còn kết luận được ("conclusive"); các khác biệt còn lại là **inconclusive** (xem `benchmarks/results/paper_statistics.json`).
 
